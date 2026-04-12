@@ -11,25 +11,22 @@ export default async function handler(req, res) {
   };
 
   try {
-    // 1단계: live-detail로 실제 chatChannelId 가져오기
     const detailRes = await fetch(
       `https://api.chzzk.naver.com/service/v3/channels/${CHANNEL_ID}/live-detail`,
       { headers }
     );
     const detail = await detailRes.json();
     
-    // 응답 그대로 반환 (디버깅용)
     const chatChannelId = detail?.content?.chatChannelId;
     const status = detail?.content?.status;
-    
+    const liveTitle = detail?.content?.liveTitle || '';
+
     if (!chatChannelId) {
       return res.status(200).json({ 
-        debug: detail,
-        content: { status: 'CLOSED', chatChannelId: CHANNEL_ID, accessToken: '' }
+        content: { status: 'CLOSED', chatChannelId: CHANNEL_ID, accessToken: '', liveTitle: '' }
       });
     }
 
-    // 2단계: 실제 chatChannelId로 accessToken 가져오기
     const tokenRes = await fetch(
       `https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`,
       { headers }
@@ -38,7 +35,7 @@ export default async function handler(req, res) {
     const accessToken = tokenData?.content?.accessToken || '';
 
     res.status(200).json({
-      content: { status, chatChannelId, accessToken }
+      content: { status, chatChannelId, accessToken, liveTitle }
     });
 
   } catch (e) {
