@@ -733,6 +733,23 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
 </div>
 
+
+<!-- 클립 플레이어 모달 -->
+<div class="modal-bg" id="clip-player-modal" onclick="if(event.target===this)closeModal('clip-player-modal')">
+  <div style="background:var(--surface);border-radius:var(--radius);width:min(860px,95vw);padding:16px;position:relative">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div id="clip-player-title" style="font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 80px)"></div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <a id="clip-player-link" href="#" target="_blank" rel="noopener" style="font-size:11px;color:var(--accent);font-weight:600;text-decoration:none;padding:4px 8px;border:1px solid var(--accent);border-radius:12px">치지직 ↗</a>
+        <button onclick="closeModal('clip-player-modal')" style="background:var(--surface2);border:none;cursor:pointer;padding:4px 10px;border-radius:12px;color:var(--text2);font-size:13px">✕</button>
+      </div>
+    </div>
+    <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden">
+      <iframe id="clip-player-iframe" src="" allowfullscreen style="width:100%;height:100%;border:none"></iframe>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getFirestore,collection,addDoc,deleteDoc,updateDoc,doc,query,orderBy,getDocs,serverTimestamp,writeBatch } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
