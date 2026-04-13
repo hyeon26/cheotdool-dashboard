@@ -415,16 +415,19 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
   <!-- 클립 -->
   <div id="tab-clips" class="tab-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div style="font-size:18px;font-weight:800;color:var(--text)">🎞 클립 모음</div>
-      <a href="https://chzzk.naver.com/48070f8882233efa7aee52519fee8fca/clips?filterType=ALL&orderType=RECENT" target="_blank" rel="noopener" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600">치지직에서 보기 →</a>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px">
+      <div style="font-size:18px;font-weight:800;color:var(--text);flex-shrink:0">🎞 클립 모음</div>
+      <div style="position:relative;flex:1;max-width:320px">
+        <input id="clip-search" type="text" placeholder="클립 검색..." oninput="filterClips(this.value)"
+          style="width:100%;padding:8px 36px 8px 14px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--text);font-size:13px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'"/>
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none">🔍</span>
+      </div>
     </div>
     <div id="clips-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
       <div class="loading">클립 불러오는 중...</div>
     </div>
-    <div style="text-align:center;margin-top:24px">
-      <button id="clips-more-btn" onclick="loadMoreClips()" style="display:none;background:var(--surface);border:1.5px solid var(--border2);color:var(--text);padding:10px 32px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">더 보기 ↓</button>
-    </div>
+    <div id="clips-sentinel" style="height:40px;margin-top:8px"></div>
   </div>
 
   <!-- 컨텐츠 -->
@@ -1582,7 +1585,6 @@ async function loadClips(reset=false){
   if(clipsLoading) return;
   clipsLoading = true;
   const grid = document.getElementById('clips-grid');
-  const moreBtn = document.getElementById('clips-more-btn');
   if(reset){ grid.innerHTML='<div class="loading" style="display:flex;align-items:center;gap:10px"><div class="spin" style="width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite"></div> 클립 불러오는 중...</div>'; allClipsCache=[]; clipsPage=0; }
 
   try {
@@ -1599,25 +1601,7 @@ async function loadClips(reset=false){
     if(reset) grid.innerHTML='';
     if(!allClipsCache.length){ grid.innerHTML='<div class="empty-state">클립이 없어요</div>'; moreBtn.style.display='none'; return; }
 
-    allClipsCache.slice(clipsPage*20, clipsPage*20+20).forEach(item=>{
-      const card = document.createElement('div');
-      card.className='clip-card'; card.style.cursor='pointer';
-      const dateStr = item.type==='chzzk'
-        ? formatClipDate(item.date)
-        : formatClipDate(new Date(item.date).toISOString().replace('T',' ').slice(0,19));
-
-      if(item.type==='chzzk'){
-        card.onclick=()=>openClipPlayer(item.id,item.title,'chzzk');
-        const thumb=item.thumb?`<img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);font-size:28px">🎞</div>`;
-        card.innerHTML=`<div class="clip-thumb-wrap">${thumb}<div class="clip-duration">${formatDuration(item.duration)}</div><img src="data:image/png;base64,${item._chzzk_b64}" style="position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div><div class="clip-info"><div class="clip-title">${item.title}</div><div class="clip-meta"><span class="clip-views">👁 ${formatViews(item.views)}</span><span>${dateStr}</span></div></div>`;
-      } else {
-        card.onclick=()=>openClipPlayer(item.id,item.title,'youtube');
-        card.innerHTML=`<div class="clip-thumb-wrap"><img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy"><img src="data:image/png;base64,${item._yt_b64}" style="position:absolute;top:6px;left:6px;width:30px;height:auto;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div><div class="clip-info"><div class="clip-title">${item.title}</div><div class="clip-meta"><span class="clip-views">👁 ${formatViews(item.views)}</span><span>${dateStr}</span></div></div>`;
-      }
-      grid.appendChild(card);
-    });
-    clipsPage++;
-    moreBtn.style.display=clipsPage*20<allClipsCache.length?'inline-block':'none';
+    renderClipsPage();
   } catch(e){
     if(reset) grid.innerHTML='<div class="empty-state">불러오기 실패: '+e.message+'</div>';
   } finally {
@@ -1625,6 +1609,60 @@ async function loadClips(reset=false){
   }
 }
 window.loadMoreClips = () => loadClips(false);
+
+// 클립 검색 필터
+let clipsFilter = '';
+window.filterClips = (q) => {
+  clipsFilter = q.toLowerCase().trim();
+  const grid = document.getElementById('clips-grid');
+  grid.innerHTML = '';
+  clipsPage = 0;
+  const filtered = clipsFilter
+    ? allClipsCache.filter(item => item.title.toLowerCase().includes(clipsFilter))
+    : allClipsCache;
+  clipsFilteredCache = filtered;
+  renderClipsPage();
+};
+
+let clipsFilteredCache = [];
+function renderClipsPage(){
+  const grid = document.getElementById('clips-grid');
+  const src = clipsFilter ? clipsFilteredCache : allClipsCache;
+  if(!src.length){ grid.innerHTML='<div class="empty-state">검색 결과가 없어요</div>'; return; }
+  src.slice(clipsPage*20, clipsPage*20+20).forEach(item=>{
+    const card = document.createElement('div');
+    card.className='clip-card'; card.style.cursor='pointer';
+    const dateStr = item.type==='chzzk'
+      ? formatClipDate(item.date)
+      : formatClipDate(new Date(item.date).toISOString().replace('T',' ').slice(0,19));
+    if(item.type==='chzzk'){
+      card.onclick=()=>openClipPlayer(item.id,item.title,'chzzk');
+      const thumb=item.thumb?`<img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);font-size:28px">🎞</div>`;
+      card.innerHTML=`<div class="clip-thumb-wrap">${thumb}<div class="clip-duration">${formatDuration(item.duration)}</div><img src="data:image/png;base64,${item._chzzk_b64}" style="position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div><div class="clip-info"><div class="clip-title">${item.title}</div><div class="clip-meta"><span class="clip-views">👁 ${formatViews(item.views)}</span><span>${dateStr}</span></div></div>`;
+    } else {
+      card.onclick=()=>openClipPlayer(item.id,item.title,'youtube');
+      card.innerHTML=`<div class="clip-thumb-wrap"><img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy"><img src="data:image/png;base64,${item._yt_b64}" style="position:absolute;top:6px;left:6px;width:30px;height:auto;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div><div class="clip-info"><div class="clip-title">${item.title}</div><div class="clip-meta"><span class="clip-views">👁 ${formatViews(item.views)}</span><span>${dateStr}</span></div></div>`;
+    }
+    grid.appendChild(card);
+  });
+  clipsPage++;
+}
+
+// 무한스크롤 IntersectionObserver
+const clipsObserver = new IntersectionObserver((entries) => {
+  if(entries[0].isIntersecting && !clipsLoading && allClipsCache.length > 0){
+    const src = clipsFilter ? clipsFilteredCache : allClipsCache;
+    if(clipsPage*20 < src.length) renderClipsPage();
+  }
+}, { rootMargin: '200px' });
+
+// sentinel 감시 시작
+document.addEventListener('DOMContentLoaded', () => {
+  const sentinel = document.getElementById('clips-sentinel');
+  if(sentinel) clipsObserver.observe(sentinel);
+});
+
+
 window.openClipPlayer = (id, title, type='chzzk') => {
   document.getElementById('clip-player-title').textContent = title;
   if(type === 'youtube'){
