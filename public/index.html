@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
 // URL 해시로 초기 탭 설정
 (function(){
-  const hash = location.hash.replace('#','') || 'schedule';
+  const hash = location.pathname.replace('/','') || 'schedule';
   const tabs = ['schedule','content','tools','chat','clips'];
   const target = tabs.includes(hash) ? hash : 'schedule';
   const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
@@ -1804,7 +1804,7 @@ window.openClipPlayer = (id, title, type='chzzk') => {
 // ── 탭/모달/기타 ──
 window.switchTab=(name,el)=>{
   if(name==='clips'){ allClipsCache=[]; clipsPage=0; loadClips(true); }
-  history.replaceState(null, '', '#' + name);
+  history.replaceState(null, '', '/' + name);
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
@@ -1822,7 +1822,7 @@ renderCal();
 
 // URL 해시로 초기 탭 설정
 (function(){
-  const hash = location.hash.replace('#','') || 'schedule';
+  const hash = location.pathname.replace('/','') || 'schedule';
   const tabs = ['schedule','content','tools','chat','clips'];
   const target = tabs.includes(hash) ? hash : 'schedule';
   const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
