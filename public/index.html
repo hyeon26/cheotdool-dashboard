@@ -164,6 +164,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 /* ── 모바일 반응형 ── */
 @media (max-width: 768px) {
   /* 달력 모바일 - 전체 너비 사용 */
+  .excel-upload-pc { display: none !important; }
+  .excel-upload-mobile { display: flex !important; }
   .schedule-grid { grid-template-columns: 1fr !important; }
   .cal-card { padding: 12px 8px; }
   .cal-cells { grid-template-columns: repeat(7, 1fr); }
@@ -271,7 +273,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           <div class="cal-cells" id="cal-cells"></div>
         </div>
         <input type="file" id="excel-file-input" class="excel-upload" accept=".xlsx,.xls" multiple/>
-        <label class="excel-upload-bar" for="excel-file-input" style="margin-top:14px">
+        <label class="excel-upload-bar excel-upload-pc" for="excel-file-input" style="margin-top:14px">
           <span class="excel-upload-bar-icon">📊</span>
           <span class="excel-upload-bar-text">엑셀 업로드 (여러 파일 가능)</span>
           <span class="excel-badge" id="excel-badge">선택</span>
@@ -281,6 +283,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
         <div class="up-title">다가오는 일정</div>
         <div id="upcoming-list"><div class="loading">불러오는 중...</div></div>
       </div>
+      <!-- 모바일 전용 엑셀 업로드 -->
+      <label class="excel-upload-bar excel-upload-mobile" for="excel-file-input" style="display:none;margin-top:0;width:100%;box-sizing:border-box;justify-content:center">
+        <span class="excel-upload-bar-icon">📊</span>
+        <span class="excel-upload-bar-text">엑셀 업로드 (여러 파일 가능)</span>
+        <span class="excel-badge">선택</span>
+      </label>
     </div>
   </div>
 
