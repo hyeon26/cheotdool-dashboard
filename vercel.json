@@ -4,5 +4,12 @@
       "path": "/api/cache-clips",
       "schedule": "0 19 * * *"
     }
+  ],
+  "rewrites": [
+    { "source": "/schedule", "destination": "/index.html" },
+    { "source": "/content", "destination": "/index.html" },
+    { "source": "/tools", "destination": "/index.html" },
+    { "source": "/chat", "destination": "/index.html" },
+    { "source": "/clips", "destination": "/index.html" }
   ]
 }
