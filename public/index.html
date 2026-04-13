@@ -1647,19 +1647,18 @@ function renderClipsPage(){
   clipsPage++;
 }
 
-// 무한스크롤 IntersectionObserver
-const clipsObserver = new IntersectionObserver((entries) => {
-  if(entries[0].isIntersecting && !clipsLoading && allClipsCache.length > 0){
+// 무한스크롤 - scroll 이벤트로 sentinel 감지
+function checkClipsSentinel(){
+  if(clipsLoading || allClipsCache.length === 0) return;
+  const sentinel = document.getElementById('clips-sentinel');
+  if(!sentinel) return;
+  const rect = sentinel.getBoundingClientRect();
+  if(rect.top < window.innerHeight + 300){
     const src = clipsFilter ? clipsFilteredCache : allClipsCache;
     if(clipsPage*20 < src.length) renderClipsPage();
   }
-}, { rootMargin: '200px' });
-
-// sentinel 감시 시작
-document.addEventListener('DOMContentLoaded', () => {
-  const sentinel = document.getElementById('clips-sentinel');
-  if(sentinel) clipsObserver.observe(sentinel);
-});
+}
+window.addEventListener('scroll', checkClipsSentinel, { passive: true });
 
 
 window.openClipPlayer = (id, title, type='chzzk') => {
