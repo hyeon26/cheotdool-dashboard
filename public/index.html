@@ -162,6 +162,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .empty-icon{font-size:36px;margin-bottom:12px;opacity:.4}
 
 /* ── 모바일 반응형 ── */
+@media (max-width: 640px) {
+  .btn-full { display: none; }
+  .chat-btn { font-size: 11px !important; padding: 5px 8px !important; }
+}
+
 @media (max-width: 768px) {
   /* 달력 모바일 - 전체 너비 사용 */
   .excel-upload-pc { display: none !important; }
@@ -319,16 +324,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <!-- 1열: 채팅 로그 -->
       <div style="display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          <div style="display:flex;align-items:center;gap:10px">
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
             <div id="chat-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--text3);flex-shrink:0"></div>
-            <span id="chat-status-text" style="font-size:14px;font-weight:600;color:var(--text2)">연결 안됨</span>
+            <span id="chat-status-text" style="font-size:13px;font-weight:600;color:var(--text2);white-space:nowrap">연결 안됨</span>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button id="chat-connect-btn" onclick="chatConnect()" class="chat-btn" style="background:var(--accent);color:#fff">🔌 채팅 수집 시작</button>
-            <button id="chat-disconnect-btn" onclick="chatDisconnect()" class="chat-btn" style="display:none;background:#ef4444;color:#fff">⏹ 중지</button>
-            <button onclick="chatDownload()" class="chat-btn" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border2)">⬇ TXT 저장</button>
-            <button onclick="chatClear()" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2)">🗑 초기화</button>
-            <button onclick="openSessionHistory()" class="chat-btn" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border2)">📋 기록 보기</button>
+          <div style="display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch">
+            <button id="chat-connect-btn" onclick="chatConnect()" class="chat-btn" style="background:var(--accent);color:#fff;white-space:nowrap;flex-shrink:0">🔌 <span class="btn-full">채팅 수집 </span>시작</button>
+            <button id="chat-disconnect-btn" onclick="chatDisconnect()" class="chat-btn" style="display:none;background:#ef4444;color:#fff;white-space:nowrap;flex-shrink:0">⏹ 중지</button>
+            <button onclick="chatDownload()" class="chat-btn" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border2);white-space:nowrap;flex-shrink:0">⬇ <span class="btn-full">TXT </span>저장</button>
+            <button onclick="chatClear()" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2);white-space:nowrap;flex-shrink:0">🗑 초기화</button>
+            <button onclick="openSessionHistory()" class="chat-btn" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border2);white-space:nowrap;flex-shrink:0">📋 기록</button>
           </div>
         </div>
         <div id="chat-log" style="height:calc(100vh - 230px);min-height:400px;overflow-y:auto;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;font-size:13px;font-family:monospace;line-height:1.7">
