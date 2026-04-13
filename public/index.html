@@ -1454,34 +1454,50 @@ window.loadSession=async(sessionId)=>{
   chatClear();
   const log=document.getElementById('chat-log'); log.innerHTML='';
   try {
-    const snap=await getDocs(query(collection(db,`chatSessions/${sessionId}/chats`),orderBy('createdAt','asc')));
-    snap.docs.forEach(d=>{
-      const {time,nick,msg}=d.data();
+    const [cSnap, dSnap] = await Promise.all([
+      getDocs(query(collection(db,`chatSessions/${sessionId}/chats`),orderBy('createdAt','asc'))),
+      getDocs(query(collection(db,`chatSessions/${sessionId}/donations`),orderBy('createdAt','asc')))
+    ]);
+
+    // 채팅+도네 합쳐서 시간순 정렬
+    const allItems = [
+      ...cSnap.docs.map(d=>({...d.data(), _type:'chat', _ts: d.data().createdAt?.toMillis?.()||0})),
+      ...dSnap.docs.map(d=>({...d.data(), _type:'donation', _ts: d.data().createdAt?.toMillis?.()||0}))
+    ].sort((a,b)=>a._ts-b._ts);
+
+    allItems.forEach(item=>{
       const div=document.createElement('div');
-      div.style.cssText='padding:2px 0;border-bottom:0.5px solid var(--border)';
-      div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:var(--accent);font-weight:600">${nick}</span><span style="color:var(--text2)">: ${msg}</span>`;
+      if(item._type==='chat'){
+        const {time,nick,msg}=item;
+        div.style.cssText='padding:2px 0;border-bottom:0.5px solid var(--border)';
+        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:var(--accent);font-weight:600">${nick}</span><span style="color:var(--text2)">: ${msg}</span>`;
+        chatLogs.push({time,nick,msg});
+        userMap[nick]=(userMap[nick]||0)+1;
+      } else {
+        const {nick,amt,type,time,message}=item;
+        if(type==='mission'){ if(nick==='익명의 후원자') missionAnon+=amt; else missionMap[nick]=(missionMap[nick]||0)+amt; }
+        else { if(nick==='익명의 후원자') doneAnon+=amt; else doneMap[nick]=(doneMap[nick]||0)+amt; }
+        div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${type==='mission'?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
+        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${type==='mission'?'🎯':'💰'} ${nick}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${type==='mission'?'미션':'후원'}!</span>${message?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${message}</div>`:''}`;
+      }
       log.appendChild(div);
-      chatLogs.push({time,nick,msg});
-      userMap[nick]=(userMap[nick]||0)+1;
     });
+
+    // 참여자 목록 업데이트
     document.getElementById('chat-count').textContent=chatLogs.length;
     document.getElementById('stat-total').textContent=chatLogs.length;
     document.getElementById('stat-users').textContent=Object.keys(userMap).length;
-    // 도네도 불러오기
-    const dSnap=await getDocs(query(collection(db,`chatSessions/${sessionId}/donations`),orderBy('createdAt','asc')));
-    dSnap.docs.forEach(d=>{
-      const {nick,amt,type,time}=d.data();
-      if(type==='mission'){ if(nick==='익명의 후원자') missionAnon+=amt; else missionMap[nick]=(missionMap[nick]||0)+amt; }
-      else { if(nick==='익명의 후원자') doneAnon+=amt; else doneMap[nick]=(doneMap[nick]||0)+amt; }
-      // 로그에도 표시
-      const logEl=document.getElementById('chat-log'), div=document.createElement('div');
-      div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${type==='mission'?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
-      div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${type==='mission'?'🎯':'💰'} ${nick}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${type==='mission'?'미션':'후원'}!</span>`;
-      logEl.appendChild(div);
-    });
+    const sorted=Object.entries(userMap).sort((a,b)=>b[1]-a[1]);
+    document.getElementById('stat-top').innerHTML=sorted.map(([n,c],i)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border)">
+        <span style="font-size:10px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
+        <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${n}</span>
+        <span style="font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">${c}</span>
+      </div>`).join('');
+
     renderDone(); renderMission();
     log.scrollTop=log.scrollHeight;
-    alert(`${snap.docs.length}개 채팅, ${dSnap.docs.length}개 후원 불러왔어요!`);
+    alert(`${cSnap.docs.length}개 채팅, ${dSnap.docs.length}개 후원 불러왔어요!`);
   } catch(e){ alert('불러오기 실패: '+e.message); }
 };
 
