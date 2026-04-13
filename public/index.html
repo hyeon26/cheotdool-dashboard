@@ -34,12 +34,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .logo-icon{width:48px;height:48px;border-radius:13px;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .logo-text{font-size:18px;font-weight:900;letter-spacing:-.3px}
 .logo-sub{font-size:11px;color:var(--text2);margin-top:1px}
-.live-badge{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;padding:7px 16px;border-radius:20px;text-decoration:none;transition:background .3s,color .3s,border-color .3s,opacity .3s;letter-spacing:.2px}
-.live-badge.on{background:var(--red-light);color:#991b1b;border:1px solid var(--red-border)}
-.live-badge.off{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.live-badge{display:flex;align-items:center;text-decoration:none;transition:all .3s .3s;letter-spacing:.2px}
+
+
 .live-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.live-badge.on .live-dot{background:var(--red);animation:blink 1.4s infinite}
-.live-badge.off .live-dot{background:var(--text3)}
+
+
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
 /* 탭 */
@@ -220,6 +220,41 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   #stat-mission-list { max-height: 150px; overflow-y: auto; }
 }
 
+
+/* ON AIR 사인보드 */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  border: 2px solid #111;
+  transition: all .3s;
+  gap: 0;
+}
+.live-badge .live-dot { display: none; }
+#live-text {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding: 5px 14px;
+  border-radius: 4px;
+  font-family: 'Arial Black', sans-serif;
+}
+.live-badge.on #live-text {
+  background: #d00000;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,100,100,0.8);
+  box-shadow: inset 0 0 12px rgba(255,0,0,0.3), 0 0 10px rgba(200,0,0,0.5);
+}
+.live-badge.off #live-text {
+  background: #444;
+  color: #888;
+  text-shadow: none;
+  box-shadow: none;
+}
 </style>
 </head>
 <body>
@@ -235,7 +270,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
   <a id="live-badge" class="live-badge off" href="https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca" target="_blank" rel="noopener">
     <div class="live-dot"></div>
-    <span id="live-text">확인 중...</span>
+    <span id="live-text">ON AIR</span>
   </a>
 </div>
 
@@ -1386,7 +1421,7 @@ setInterval(()=>{
 function updateLiveBadge(isLive, title){
   const badge=document.getElementById('live-badge'), banner=document.getElementById('live-banner');
   badge.className=isLive?'live-badge on':'live-badge off';
-  document.getElementById('live-text').textContent=isLive?'방송 중':'오프라인';
+  document.getElementById('live-text').textContent='ON AIR';
   if(isLive){ banner.classList.add('show'); document.getElementById('banner-text').textContent=title?`🔴 지금 방송 중: ${title}`:'🔴 지금 방송 중입니다!'; }
   else banner.classList.remove('show');
 }
