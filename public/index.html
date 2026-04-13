@@ -1555,6 +1555,7 @@ checkLive(); setInterval(checkLive, 3000);
 
 // ── 클립 탭 ──
 let clipsNextUID = null;
+let clipsYtPageToken = null;
 let clipsLoading = false;
 
 function formatDuration(sec){
@@ -1575,51 +1576,94 @@ async function loadClips(reset=false){
   clipsLoading = true;
   const grid = document.getElementById('clips-grid');
   const moreBtn = document.getElementById('clips-more-btn');
-  if(reset){ grid.innerHTML='<div class="loading">불러오는 중...</div>'; clipsNextUID=null; }
+  if(reset){ grid.innerHTML='<div class="loading">불러오는 중...</div>'; clipsNextUID=null; clipsYtPageToken=null; }
 
   try {
-    // offset은 clipUID 기반 - 처음엔 없고 더보기 누르면 마지막 clipUID 전달
-    const url = clipsNextUID
-      ? `/api/clips?clipUID=${clipsNextUID}`
-      : '/api/clips';
-    const res = await fetch(url);
-    const data = await res.json();
-    const clips = data?.content?.data || [];
-    // 다음 페이지의 첫 clipUID
-    clipsNextUID = data?.content?.page?.next?.clipUID || null;
+    // 치지직 클립과 유튜브 쇼츠 동시 요청
+    const clipUrl = clipsNextUID ? `/api/clips?clipUID=${clipsNextUID}` : '/api/clips';
+    const ytUrl = clipsYtPageToken ? `/api/youtube-shorts?pageToken=${clipsYtPageToken}` : '/api/youtube-shorts';
+
+    const [clipRes, ytRes] = await Promise.all([
+      fetch(clipUrl).then(r=>r.json()),
+      fetch(ytUrl).then(r=>r.json())
+    ]);
+
+    // 치지직 클립 파싱
+    const chzzkClips = (clipRes?.content?.data || []).map(c => ({
+      type: 'chzzk',
+      id: c.clipUID,
+      title: c.clipTitle,
+      thumb: c.thumbnailImageUrl,
+      duration: c.duration,
+      views: c.readCount,
+      date: new Date(c.createdDate.replace(' ','T'))
+    }));
+    clipsNextUID = clipRes?.content?.page?.next?.clipUID || null;
+
+    // 유튜브 쇼츠 파싱
+    const ytShorts = (ytRes?.items || []).map(v => ({
+      type: 'youtube',
+      id: v.id.videoId,
+      title: v.snippet.title,
+      thumb: v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url,
+      duration: null,
+      views: null,
+      date: new Date(v.snippet.publishedAt)
+    }));
+    clipsYtPageToken = ytRes?.nextPageToken || null;
+
+    // 날짜순 합치기
+    const all = [...chzzkClips, ...ytShorts].sort((a,b) => b.date - a.date);
 
     if(reset) grid.innerHTML = '';
-    if(clips.length === 0 && reset){
+    if(all.length === 0 && reset){
       grid.innerHTML = '<div class="empty-state">클립이 없어요</div>';
       moreBtn.style.display = 'none';
       return;
     }
 
-    clips.forEach(clip => {
+    all.forEach(item => {
       const card = document.createElement('div');
       card.className = 'clip-card';
       card.style.cursor = 'pointer';
-      card.onclick = () => openClipPlayer(clip.clipUID, clip.clipTitle);
-      // 썸네일 없으면 (성인 클립 등) 기본 이미지
-      const thumb = clip.thumbnailImageUrl
-        ? `<img src="${clip.thumbnailImageUrl}" alt="${clip.clipTitle}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--text3);font-size:28px\'>🎞</div>'">`
-        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--text3);font-size:28px">🎞</div>`;
-      card.innerHTML = `
-        <div class="clip-thumb-wrap">
-          ${thumb}
-          <div class="clip-duration">${formatDuration(clip.duration)}</div>
-        </div>
-        <div class="clip-info">
-          <div class="clip-title">${clip.clipTitle}</div>
-          <div class="clip-meta">
-            <span class="clip-views">👁 ${formatViews(clip.readCount)}</span>
-            <span>${formatClipDate(clip.createdDate)}</span>
+
+      if(item.type === 'chzzk'){
+        card.onclick = () => openClipPlayer(item.id, item.title, 'chzzk');
+        const thumb = item.thumb
+          ? `<img src="${item.thumb}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy" onerror="this.style.display='none'">`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--text3);font-size:28px">🎞</div>`;
+        card.innerHTML = `
+          <div class="clip-thumb-wrap">
+            ${thumb}
+            <div class="clip-duration">${formatDuration(item.duration)}</div>
+            <div style="position:absolute;top:6px;left:6px;background:rgba(0,176,232,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px">치지직</div>
           </div>
-        </div>`;
+          <div class="clip-info">
+            <div class="clip-title">${item.title}</div>
+            <div class="clip-meta">
+              <span class="clip-views">👁 ${formatViews(item.views)}</span>
+              <span>${formatClipDate(item.date.toISOString())}</span>
+            </div>
+          </div>`;
+      } else {
+        card.onclick = () => openClipPlayer(item.id, item.title, 'youtube');
+        card.innerHTML = `
+          <div class="clip-thumb-wrap">
+            <img src="${item.thumb}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+            <div style="position:absolute;top:6px;left:6px;background:rgba(255,0,0,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px">YouTube</div>
+          </div>
+          <div class="clip-info">
+            <div class="clip-title">${item.title}</div>
+            <div class="clip-meta">
+              <span style="color:var(--text3)">Shorts</span>
+              <span>${formatClipDate(item.date.toISOString())}</span>
+            </div>
+          </div>`;
+      }
       grid.appendChild(card);
     });
 
-    moreBtn.style.display = clipsNextUID ? 'inline-block' : 'none';
+    moreBtn.style.display = (clipsNextUID || clipsYtPageToken) ? 'inline-block' : 'none';
   } catch(e){
     if(reset) grid.innerHTML = '<div class="empty-state">불러오기 실패</div>';
   } finally {
@@ -1627,10 +1671,15 @@ async function loadClips(reset=false){
   }
 }
 window.loadMoreClips = () => loadClips(false);
-window.openClipPlayer = (clipUID, title) => {
+window.openClipPlayer = (id, title, type='chzzk') => {
   document.getElementById('clip-player-title').textContent = title;
-  document.getElementById('clip-player-link').href = `https://chzzk.naver.com/clips/${clipUID}`;
-  document.getElementById('clip-player-iframe').src = `https://chzzk.naver.com/embed/clip/${clipUID}`;
+  if(type === 'youtube'){
+    document.getElementById('clip-player-link').href = `https://www.youtube.com/shorts/${id}`;
+    document.getElementById('clip-player-iframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+  } else {
+    document.getElementById('clip-player-link').href = `https://chzzk.naver.com/clips/${id}`;
+    document.getElementById('clip-player-iframe').src = `https://chzzk.naver.com/embed/clip/${id}`;
+  }
   openModal('clip-player-modal');
 };
 
