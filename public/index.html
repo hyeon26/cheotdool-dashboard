@@ -1318,7 +1318,8 @@ function handleDonation(donation){
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
     const icon = isMission ? '🎯' : '💰';
     const label = isMission ? '미션' : '후원';
-    div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${label}!</span>`;
+    const msg = extras?.donationText || extras?.message || '';
+    div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
     log.appendChild(div); log.scrollTop=log.scrollHeight;
     if(isMission){
       if(!nick || nick==='익명의 후원자') missionAnon+=amt;
@@ -1332,9 +1333,11 @@ function handleDonation(donation){
     // Firebase에 도네/미션 저장
     if(chatSessionId){
       const expireAt = new Date(); expireAt.setDate(expireAt.getDate()+CHAT_TTL_DAYS);
+      const msg = extras?.donationText || extras?.message || '';
       addDoc(collection(db,`chatSessions/${chatSessionId}/donations`),{
         time: new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
         nick: nick||'익명의 후원자', amt, type: isMission?'mission':'donation',
+        message: msg,
         expireAt, createdAt: serverTimestamp()
       }).catch(()=>{});
     }
