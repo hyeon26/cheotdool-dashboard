@@ -1557,6 +1557,8 @@ checkLive(); setInterval(checkLive, 3000);
 let clipsNextUID = null;
 let clipsYtPageToken = null;
 let clipsLoading = false;
+let allClipsCache = [];
+let clipsPage = 0;
 
 function formatDuration(sec){
   const m = Math.floor(sec/60), s = sec%60;
