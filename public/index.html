@@ -1693,7 +1693,7 @@ window.openClipPlayer = (id, title, type='chzzk') => {
 
 // ── 탭/모달/기타 ──
 window.switchTab=(name,el)=>{
-  if(name==='clips' && document.getElementById('clips-grid').children.length<=1) loadClips(true);
+  if(name==='clips'){ allClipsCache=[]; clipsPage=0; loadClips(true); }
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
