@@ -1,1 +1,8 @@
-{}
+{
+  "crons": [
+    {
+      "path": "/api/cache-clips",
+      "schedule": "0 19 * * *"
+    }
+  ]
+}
