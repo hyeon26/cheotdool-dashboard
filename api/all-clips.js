@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       (data?.content?.data || []).forEach(c => chzzkClips.push({
         type: 'chzzk', id: c.clipUID, title: c.clipTitle,
         thumb: c.thumbnailImageUrl, duration: c.duration,
-        views: c.readCount, date: c.createdDate
+        views: c.readCount, date: c.createdDate, adult: c.adult
       }));
       nextUID = data?.content?.page?.next?.clipUID || null;
     } while (nextUID);
