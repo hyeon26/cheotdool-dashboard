@@ -1337,7 +1337,6 @@ function handleDonation(donation){
     // Firebase에 도네/미션 저장
     if(chatSessionId){
       const expireAt = new Date(); expireAt.setDate(expireAt.getDate()+CHAT_TTL_DAYS);
-      const msg = extras?.donationText || extras?.message || '';
       addDoc(collection(db,`chatSessions/${chatSessionId}/donations`),{
         time: new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
         nick: nick||'익명의 후원자', amt, type: isMission?'mission':'donation',
