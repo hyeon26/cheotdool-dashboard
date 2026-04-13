@@ -334,6 +334,21 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   #clips-grid { grid-template-columns: 1fr; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.sort-btn {
+  padding: 5px 10px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.sort-btn:hover { border-color: var(--accent); color: var(--accent); }
+.active-sort { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 </style>
 
 <link rel="icon" type="image/png" href="/logo.png"/>
@@ -417,13 +432,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
   <!-- 클립 -->
   <div id="tab-clips" class="tab-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap">
       <div style="font-size:18px;font-weight:800;color:var(--text);flex-shrink:0">🎞 클립 모음</div>
-      <div style="position:relative;flex:1;max-width:320px">
-        <input id="clip-search" type="text" placeholder="클립 검색..." oninput="filterClips(this.value)"
-          style="width:100%;padding:8px 36px 8px 14px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--text);font-size:13px;outline:none;box-sizing:border-box"
-          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'"/>
-        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none">🔍</span>
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;justify-content:flex-end">
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button onclick="setSortOrder('newest')" id="sort-newest" class="sort-btn active-sort">최신순</button>
+          <button onclick="setSortOrder('oldest')" id="sort-oldest" class="sort-btn">오래된순</button>
+          <button onclick="setSortOrder('popular')" id="sort-popular" class="sort-btn">인기순</button>
+        </div>
+        <div style="position:relative;flex:1;max-width:280px;min-width:120px">
+          <input id="clip-search" type="text" placeholder="클립 검색..." oninput="filterClips(this.value)"
+            style="width:100%;padding:8px 36px 8px 14px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--text);font-size:13px;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'"/>
+          <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none">🔍</span>
+        </div>
       </div>
     </div>
     <div id="clips-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
@@ -1611,18 +1633,43 @@ async function loadClips(reset=false){
 }
 window.loadMoreClips = () => loadClips(false);
 
+// 정렬
+let currentSort = 'newest';
+
+window.setSortOrder = (order) => {
+  currentSort = order;
+  // 버튼 활성화
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active-sort'));
+  document.getElementById('sort-' + order).classList.add('active-sort');
+  // 재렌더링
+  applyFilterAndSort();
+};
+
+function getSortedCache(arr) {
+  const copy = [...arr];
+  if (currentSort === 'newest') copy.sort((a,b) => new Date(b.date) - new Date(a.date));
+  else if (currentSort === 'oldest') copy.sort((a,b) => new Date(a.date) - new Date(b.date));
+  else if (currentSort === 'popular') copy.sort((a,b) => (b.views||0) - (a.views||0));
+  return copy;
+}
+
+function applyFilterAndSort() {
+  const grid = document.getElementById('clips-grid');
+  grid.innerHTML = '';
+  clipsPage = 0;
+  const q = clipsFilter.toLowerCase().trim();
+  const filtered = q ? allClipsCache.filter(x => x.title.toLowerCase().includes(q)) : allClipsCache;
+  clipsFilteredCache = getSortedCache(filtered);
+  renderClipsPage();
+}
+
+
+
 // 클립 검색 필터
 let clipsFilter = '';
 window.filterClips = (q) => {
   clipsFilter = q.toLowerCase().trim();
-  const grid = document.getElementById('clips-grid');
-  grid.innerHTML = '';
-  clipsPage = 0;
-  const filtered = clipsFilter
-    ? allClipsCache.filter(item => item.title.toLowerCase().includes(clipsFilter))
-    : allClipsCache;
-  clipsFilteredCache = filtered;
-  renderClipsPage();
+  applyFilterAndSort();
 };
 
 let clipsFilteredCache = [];
@@ -1656,7 +1703,7 @@ function checkClipsSentinel(){
   if(!sentinel) return;
   const rect = sentinel.getBoundingClientRect();
   if(rect.top < window.innerHeight + 300){
-    const src = clipsFilter ? clipsFilteredCache : allClipsCache;
+    const src = clipsFilteredCache.length > 0 ? clipsFilteredCache : allClipsCache;
     if(clipsPage*20 < src.length) renderClipsPage();
   }
 }
