@@ -1311,6 +1311,7 @@ function handleDonation(donation){
   try {
     const profile = typeof donation.profile==='string' ? JSON.parse(donation.profile) : donation.profile;
     const extras  = typeof donation.extras==='string'  ? JSON.parse(donation.extras)  : donation.extras;
+    console.log('도네 extras 전체:', JSON.stringify(extras));
     const nick = profile?.nickname;
     const amt  = Number(extras?.payAmount || 0);
     if(!amt) return;
