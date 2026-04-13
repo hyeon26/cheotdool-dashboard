@@ -1,3 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>첫째와둘째</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f7ff;--surface:#fff;--surface2:#f0effe;
+  --text:#1a1033;--text2:#7b6fa0;--text3:#a99fcc;
+  --accent:#5B4AE8;--accent2:#7c6ef0;--accent-light:#ede9fe;
+  --red:#ef4444;--red-light:#fff1f1;--red-border:#fecaca;
+  --border:rgba(91,74,232,.1);--border2:rgba(91,74,232,.2);
+  --shadow:0 2px 12px rgba(91,74,232,.08);--shadow-md:0 4px 24px rgba(91,74,232,.13);
+  --radius:14px;--radius-sm:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0f0d1a;--surface:#1a1730;--surface2:#221f38;
+    --text:#ede9fe;--text2:#9d8fcc;--text3:#5c4f88;
+    --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+    --shadow:0 2px 12px rgba(0,0,0,.3);--shadow-md:0 4px 24px rgba(0,0,0,.4);
+    --accent-light:#1e1a38;--red-light:#2a1010;--red-border:#7f1d1d;
+  }
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* 헤더 */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);width:100%}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-icon{width:48px;height:48px;border-radius:13px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.logo-text{font-size:18px;font-weight:900;letter-spacing:-.3px}
+.logo-sub{font-size:11px;color:var(--text2);margin-top:1px}
 .live-badge{display:flex;align-items:center;text-decoration:none;transition:all .3s .3s;letter-spacing:.2px}
 
 
@@ -1628,14 +1664,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.openClipPlayer = (id, title, type='chzzk') => {
   document.getElementById('clip-player-title').textContent = title;
-  const link = document.getElementById('clip-player-link');
   if(type === 'youtube'){
-    link.href = `https://www.youtube.com/shorts/${id}`;
-    link.textContent = 'YouTube ↗';
     document.getElementById('clip-player-iframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
   } else {
-    link.href = `https://chzzk.naver.com/clips/${id}`;
-    link.textContent = '치지직 ↗';
     document.getElementById('clip-player-iframe').src = `https://chzzk.naver.com/embed/clip/${id}`;
   }
   openModal('clip-player-modal');
