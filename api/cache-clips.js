@@ -1,16 +1,10 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, doc, setDoc, collection, writeBatch } from 'firebase/firestore';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw",
-  projectId: "firstandsecond-b449c",
-};
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
   const API_KEY = process.env.YOUTUBE_API_KEY;
+  const FIREBASE_PROJECT = 'firstandsecond-b449c';
+  const FIREBASE_API_KEY = 'AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw';
 
   const headers = {
     'User-Agent': 'Mozilla/5.0',
@@ -19,10 +13,6 @@ export default async function handler(req, res) {
   };
 
   try {
-    // Firebase 초기화
-    const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
     // 치지직 전체 클립 수집
     const chzzkClips = [];
     let nextUID = null;
@@ -46,7 +36,7 @@ export default async function handler(req, res) {
     const ytChannelId = chRes?.items?.[0]?.id;
 
     // 유튜브 쇼츠 수집
-    const ytShorts = [];
+    const ytRaw = [];
     let pageToken = null;
     if (ytChannelId) {
       do {
@@ -60,54 +50,89 @@ export default async function handler(req, res) {
         url.searchParams.set('key', API_KEY);
         if (pageToken) url.searchParams.set('pageToken', pageToken);
         const data = await fetch(url.toString()).then(r => r.json());
-        ytShorts.push(...(data?.items || []).map(v => ({ id: v.id.videoId, snippet: v.snippet })));
+        ytRaw.push(...(data?.items || []));
         pageToken = data?.nextPageToken || null;
       } while (pageToken);
     }
 
     // 유튜브 조회수
     const viewsMap = {};
-    for (let i = 0; i < ytShorts.length; i += 50) {
-      const batch = ytShorts.slice(i, i + 50).map(v => v.id).join(',');
+    for (let i = 0; i < ytRaw.length; i += 50) {
+      const ids = ytRaw.slice(i, i + 50).map(v => v.id.videoId).join(',');
       const statsData = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${batch}&key=${API_KEY}`
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids}&key=${API_KEY}`
       ).then(r => r.json());
       (statsData?.items || []).forEach(v => {
         viewsMap[v.id] = parseInt(v.statistics?.viewCount || 0);
       });
     }
 
-    const ytItems = ytShorts.map(v => ({
-      type: 'youtube', id: v.id, title: v.snippet.title,
+    const ytItems = ytRaw.map(v => ({
+      type: 'youtube', id: v.id.videoId, title: v.snippet.title,
       thumb: v.snippet.thumbnails?.medium?.url || null,
-      duration: null, views: viewsMap[v.id] || 0,
+      duration: null, views: viewsMap[v.id.videoId] || 0,
       date: v.snippet.publishedAt, adult: false
     }));
 
     // 날짜순 정렬
     const all = [...chzzkClips, ...ytItems].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // Firebase에 저장 - 메타 문서 + 50개씩 청크
+    // Firestore REST API로 저장
     const CHUNK_SIZE = 500;
+    const chunks = [];
     for (let i = 0; i < all.length; i += CHUNK_SIZE) {
-      const batch = writeBatch(db);
-      const chunk = all.slice(i, i + CHUNK_SIZE);
-      const chunkIndex = Math.floor(i / CHUNK_SIZE);
-      batch.set(doc(db, 'clipCache', `chunk_${chunkIndex}`), {
-        clips: chunk,
-        updatedAt: new Date().toISOString()
-      });
-      await batch.commit();
+      chunks.push(all.slice(i, i + CHUNK_SIZE));
     }
 
-    // 메타 정보 저장
-    await setDoc(doc(db, 'clipCache', 'meta'), {
-      total: all.length,
-      chunks: Math.ceil(all.length / CHUNK_SIZE),
-      updatedAt: new Date().toISOString()
+    const firestoreBase = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
+
+    // 청크 저장
+    for (let i = 0; i < chunks.length; i++) {
+      const docData = {
+        fields: {
+          clips: {
+            arrayValue: {
+              values: chunks[i].map(clip => ({
+                mapValue: {
+                  fields: {
+                    type: { stringValue: clip.type },
+                    id: { stringValue: clip.id },
+                    title: { stringValue: clip.title },
+                    thumb: clip.thumb ? { stringValue: clip.thumb } : { nullValue: null },
+                    duration: clip.duration != null ? { integerValue: clip.duration } : { nullValue: null },
+                    views: { integerValue: clip.views || 0 },
+                    date: { stringValue: clip.date },
+                    adult: { booleanValue: clip.adult || false }
+                  }
+                }
+              }))
+            }
+          },
+          updatedAt: { stringValue: new Date().toISOString() }
+        }
+      };
+
+      await fetch(`${firestoreBase}/clipCache/chunk_${i}?key=${FIREBASE_API_KEY}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(docData)
+      });
+    }
+
+    // 메타 저장
+    await fetch(`${firestoreBase}/clipCache/meta?key=${FIREBASE_API_KEY}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fields: {
+          total: { integerValue: all.length },
+          chunks: { integerValue: chunks.length },
+          updatedAt: { stringValue: new Date().toISOString() }
+        }
+      })
     });
 
-    res.status(200).json({ success: true, total: all.length });
+    res.status(200).json({ success: true, total: all.length, chunks: chunks.length });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
