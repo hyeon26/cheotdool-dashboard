@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>첫째와둘째</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+// URL 해시로 초기 탭 설정
+(function(){
+  const hash = location.hash.replace('#','') || 'schedule';
+  const tabs = ['schedule','content','tools','chat','clips'];
+  const target = tabs.includes(hash) ? hash : 'schedule';
+  const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
+  if(el) switchTab(target, el);
+})();
+
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1794,6 +1804,7 @@ window.openClipPlayer = (id, title, type='chzzk') => {
 // ── 탭/모달/기타 ──
 window.switchTab=(name,el)=>{
   if(name==='clips'){ allClipsCache=[]; clipsPage=0; loadClips(true); }
+  history.replaceState(null, '', '#' + name);
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
@@ -1808,6 +1819,16 @@ document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e
 window.fmtTime=(el)=>{ let v=el.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); el.value=v; };
 
 renderCal();
+
+// URL 해시로 초기 탭 설정
+(function(){
+  const hash = location.hash.replace('#','') || 'schedule';
+  const tabs = ['schedule','content','tools','chat','clips'];
+  const target = tabs.includes(hash) ? hash : 'schedule';
+  const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
+  if(el) switchTab(target, el);
+})();
+
 </script>
 </body>
 </html>
