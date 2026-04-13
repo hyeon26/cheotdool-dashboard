@@ -744,8 +744,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div id="clip-player-title" style="font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 80px)"></div>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <a id="clip-player-link" href="#" target="_blank" rel="noopener" style="font-size:11px;color:var(--accent);font-weight:600;text-decoration:none;padding:4px 8px;border:1px solid var(--accent);border-radius:12px">치지직 ↗</a>
-        <button onclick="closeModal('clip-player-modal')" style="background:var(--surface2);border:none;cursor:pointer;padding:4px 10px;border-radius:12px;color:var(--text2);font-size:13px">✕</button>
+<button onclick="closeModal('clip-player-modal')" style="background:var(--surface2);border:none;cursor:pointer;padding:4px 10px;border-radius:12px;color:var(--text2);font-size:13px">✕</button>
       </div>
     </div>
     <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden">
@@ -1665,11 +1664,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.openClipPlayer = (id, title, type='chzzk') => {
   document.getElementById('clip-player-title').textContent = title;
+  const link = document.getElementById('clip-player-link');
   if(type === 'youtube'){
-    document.getElementById('clip-player-link').href = `https://www.youtube.com/shorts/${id}`;
+    link.href = `https://www.youtube.com/shorts/${id}`;
+    link.textContent = 'YouTube ↗';
     document.getElementById('clip-player-iframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
   } else {
-    document.getElementById('clip-player-link').href = `https://chzzk.naver.com/clips/${id}`;
+    link.href = `https://chzzk.naver.com/clips/${id}`;
+    link.textContent = '치지직 ↗';
     document.getElementById('clip-player-iframe').src = `https://chzzk.naver.com/embed/clip/${id}`;
   }
   openModal('clip-player-modal');
