@@ -26,7 +26,7 @@
     --accent-light:#1e1a38;--red-light:#2a1010;--red-border:#7f1d1d;
   }
 }
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
 /* 헤더 */
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);width:100%}
@@ -496,7 +496,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
             <button onclick="openSessionHistory()" class="chat-btn" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border2);white-space:nowrap;flex-shrink:0">📋 기록</button>
           </div>
         </div>
-        <div id="chat-log" style="height:calc(100vh - 230px);min-height:400px;overflow-y:auto;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;font-size:13px;font-family:monospace;line-height:1.7">
+        <div id="chat-log" style="height:calc(100vh - 230px);min-height:400px;overflow-y:auto;overflow-x:hidden;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;font-size:13px;font-family:monospace;line-height:1.7;word-break:break-all">
           <div style="color:var(--text3);text-align:center;padding:40px">채팅 수집 시작 버튼을 눌러주세요</div>
         </div>
         <div style="font-size:11px;color:var(--text3)">총 <span id="chat-count">0</span>개 채팅 수집됨</div>
