@@ -164,9 +164,7 @@ body::before{
     <div id="options-wrap"></div>
     <div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn btn-ghost" onclick="addOption()" style="flex:1">＋ 항목 추가</button>
-      <button class="btn btn-primary" onclick="applyOptions()">✓ 적용</button>
     </div>
-    <div style="font-size:11px;color:var(--text3);margin-top:10px">항목을 비워두면 숫자만 집계해요 · 1인 1표 (중복 방지)</div>
   </div>
 
   <!-- 연결 상태 + 시작/중지 -->
@@ -231,7 +229,7 @@ function renderOptionInputs(){
   wrap.innerHTML = optionRows.map((o,i) => `
     <div class="option-row">
       <div class="option-num">${i+1}</div>
-      <input class="option-input" id="opt-${o.id}" value="${o.label}" placeholder="항목 이름 (비워두면 번호만 표시)"/>
+      <input class="option-input" id="opt-${o.id}" value="${o.label}" placeholder="항목 이름"/>
       ${optionRows.length > 1 ? `<button class="btn-remove-opt" onclick="removeOption(${o.id})">×</button>` : '<div style="width:28px"></div>'}
     </div>
   `).join('');
@@ -425,7 +423,7 @@ function renderResults(){
   // 정렬 (득표 많은 순)
   const sorted = keys.slice().sort((a,b)=>(voteCounts[b]||0)-(voteCounts[a]||0));
   const maxVotes = voteCounts[sorted[0]] || 0;
-  if(!selectedOptionKey || !keys.includes(selectedOptionKey)) selectedOptionKey = sorted[0] || keys[0];
+  if(selectedOptionKey && !keys.includes(selectedOptionKey)) selectedOptionKey = '';
 
   const voteItemsHtml = keys.map((k,i) => {
     const cnt = voteCounts[k] || 0;
@@ -462,11 +460,16 @@ function renderSelectedVoters(){
   const titleEl = document.getElementById('voter-list-title');
   const listEl = document.getElementById('voter-list');
   if(!titleEl || !listEl) return;
+  if(!selectedOptionKey){
+    titleEl.textContent = '항목을 클릭해 닉네임을 확인하세요';
+    listEl.innerHTML = `<span style="color:var(--text3)">선택된 항목 없음</span>`;
+    return;
+  }
   const label = voteOptions[selectedOptionKey] || `${selectedOptionKey}번`;
   const voters = Object.keys(voterMap).filter(nick => voterMap[nick] === selectedOptionKey);
-  titleEl.textContent = `${selectedOptionKey}번 ${label} 투표 닉네임`;
+  titleEl.textContent = `${selectedOptionKey}번 ${label}`;
   if(!voters.length){
-    listEl.innerHTML = `<span style="color:var(--text3)">아직 투표한 닉네임이 없습니다.</span>`;
+    listEl.innerHTML = `<span style="color:var(--text3)">투표 인원 없음</span>`;
     return;
   }
   listEl.innerHTML = voters.map(nick => `<span class="voter-chip">${nick}</span>`).join('');
@@ -481,6 +484,8 @@ function resetVote(){
   updateStats();
   renderResults();
   toggleVotePanels();
+  wsAutoReconnect = true;
+  if(!wsConnected) wsConnect();
   showToast('🗑 초기화 완료');
 }
 
@@ -501,7 +506,7 @@ function setWsStatus(state){
     toggleVotePanels();
   } else {
     wsConnected = false;
-    dot.className='ws-dot'; dot.style.background='';
+    dot.className='ws-dot'; dot.style.background=''; 
     label.textContent='연결 안됨';
   }
 }
