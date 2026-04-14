@@ -11,5 +11,6 @@
     { "source": "/tools", "destination": "/index.html" },
     { "source": "/chat", "destination": "/index.html" },
     { "source": "/clips", "destination": "/index.html" }
+    { "source": "/vote", "destination": "/vote.html" }
   ]
 }
