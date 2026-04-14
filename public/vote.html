@@ -352,38 +352,39 @@ function resetVote(){
 // 각 용지의 고정 위치 기억 (시드 기반)
 function seededRand(seed){ return ((seed*9301+49297)%233280)/233280; }
 
+// 용지 위치 캐시 (한 번 정해지면 고정)
+const PILE_STAGE_W = 800; // 고정 너비 기준 (offsetWidth 대신)
+const VISIBLE_PILE = 60;
+
+function addPilePaper(idx){
+  const wrap=document.getElementById('pile-wrap');
+  if(!wrap) return;
+  const ww=wrap.parentElement?.offsetWidth||PILE_STAGE_W;
+  const p=document.createElement('div');
+  p.className='pile-paper';
+  p.id=`pile-${idx}`;
+  const rx=seededRand(idx*3+1);
+  const rAngle=seededRand(idx*7+2);
+  const xPos=Math.floor(rx*Math.max(ww-70,100))+8;
+  const angle=(rAngle*28)-14;
+  const stackY=Math.min(idx,VISIBLE_PILE)*1.5;
+  p.style.cssText=`left:${xPos}px;bottom:${stackY}px;transform:rotate(${angle}deg);`;
+  wrap.appendChild(p);
+  // 오래된 용지 제거 (DOM 가볍게)
+  while(wrap.children.length>VISIBLE_PILE){
+    wrap.removeChild(wrap.firstChild);
+  }
+}
+
 function renderPile(){
   const wrap=document.getElementById('pile-wrap');
   if(!wrap) return;
-  wrap.innerHTML='';
-  if(pileCount===0) return;
-
-  const ww=wrap.offsetWidth||400;
-  const VISIBLE=40;
-  const show=Math.min(pileCount,VISIBLE);
-  // 최근 VISIBLE장만 표시 (오래된 건 뒤에 숨음)
-  const startIdx=Math.max(0,pileCount-VISIBLE);
-
-  for(let i=0;i<show;i++){
-    const idx=startIdx+i; // 전체 중 몇 번째 용지인지
-    const p=document.createElement('div');
-    p.className='pile-paper';
-
-    // 각 용지마다 고정된 랜덤 위치/각도 (시드로 재현 가능)
-    const rx=seededRand(idx*3+1);   // 0~1
-    const rAngle=seededRand(idx*7+2); // 0~1
-    const rH=seededRand(idx*13+3);   // 높이 변동
-
-    const xPos=Math.floor(rx*(ww-60))+8; // 바닥 좌우 랜덤
-    const angle=(rAngle*28)-14;           // -14~14도
-
-    // 같은 x 근처 용지끼리 쌓임 높이 계산
-    // 단순하게: 뒤에 올수록 약간 위에 (겹쳐 보이게)
-    const localStack=i*1.8;
-
-    p.style.cssText=`left:${xPos}px;bottom:${localStack}px;transform:rotate(${angle}deg);`;
-    wrap.appendChild(p);
-  }
+  // 초기화(reset) 시에만 전체 클리어
+  if(pileCount===0){ wrap.innerHTML=''; return; }
+  // 이미 있는 용지는 그대로, 새 용지만 추가
+  const existing=wrap.children.length;
+  const need=Math.min(pileCount, VISIBLE_PILE);
+  if(existing<need) addPilePaper(pileCount-1);
 }
 
 /* ── 투표용지 큐 처리 (몰림 대응) ── */
@@ -599,36 +600,44 @@ function startRaffle(){
   const total=raffleVoters.length;
   const winnerIdx=Math.floor(Math.random()*total);
 
-  // 점점 빨라지다가 느려지면서 당첨자에서 멈춤
-  const totalFrames=60;
-  let frame=0;
-  let currentIdx=0;
-  let lastLit=-1;
+  // ── 미리 전체 경로 계산 ──
+  // 최소 2바퀴 + 당첨자 위치까지 정확히 맞춤
+  const minLaps=2;
+  const fastFrames=total*minLaps;  // 빠른 구간 (고정 30ms)
+  const slowSteps=Math.max(total, 8); // 느린 구간 (점점 느려짐)
 
+  // 빠른 구간: 0 → fastFrames-1 순환
+  // 느린 구간: fastFrames 이후, winnerIdx에 딱 맞게 경로 구성
+  // 느린 구간 시작 인덱스 = fastFrames % total
+  const slowStart=fastFrames%total;
+  // slowStart → winnerIdx까지 몇 칸?
+  const toWinner=(winnerIdx-slowStart+total)%total||total;
+  const totalFrames=fastFrames+toWinner;
+
+  // 딜레이 계산: 빠른 구간 고정 30ms, 느린 구간 선형 증가
   function getDelay(f){
-    // 앞부분 빠르게, 뒷부분 점점 느리게
-    if(f<totalFrames*0.6) return 30;
-    const t=(f-totalFrames*0.6)/(totalFrames*0.4);
-    return 30+Math.pow(t,2)*320;
+    if(f<fastFrames) return 30;
+    const t=(f-fastFrames)/toWinner; // 0~1
+    return 50+t*t*500; // 50ms → 550ms
   }
 
+  let frame=0, lastLit=-1;
+
   function step(){
-    // 이전 칩 끄기
     if(lastLit>=0) chips[lastLit].classList.remove('lit');
 
-    // 마지막 프레임이면 당첨자에서 멈춤
     if(frame>=totalFrames){
+      // 당첨자에서 멈춤
       chips[winnerIdx].classList.add('lit');
       chips[winnerIdx].scrollIntoView({block:'nearest',behavior:'smooth'});
-      setTimeout(()=>showWinner(raffleVoters[winnerIdx]), 600);
+      setTimeout(()=>showWinner(raffleVoters[winnerIdx]), 700);
       btn.disabled=false;
       return;
     }
 
-    // 현재 칩 켜기
-    currentIdx=frame%total;
-    chips[currentIdx].classList.add('lit');
-    lastLit=currentIdx;
+    const idx=frame%total;
+    chips[idx].classList.add('lit');
+    lastLit=idx;
     frame++;
     setTimeout(step, getDelay(frame));
   }
