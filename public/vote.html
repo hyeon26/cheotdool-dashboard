@@ -197,7 +197,7 @@ body::before{
 
   <!-- 결과 -->
   <div class="card" id="results-card">
-    <div class="card-title">📊 실시간 결과</div>
+    <div class="card-title">결과</div>
     <div id="results"></div>
   </div>
 
@@ -461,8 +461,8 @@ function renderSelectedVoters(){
   const listEl = document.getElementById('voter-list');
   if(!titleEl || !listEl) return;
   if(!selectedOptionKey){
-    titleEl.textContent = '항목을 클릭해 닉네임을 확인하세요';
-    listEl.innerHTML = `<span style="color:var(--text3)">선택된 항목 없음</span>`;
+    titleEl.textContent = '';
+    listEl.innerHTML = '';
     return;
   }
   const label = voteOptions[selectedOptionKey] || `${selectedOptionKey}번`;
@@ -494,6 +494,7 @@ function setWsStatus(state){
   const label = document.getElementById('ws-label');
   if(state === true){
     wsConnected = true; wsAutoReconnect = true;
+    dot.style.background = '';
     dot.className='ws-dot on'; label.textContent='채팅 연결됨';
   } else if(state === 'connecting'){
     dot.className='ws-dot'; dot.style.background='#f59e0b';
