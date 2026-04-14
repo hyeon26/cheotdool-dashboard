@@ -214,7 +214,6 @@ body::before{
         <button class="btn btn-primary" id="btn-start" onclick="startVote()" style="padding:8px 16px;font-size:15px">▶ 투표 시작</button>
         <button class="btn btn-ghost" id="btn-reset" onclick="resetVote()" style="padding:8px 16px;font-size:15px">🗑 초기화</button>
         <button class="btn btn-danger" id="btn-end" onclick="endVote()" style="display:none;padding:8px 16px;font-size:15px">⏹ 투표 중지</button>
-        <button class="btn" id="btn-test" onclick="toggleTestMode()" style="background:#333;color:#888;border:1px solid rgba(255,255,255,.1);padding:8px 16px;font-size:15px">🧪 테스트</button>
       </div>
     </div>
     <input id="vote-title-input" class="vote-title-input" placeholder="투표 제목을 입력하세요" autocomplete="off"/>
@@ -559,39 +558,7 @@ setInterval(()=>{ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(
 
 
 
-/* ── 테스트 모드 ── */
-let testMode=false, testTimer=null;
-const TEST_NICKS=['김철수','이영희','박민준','최수아','정하늘','강지우','윤도현','임채원','한소희','오준혁','신예진','류성민','장나연','백준서','전미래','송태양','노은별','문지호','안서연','황민재','조하린','고태경','남승연','구준표','변하은'];
 
-function toggleTestMode(){
-  testMode=!testMode;
-  const btn=document.getElementById('btn-test');
-  if(testMode){
-    btn.style.background='#2ecc71'; btn.style.color='#000'; btn.textContent='🧪 테스트 중';
-    if(!voteRunning) startVote();
-    for(let i=0;i<10;i++) setTimeout(sendTestVote, i*80);
-    testTimer=setInterval(sendTestVote, 700);
-    showToast('🧪 테스트 모드 ON');
-  } else {
-    btn.style.background='#333'; btn.style.color='#888'; btn.textContent='🧪 테스트';
-    clearInterval(testTimer);
-    showToast('🧪 테스트 모드 OFF');
-  }
-}
-
-function sendTestVote(){
-  if(!voteRunning) return;
-  const nick=TEST_NICKS[Math.floor(Math.random()*TEST_NICKS.length)];
-  const keys=Object.keys(voteOptions);
-  if(!keys.length) return;
-  const num=keys[Math.floor(Math.random()*keys.length)];
-  processVote(nick, `!투표${num}`);
-  // 당첨자 오버레이 떠있을 때 채팅 시뮬레이션
-  if(currentWinner && Math.random()<0.15){
-    const msgs=['저 있어요!','왔습니다!','감사합니다!','오 진짜요?','ㅎㅎ'];
-    addWinnerChat(msgs[Math.floor(Math.random()*msgs.length)]);
-  }
-}
 
 /* ── 투표 처리 ── */
 function processVote(nick,msg){
