@@ -176,12 +176,7 @@ body::before{
 
 /* confetti */
 .confetti-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-.cf{position:absolute;width:10px;height:14px;border-radius:2px;opacity:0;animation:cf-fall linear forwards}
-@keyframes cf-fall{
-  0%{transform:translateY(-20px) rotate(0deg) scaleX(1);opacity:1}
-  80%{opacity:1}
-  100%{transform:translateY(110vh) rotate(720deg) scaleX(-1);opacity:0}
-}
+.cf{position:absolute;border-radius:2px;will-change:transform,opacity}
 .winner-close{padding:12px 36px;border-radius:12px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:#2ecc71;color:#000;box-shadow:0 2px 16px rgba(46,204,113,.4)}
 .winner-close:hover{opacity:.88}
 .winner-chat-wrap{margin-top:28px;width:min(540px,90vw)}
@@ -739,25 +734,68 @@ function startRaffle(){
 
 let currentWinner=null;
 
-/* ── confetti ── */
+/* ── confetti (빵빠레 방식) ── */
 const CF_COLORS=['#2ecc71','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#fff','#fbbf24'];
+
 function launchConfetti(){
   const wrap=document.getElementById('confetti-wrap');
   if(!wrap) return;
   wrap.innerHTML='';
-  const N=90;
-  for(let i=0;i<N;i++){
-    const el=document.createElement('div');
-    el.className='cf';
-    const color=CF_COLORS[Math.floor(Math.random()*CF_COLORS.length)];
-    const x=Math.random()*100;
-    const dur=1.8+Math.random()*1.8;
-    const delay=Math.random()*1.2;
-    const w=6+Math.random()*10;
-    const h=10+Math.random()*14;
-    el.style.cssText=`left:${x}%;background:${color};width:${w}px;height:${h}px;animation-duration:${dur}s;animation-delay:${delay}s;border-radius:${Math.random()>0.5?'50%':'2px'}`;
-    wrap.appendChild(el);
-  }
+
+  const W=wrap.offsetWidth||window.innerWidth;
+  const H=wrap.offsetHeight||window.innerHeight;
+
+  // 양쪽 하단 코너에서 발사
+  const origins=[
+    {x:W*0.3, y:H},  // 왼쪽
+    {x:W*0.7, y:H},  // 오른쪽
+  ];
+
+  origins.forEach((origin, oi)=>{
+    const N=55;
+    for(let i=0;i<N;i++){
+      const el=document.createElement('div');
+      el.className='cf';
+      const color=CF_COLORS[Math.floor(Math.random()*CF_COLORS.length)];
+      const w=6+Math.random()*10;
+      const h=10+Math.random()*14;
+      el.style.cssText=`width:${w}px;height:${h}px;background:${color};border-radius:${Math.random()>.5?'50%':'2px'};left:${origin.x}px;top:${origin.y}px;`;
+      wrap.appendChild(el);
+
+      // 발사 각도: 왼쪽은 왼쪽 위로, 오른쪽은 오른쪽 위로
+      const spread = Math.PI * 0.55; // 퍼지는 범위
+      const baseAngle = oi===0 ? -Math.PI*0.75 : -Math.PI*0.25;
+      const angle = baseAngle + (Math.random()-0.5)*spread;
+      const speed = 8+Math.random()*14;
+      let vx = Math.cos(angle)*speed;
+      let vy = Math.sin(angle)*speed;
+      let x=origin.x, y=origin.y;
+      let rot=Math.random()*360;
+      const rotSpeed=(Math.random()-0.5)*12;
+      const gravity=0.45;
+      const delay=Math.random()*200; // ms
+
+      setTimeout(()=>{
+        let frame=0;
+        function tick(){
+          vy+=gravity;
+          x+=vx; y+=vy;
+          vx*=0.99; // 공기저항
+          rot+=rotSpeed;
+          const opacity=Math.max(0,1-frame/90);
+          el.style.transform=`translate(${x-origin.x}px,${y-origin.y}px) rotate(${rot}deg)`;
+          el.style.opacity=opacity;
+          if(opacity>0 && y<H+50){
+            frame++;
+            requestAnimationFrame(tick);
+          } else {
+            el.remove();
+          }
+        }
+        requestAnimationFrame(tick);
+      }, delay);
+    }
+  });
 }
 
 
