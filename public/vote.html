@@ -495,6 +495,7 @@ function onWsMsg(e){
         const nick=profile.nickname||'익명';
         processVote(nick,chat.msg.trim());
         // 당첨자 채팅 감지
+        console.log('[채팅]', nick, '|', chat.msg.trim(), '| 당첨자:', currentWinner);
         if(currentWinner && nick===currentWinner){
           addWinnerChat(chat.msg.trim());
         }
