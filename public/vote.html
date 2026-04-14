@@ -225,7 +225,7 @@ body::before{
     <input id="vote-title-input" class="vote-title-input" placeholder="투표 제목을 입력하세요" autocomplete="off"/>
     <div id="options-wrap"></div>
     <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn btn-ghost" onclick="addOption()" style="flex:1">＋ 항목 추가</button>
+      <button class="btn btn-ghost" id="btn-add-option" onclick="addOption()" style="flex:1">＋ 항목 추가</button>
     </div>
   </div>
 
@@ -366,6 +366,13 @@ function updateVoteControls(){
   document.getElementById('btn-start').style.display=voteRunning?'none':'';
   document.getElementById('btn-reset').style.display=voteRunning?'none':'';
   document.getElementById('btn-end').style.display=voteRunning?'':'none';
+  // 항목 추가, 항목 입력, 제목 입력 - 투표 중/결과에선 숨김
+  const setupVisible=!voteRunning&&!voteEnded;
+  document.getElementById('btn-add-option').style.display=setupVisible?'':'none';
+  document.getElementById('vote-title-input').readOnly=!setupVisible;
+  document.getElementById('vote-title-input').style.opacity=setupVisible?'1':'.5';
+  document.querySelectorAll('.option-input').forEach(el=>{ el.readOnly=!setupVisible; });
+  document.querySelectorAll('.btn-remove-opt').forEach(el=>{ el.style.display=setupVisible?'':'none'; });
 }
 function toggleVotePanels(){
   document.getElementById('anim-card').style.display=voteRunning?'':'none';
@@ -390,6 +397,7 @@ function resetVote(){
   voteCounts={}; voterMap={}; voteEnded=false; pileCount=0; voteStartedAt=null; winnersLog=[];
   Object.keys(voteOptions).forEach(k=>{ voteCounts[k]=0; });
   renderPile(); updateStats(); renderResults(); toggleVotePanels(); closeVoterModal();
+  updateVoteControls();
   wsAutoReconnect=true;
   if(!wsConnected) wsConnect();
   showToast('🗑 초기화 완료');
