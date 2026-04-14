@@ -174,14 +174,23 @@ body::before{
 .btn-raffle:disabled{opacity:.4;cursor:not-allowed}
 
 /* 당첨 결과 오버레이 */
-.winner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;opacity:0;transition:opacity .4s;pointer-events:none}
+.winner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;opacity:0;transition:opacity .4s;pointer-events:none;overflow:hidden}
 .winner-overlay.show{opacity:1;pointer-events:all}
-.winner-crown{font-size:72px;margin-bottom:12px;animation:crown-bounce .6s ease infinite alternate}
-@keyframes crown-bounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-10px) scale(1.08)}}
-.winner-label{font-size:18px;font-weight:700;color:#f59e0b;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
-.winner-name{font-size:64px;font-weight:900;color:#fff;text-align:center;padding:0 32px;letter-spacing:-1px;animation:winner-pop .5s cubic-bezier(.175,.885,.32,1.275) both}
-@keyframes winner-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
-.winner-option{font-size:20px;color:#888;margin-top:10px}
+.winner-crown{font-size:90px;margin-bottom:12px;animation:crown-bounce .5s ease infinite alternate;display:inline-block;filter:drop-shadow(0 0 24px #f59e0b)}
+@keyframes crown-bounce{from{transform:translateY(0) scale(1) rotate(-4deg)}to{transform:translateY(-14px) scale(1.12) rotate(4deg)}}
+.winner-label{font-size:18px;font-weight:700;color:#f59e0b;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;animation:fadein .4s ease}
+.winner-name{font-size:72px;font-weight:900;color:#fff;text-align:center;padding:0 32px;letter-spacing:-1px;animation:winner-pop .6s cubic-bezier(.175,.885,.32,1.275) both;text-shadow:0 0 40px rgba(255,255,255,.3)}
+@keyframes winner-pop{from{transform:scale(.3) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.winner-option{font-size:20px;color:#888;margin-top:10px;animation:fadein .6s .3s ease both}
+
+/* confetti */
+.confetti-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.cf{position:absolute;width:10px;height:14px;border-radius:2px;opacity:0;animation:cf-fall linear forwards}
+@keyframes cf-fall{
+  0%{transform:translateY(-20px) rotate(0deg) scaleX(1);opacity:1}
+  80%{opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg) scaleX(-1);opacity:0}
+}
 .winner-close{padding:12px 36px;border-radius:12px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:#2ecc71;color:#000;box-shadow:0 2px 16px rgba(46,204,113,.4)}
 .winner-close:hover{opacity:.88}
 .winner-chat-wrap{margin-top:28px;width:min(540px,90vw)}
@@ -266,6 +275,7 @@ body::before{
 
 <!-- 당첨 결과 오버레이 -->
 <div class="winner-overlay" id="winner-overlay">
+  <div class="confetti-wrap" id="confetti-wrap"></div>
   <div class="winner-crown">🏆</div>
   <div class="winner-label">🎉 당첨자 🎉</div>
   <div class="winner-name" id="winner-name"></div>
@@ -734,9 +744,32 @@ function startRaffle(){
 
 let currentWinner=null;
 
+/* ── confetti ── */
+const CF_COLORS=['#2ecc71','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#fff','#fbbf24'];
+function launchConfetti(){
+  const wrap=document.getElementById('confetti-wrap');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  const N=90;
+  for(let i=0;i<N;i++){
+    const el=document.createElement('div');
+    el.className='cf';
+    const color=CF_COLORS[Math.floor(Math.random()*CF_COLORS.length)];
+    const x=Math.random()*100;
+    const dur=1.8+Math.random()*1.8;
+    const delay=Math.random()*1.2;
+    const w=6+Math.random()*10;
+    const h=10+Math.random()*14;
+    el.style.cssText=`left:${x}%;background:${color};width:${w}px;height:${h}px;animation-duration:${dur}s;animation-delay:${delay}s;border-radius:${Math.random()>0.5?'50%':'2px'}`;
+    wrap.appendChild(el);
+  }
+}
+
+
 function showWinner(name){
   winnersSet.add(name); // 뽑기 대상에서 제외
   currentWinner=name;
+  launchConfetti();
   const idx=raffleVoters.indexOf(name);
   if(idx>=0){
     const chip=document.getElementById(`chip-${idx}`);
