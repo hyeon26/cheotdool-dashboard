@@ -379,12 +379,8 @@ function addPilePaper(idx){
 function renderPile(){
   const wrap=document.getElementById('pile-wrap');
   if(!wrap) return;
-  // 초기화(reset) 시에만 전체 클리어
-  if(pileCount===0){ wrap.innerHTML=''; return; }
-  // 이미 있는 용지는 그대로, 새 용지만 추가
-  const existing=wrap.children.length;
-  const need=Math.min(pileCount, VISIBLE_PILE);
-  if(existing<need) addPilePaper(pileCount-1);
+  // reset 시에만 전체 클리어, 나머지는 processBallotQueue에서 직접 추가
+  if(pileCount===0) wrap.innerHTML='';
 }
 
 /* ── 투표용지 큐 처리 (몰림 대응) ── */
@@ -426,17 +422,27 @@ function processBallotQueue(){
       stage.appendChild(paper);
 
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        const dur=280+Math.random()*120; // 빠르게 뚝 떨어짐
-        paper.style.transition=`top ${dur}ms cubic-bezier(.4,0,1,1), opacity 80ms ease ${dur-80}ms`;
+        const dur=260+Math.random()*100;
+        paper.style.transition=`top ${dur}ms cubic-bezier(.55,0,1,1)`;
         paper.style.top=`${targetY}px`;
 
+        // 낙하 완료 → ballot-fly를 그 자리에서 pile-paper로 변환 (위치 유지)
         setTimeout(()=>{
-          paper.style.opacity='0';
-          setTimeout(()=>{
-            paper.remove();
-            pileCount++;
-            renderPile();
-          },80);
+          const wrap=document.getElementById('pile-wrap');
+          if(wrap){
+            const ww=wrap.parentElement?.offsetWidth||800;
+            const p=document.createElement('div');
+            p.className='pile-paper';
+            const angle=(Math.random()*28)-14;
+            // ballot-fly의 left 위치를 pile-wrap 기준으로 변환
+            const pileLeft=targetX; // stage와 pile-wrap이 같은 부모라 동일
+            p.style.cssText=`left:${pileLeft}px;bottom:0px;transform:rotate(${angle}deg);position:absolute;`;
+            wrap.appendChild(p);
+            // 오래된 용지 정리
+            while(wrap.children.length>60) wrap.removeChild(wrap.firstChild);
+          }
+          paper.remove();
+          pileCount++;
         }, dur);
       }));
     }, b*40);
@@ -601,24 +607,22 @@ function startRaffle(){
   const winnerIdx=Math.floor(Math.random()*total);
 
   // ── 미리 전체 경로 계산 ──
-  // 최소 2바퀴 + 당첨자 위치까지 정확히 맞춤
-  const minLaps=2;
-  const fastFrames=total*minLaps;  // 빠른 구간 (고정 30ms)
-  const slowSteps=Math.max(total, 8); // 느린 구간 (점점 느려짐)
+  // 빠른 구간: 랜덤 바퀴 수 (3~6바퀴) → 당첨자 위치 랜덤
+  const randomLaps=3+Math.floor(Math.random()*4); // 3~6바퀴
+  const fastFrames=total*randomLaps;
 
-  // 빠른 구간: 0 → fastFrames-1 순환
-  // 느린 구간: fastFrames 이후, winnerIdx에 딱 맞게 경로 구성
-  // 느린 구간 시작 인덱스 = fastFrames % total
+  // 느린 구간 시작 인덱스
   const slowStart=fastFrames%total;
-  // slowStart → winnerIdx까지 몇 칸?
+  // slowStart → winnerIdx까지 몇 칸? (최소 total칸으로 한 바퀴 더 보장)
   const toWinner=(winnerIdx-slowStart+total)%total||total;
   const totalFrames=fastFrames+toWinner;
 
-  // 딜레이 계산: 빠른 구간 고정 30ms, 느린 구간 선형 증가
+  // 딜레이: 빠른 구간 고정 28ms, 느린 구간 천천히 최대 900ms까지
   function getDelay(f){
-    if(f<fastFrames) return 30;
+    if(f<fastFrames) return 28;
     const t=(f-fastFrames)/toWinner; // 0~1
-    return 50+t*t*500; // 50ms → 550ms
+    // easeInQuart: 처음엔 별로 안 느리다가 후반에 확 느려짐
+    return 55 + Math.pow(t, 2.5) * 900;
   }
 
   let frame=0, lastLit=-1;
