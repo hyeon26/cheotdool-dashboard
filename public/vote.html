@@ -47,6 +47,7 @@ body::before{
 .ws-dot.err{background:#ef4444}
 #ws-label{font-size:13px;font-weight:600;color:var(--text2)}
 .status-right{display:flex;gap:8px;flex-wrap:wrap}
+.status-right.center{justify-content:center;width:100%}
 
 /* 버튼 공통 */
 .btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:opacity .15s,transform .1s;letter-spacing:.2px}
@@ -94,6 +95,37 @@ body::before{
 .feed{height:160px;overflow-y:auto;background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:12px;font-family:monospace;line-height:1.8;color:var(--text2)}
 .feed::-webkit-scrollbar{width:4px}.feed::-webkit-scrollbar-thumb{background:var(--text3);border-radius:4px}
 
+/* 투표 진행 애니메이션 */
+.ballot-stage{position:relative;height:220px;border-radius:12px;background:linear-gradient(180deg,rgba(124,110,240,.18),rgba(124,110,240,.04));overflow:hidden;border:1px solid var(--border)}
+.ballot-hint{font-size:12px;color:var(--text2);margin-top:10px;text-align:center}
+.ballot{
+  position:absolute;
+  top:50%;
+  left:-80px;
+  width:56px;
+  height:74px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.35);
+  background:linear-gradient(180deg,#fff,#ebe7ff);
+  box-shadow:0 8px 18px rgba(0,0,0,.25);
+  transform:translateY(-50%) rotate(-12deg);
+  animation:ballot-fly var(--dur,1.6s) ease-out forwards;
+}
+.ballot::before{
+  content:'🗳';
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:21px;
+}
+@keyframes ballot-fly{
+  0%{left:-90px;opacity:0;transform:translateY(calc(-50% + var(--y,0px))) rotate(var(--rot,-12deg)) scale(.85)}
+  20%{opacity:1}
+  100%{left:calc(100% + 20px);opacity:0;transform:translateY(calc(-50% + var(--y,0px))) rotate(calc(var(--rot,-12deg) + 18deg)) scale(1)}
+}
+
 /* 빈 상태 */
 .empty{text-align:center;padding:40px 20px;color:var(--text3)}
 .empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
@@ -120,19 +152,6 @@ body::before{
     <p>채팅창에 <strong>!투표1</strong> 또는 <strong>!투표 1</strong> 을 입력하세요</p>
   </div>
 
-  <!-- 연결 상태 -->
-  <div class="status-bar">
-    <div class="status-left">
-      <div class="ws-dot" id="ws-dot"></div>
-      <span id="ws-label">연결 안됨</span>
-    </div>
-    <div class="status-right">
-      <button class="btn btn-primary" id="btn-start" onclick="startVote()">▶ 투표 시작</button>
-      <button class="btn btn-danger" id="btn-end" onclick="endVote()" style="display:none">⏹ 투표 종료</button>
-      <button class="btn btn-ghost" onclick="resetVote()">🗑 초기화</button>
-    </div>
-  </div>
-
   <!-- 투표 설정 -->
   <div class="card" id="setup-card">
     <div class="card-title">⚙️ 투표 항목 설정</div>
@@ -144,8 +163,28 @@ body::before{
     <div style="font-size:11px;color:var(--text3);margin-top:10px">항목을 비워두면 숫자만 집계해요 · 1인 1표 (중복 방지)</div>
   </div>
 
+  <!-- 연결 상태 + 시작/중지 -->
+  <div class="status-bar" id="control-card">
+    <div class="status-left">
+      <div class="ws-dot" id="ws-dot"></div>
+      <span id="ws-label">연결 안됨</span>
+    </div>
+    <div class="status-right" id="status-right">
+      <button class="btn btn-primary" id="btn-start" onclick="startVote()">▶ 투표 시작</button>
+      <button class="btn btn-ghost" id="btn-reset" onclick="resetVote()">🗑 초기화</button>
+      <button class="btn btn-danger" id="btn-end" onclick="endVote()" style="display:none">⏹ 투표 중지</button>
+    </div>
+  </div>
+
+  <!-- 투표 진행 애니메이션 -->
+  <div class="card" id="anim-card" style="display:none">
+    <div class="card-title">🗳 투표 진행 중</div>
+    <div class="ballot-stage" id="ballot-stage"></div>
+    <div class="ballot-hint">채팅 투표가 들어올 때마다 투표용지가 날아갑니다</div>
+  </div>
+
   <!-- 통계 -->
-  <div class="stat-row">
+  <div class="stat-row" id="stat-row">
     <div class="stat-box">
       <div class="stat-num" id="total-votes">0</div>
       <div class="stat-label">총 투표수</div>
@@ -157,13 +196,13 @@ body::before{
   </div>
 
   <!-- 결과 -->
-  <div class="card">
+  <div class="card" id="results-card">
     <div class="card-title">📊 실시간 결과</div>
     <div id="results"></div>
   </div>
 
   <!-- 최근 투표 피드 -->
-  <div class="card">
+  <div class="card" id="feed-card">
     <div class="card-title">💬 최근 투표 내역</div>
     <div class="feed" id="feed"><div style="color:var(--text3);text-align:center;padding:20px 0">투표가 들어오면 여기에 표시돼요</div></div>
   </div>
@@ -230,14 +269,48 @@ function applyOptions(){
 function updateVoteControls(){
   const btnStart = document.getElementById('btn-start');
   const btnEnd = document.getElementById('btn-end');
+  const btnReset = document.getElementById('btn-reset');
+  const right = document.getElementById('status-right');
   btnStart.style.display = voteRunning ? 'none' : '';
+  btnReset.style.display = voteRunning ? 'none' : '';
   btnEnd.style.display = voteRunning ? '' : 'none';
+  right.classList.toggle('center', voteRunning);
+}
+
+function toggleVotePanels(){
+  const animCard = document.getElementById('anim-card');
+  const statRow = document.getElementById('stat-row');
+  const resultsCard = document.getElementById('results-card');
+  const feedCard = document.getElementById('feed-card');
+  animCard.style.display = voteRunning ? '' : 'none';
+  statRow.style.display = voteRunning ? 'none' : '';
+  resultsCard.style.display = voteRunning ? 'none' : '';
+  feedCard.style.display = voteRunning ? 'none' : '';
+}
+
+function launchBallots(count=1){
+  const stage = document.getElementById('ballot-stage');
+  for(let i=0;i<count;i++){
+    const paper = document.createElement('div');
+    paper.className = 'ballot';
+    paper.style.setProperty('--y', `${Math.floor(Math.random()*140)-70}px`);
+    paper.style.setProperty('--rot', `${Math.floor(Math.random()*30)-15}deg`);
+    paper.style.setProperty('--dur', `${1.3 + Math.random()*0.8}s`);
+    paper.style.animationDelay = `${i*0.07}s`;
+    stage.appendChild(paper);
+    setTimeout(()=>paper.remove(), 2400);
+  }
 }
 
 function startVote(){
   applyOptions();
   voteRunning = true;
   updateVoteControls();
+  toggleVotePanels();
+  const currentTotalVotes = Object.values(voteCounts).reduce((s,v)=>s+v,0);
+  const burstCount = Math.max(currentTotalVotes, Object.keys(voteOptions).length, 1);
+  launchBallots(burstCount);
+  document.getElementById('anim-card').scrollIntoView({behavior:'smooth', block:'center'});
   if(!wsConnected) wsConnect();
   else showToast('▶ 투표 진행 중');
 }
@@ -245,8 +318,9 @@ function startVote(){
 function endVote(){
   voteRunning = false;
   updateVoteControls();
+  toggleVotePanels();
   wsDisconnect();
-  showToast('⏹ 투표 종료');
+  showToast('⏹ 투표 중지 · 결과를 확인하세요');
 }
 
 // ── 웹소켓 ──
@@ -329,6 +403,7 @@ function processVote(nick, msg){
 
   updateStats();
   renderResults();
+  launchBallots(1);
 }
 
 function addFeed(nick, num, isChange){
@@ -406,6 +481,7 @@ function setWsStatus(state){
     dot.className='ws-dot err'; label.textContent='연결 실패';
     voteRunning = false;
     updateVoteControls();
+    toggleVotePanels();
   } else {
     wsConnected = false;
     dot.className='ws-dot'; dot.style.background=''; 
@@ -424,6 +500,7 @@ renderOptionInputs();
 applyOptions();
 renderResults();
 updateVoteControls();
+toggleVotePanels();
 </script>
 </body>
 </html>
