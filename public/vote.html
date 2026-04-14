@@ -95,6 +95,12 @@ body::before{
 .feed{height:160px;overflow-y:auto;background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:12px;font-family:monospace;line-height:1.8;color:var(--text2)}
 .feed::-webkit-scrollbar{width:4px}.feed::-webkit-scrollbar-thumb{background:var(--text3);border-radius:4px}
 
+.voter-list-wrap{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.voter-list-title{font-size:12px;color:var(--text2);margin-bottom:10px}
+.voter-list{display:flex;flex-wrap:wrap;gap:8px}
+.voter-chip{padding:6px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:12px;color:var(--text)}
+.vote-item{cursor:pointer}
+
 /* 투표 진행 애니메이션 */
 .ballot-stage{position:relative;height:220px;border-radius:12px;background:linear-gradient(180deg,rgba(124,110,240,.18),rgba(124,110,240,.04));overflow:hidden;border:1px solid var(--border)}
 .ballot-hint{font-size:12px;color:var(--text2);margin-top:10px;text-align:center}
@@ -197,12 +203,6 @@ body::before{
     <div id="results"></div>
   </div>
 
-  <!-- 최근 투표 피드 -->
-  <div class="card" id="feed-card">
-    <div class="card-title">💬 최근 투표 내역</div>
-    <div class="feed" id="feed"><div style="color:var(--text3);text-align:center;padding:20px 0">투표가 들어오면 여기에 표시돼요</div></div>
-  </div>
-
 </div>
 
 <!-- 토스트 -->
@@ -220,6 +220,7 @@ let wsReconnectTimer = null, wsAutoReconnect = true;
 let channelIdCache = null;
 let voteRunning = false;
 let voteEnded = false;
+let selectedOptionKey = '';
 
 // ── 초기 항목 (2개) ──
 let optionRows = [{id:1,label:''},{id:2,label:''}];
@@ -287,12 +288,10 @@ function toggleVotePanels(){
   const animCard = document.getElementById('anim-card');
   const statRow = document.getElementById('stat-row');
   const resultsCard = document.getElementById('results-card');
-  const feedCard = document.getElementById('feed-card');
   animCard.style.display = voteRunning ? '' : 'none';
   const showResultPanels = !voteRunning && voteEnded;
   statRow.style.display = showResultPanels ? '' : 'none';
   resultsCard.style.display = showResultPanels ? '' : 'none';
-  feedCard.style.display = showResultPanels ? '' : 'none';
 }
 
 function launchBallots(count=1){
@@ -319,8 +318,7 @@ function startVote(){
   const burstCount = Math.max(currentTotalVotes, Object.keys(voteOptions).length, 1);
   launchBallots(burstCount);
   document.getElementById('anim-card').scrollIntoView({behavior:'smooth', block:'center'});
-  if(!wsConnected) wsConnect();
-  else showToast('▶ 투표 진행 중');
+  showToast('▶ 투표 진행 중');
 }
 
 function endVote(){
@@ -402,9 +400,6 @@ function processVote(nick, msg){
   if(prev) {
     // 이전 투표 취소
     voteCounts[prev] = Math.max(0, (voteCounts[prev]||0) - 1);
-    addFeed(nick, num, true); // 변경
-  } else {
-    addFeed(nick, num, false);
   }
 
   voterMap[nick] = num;
@@ -413,18 +408,6 @@ function processVote(nick, msg){
   updateStats();
   renderResults();
   launchBallots(1);
-}
-
-function addFeed(nick, num, isChange){
-  const feed = document.getElementById('feed');
-  const label = voteOptions[num] || `${num}번`;
-  const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const div = document.createElement('div');
-  div.innerHTML = `<span style="color:var(--text3)">[${time}]</span> <span style="color:var(--accent2);font-weight:700">${nick}</span> → <span style="color:#fbbf24;font-weight:700">${num}번 ${label}</span>${isChange?' <span style="color:var(--text3)">(변경)</span>':''}`;
-  // 첫 placeholder 제거
-  if(feed.firstChild?.tagName !== 'DIV' || feed.childNodes.length === 1 && feed.innerHTML.includes('표시돼요')) feed.innerHTML = '';
-  feed.appendChild(div);
-  feed.scrollTop = feed.scrollHeight;
 }
 
 function updateStats(){
@@ -442,14 +425,16 @@ function renderResults(){
   // 정렬 (득표 많은 순)
   const sorted = keys.slice().sort((a,b)=>(voteCounts[b]||0)-(voteCounts[a]||0));
   const maxVotes = voteCounts[sorted[0]] || 0;
+  if(!selectedOptionKey || !keys.includes(selectedOptionKey)) selectedOptionKey = sorted[0] || keys[0];
 
-  el.innerHTML = keys.map((k,i) => {
+  const voteItemsHtml = keys.map((k,i) => {
     const cnt = voteCounts[k] || 0;
     const pct = Math.round(cnt/total*100);
     const isFirst = cnt > 0 && cnt === maxVotes;
+    const isSelected = selectedOptionKey === k;
     const colors = ['#5b4ae8','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
     return `
-      <div class="vote-item${isFirst?' first':''}">
+      <div class="vote-item${isFirst?' first':''}" onclick="showOptionVoters('${k}')" style="${isSelected?'outline:2px solid rgba(124,110,240,.7);outline-offset:6px;border-radius:10px;padding:4px':''}">
         <div class="vote-item-header">
           <div class="vote-item-name">
             <div class="vote-badge" style="${!isFirst?`background:${colors[i%colors.length]||'var(--accent)'}`:''}">${k}</div>
@@ -463,14 +448,36 @@ function renderResults(){
       </div>
     `;
   }).join('');
+
+  el.innerHTML = `${voteItemsHtml}<div class="voter-list-wrap"><div class="voter-list-title" id="voter-list-title"></div><div class="voter-list" id="voter-list"></div></div>`;
+  renderSelectedVoters();
+}
+
+function showOptionVoters(optionKey){
+  selectedOptionKey = optionKey;
+  renderResults();
+}
+
+function renderSelectedVoters(){
+  const titleEl = document.getElementById('voter-list-title');
+  const listEl = document.getElementById('voter-list');
+  if(!titleEl || !listEl) return;
+  const label = voteOptions[selectedOptionKey] || `${selectedOptionKey}번`;
+  const voters = Object.keys(voterMap).filter(nick => voterMap[nick] === selectedOptionKey);
+  titleEl.textContent = `${selectedOptionKey}번 ${label} 투표 닉네임`;
+  if(!voters.length){
+    listEl.innerHTML = `<span style="color:var(--text3)">아직 투표한 닉네임이 없습니다.</span>`;
+    return;
+  }
+  listEl.innerHTML = voters.map(nick => `<span class="voter-chip">${nick}</span>`).join('');
 }
 
 function resetVote(){
   voteCounts = {};
   voterMap = {};
   voteEnded = false;
+  selectedOptionKey = '';
   Object.keys(voteOptions).forEach(k=>{ voteCounts[k]=0; });
-  document.getElementById('feed').innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px 0">투표가 들어오면 여기에 표시돼요</div>';
   updateStats();
   renderResults();
   toggleVotePanels();
@@ -494,7 +501,7 @@ function setWsStatus(state){
     toggleVotePanels();
   } else {
     wsConnected = false;
-    dot.className='ws-dot'; dot.style.background=''; 
+    dot.className='ws-dot'; dot.style.background='';
     label.textContent='연결 안됨';
   }
 }
@@ -511,6 +518,7 @@ applyOptions();
 renderResults();
 updateVoteControls();
 toggleVotePanels();
+wsConnect();
 </script>
 </body>
 </html>
