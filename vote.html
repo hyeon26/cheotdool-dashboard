@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>첫째와둘째 – 실시간 투표</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --surface:#13131c;
+  --surface2:#1c1c2a;
+  --border:rgba(255,255,255,.08);
+  --accent:#5b4ae8;
+  --accent2:#7c6ef0;
+  --text:#f0effe;
+  --text2:#9d8fcc;
+  --text3:#4a4068;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+}
+body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* 배경 효과 */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(91,74,232,.18),transparent);
+  pointer-events:none;z-index:0;
+}
+
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:32px 20px 60px}
+
+/* 헤더 */
+.header{text-align:center;margin-bottom:40px}
+.header-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:rgba(91,74,232,.15);border:1px solid rgba(91,74,232,.3);font-size:12px;font-weight:700;color:var(--accent2);letter-spacing:.5px;margin-bottom:14px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#ef4444;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.header h1{font-size:28px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+.header p{font-size:14px;color:var(--text2)}
+
+/* 상태 바 */
+.status-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.status-left{display:flex;align-items:center;gap:10px}
+.ws-dot{width:9px;height:9px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.ws-dot.on{background:#10b981;box-shadow:0 0 8px #10b981;animation:blink 1.4s infinite}
+.ws-dot.err{background:#ef4444}
+#ws-label{font-size:13px;font-weight:600;color:var(--text2)}
+.status-right{display:flex;gap:8px;flex-wrap:wrap}
+
+/* 버튼 공통 */
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:opacity .15s,transform .1s;letter-spacing:.2px}
+.btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(91,74,232,.4)}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+
+/* 설정 카드 */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px}
+
+/* 항목 입력 */
+.option-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.option-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.option-input{flex:1;padding:9px 13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+.option-input:focus{border-color:var(--accent)}
+.option-input::placeholder{color:var(--text3)}
+.btn-remove-opt{width:28px;height:28px;border-radius:50%;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.btn-remove-opt:hover{background:#ef4444;border-color:#ef4444;color:#fff}
+
+/* 통계 */
+.stat-row{display:flex;gap:16px;margin-bottom:24px}
+.stat-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.stat-num{font-size:28px;font-weight:900;color:var(--text)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* 투표 결과 */
+.vote-item{margin-bottom:18px}
+.vote-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.vote-item-name{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.vote-badge{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vote-count{font-size:13px;font-weight:700;color:var(--text2)}
+.vote-bar-wrap{height:10px;background:var(--surface2);border-radius:20px;overflow:hidden;position:relative}
+.vote-bar{height:100%;border-radius:20px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:0}
+.vote-pct{font-size:12px;color:var(--text3);margin-top:4px;text-align:right}
+
+/* 1등 강조 */
+.vote-item.first .vote-item-name{color:#fbbf24}
+.vote-item.first .vote-badge{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.vote-item.first .vote-bar{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.vote-item:not(.first) .vote-bar{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+/* 최근 투표 피드 */
+.feed{height:160px;overflow-y:auto;background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:12px;font-family:monospace;line-height:1.8;color:var(--text2)}
+.feed::-webkit-scrollbar{width:4px}.feed::-webkit-scrollbar-thumb{background:var(--text3);border-radius:4px}
+
+/* 빈 상태 */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
+
+/* 토스트 */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--text);box-shadow:var(--shadow);transition:transform .3s;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* 반응형 */
+@media(max-width:480px){
+  .header h1{font-size:22px}
+  .stat-num{font-size:22px}
+  .wrap{padding:20px 14px 50px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-badge"><div class="live-dot"></div> 첫째와둘째</div>
+    <h1>🗳 실시간 채팅 투표</h1>
+    <p>채팅창에 <strong>!투표1</strong> 또는 <strong>!투표 1</strong> 을 입력하세요</p>
+  </div>
+
+  <!-- 연결 상태 -->
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="ws-dot" id="ws-dot"></div>
+      <span id="ws-label">연결 안됨</span>
+    </div>
+    <div class="status-right">
+      <button class="btn btn-primary" id="btn-connect" onclick="wsConnect()">🔌 연결</button>
+      <button class="btn btn-danger" id="btn-disconnect" onclick="wsDisconnect()" style="display:none">⏹ 연결 끊기</button>
+      <button class="btn btn-ghost" onclick="resetVote()">🗑 초기화</button>
+    </div>
+  </div>
+
+  <!-- 투표 설정 -->
+  <div class="card" id="setup-card">
+    <div class="card-title">⚙️ 투표 항목 설정</div>
+    <div id="options-wrap"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" onclick="addOption()" style="flex:1">＋ 항목 추가</button>
+      <button class="btn btn-primary" onclick="applyOptions()">✓ 적용</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:10px">항목을 비워두면 숫자만 집계해요 · 1인 1표 (중복 방지)</div>
+  </div>
+
+  <!-- 통계 -->
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-num" id="total-votes">0</div>
+      <div class="stat-label">총 투표수</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="total-voters">0</div>
+      <div class="stat-label">참여자 수</div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="card">
+    <div class="card-title">📊 실시간 결과</div>
+    <div id="results"></div>
+  </div>
+
+  <!-- 최근 투표 피드 -->
+  <div class="card">
+    <div class="card-title">💬 최근 투표 내역</div>
+    <div class="feed" id="feed"><div style="color:var(--text3);text-align:center;padding:20px 0">투표가 들어오면 여기에 표시돼요</div></div>
+  </div>
+
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
+
+// ── 상태 ──
+let voteOptions = {};   // { '1': '항목명', '2': '항목명', ... }
+let voteCounts  = {};   // { '1': 0, '2': 0, ... }
+let voterMap    = {};   // { 닉네임: '1' } 중복 방지
+let ws = null, wsConnected = false;
+let wsReconnectTimer = null, wsAutoReconnect = true;
+let channelIdCache = null;
+
+// ── 초기 항목 (2개) ──
+let optionRows = [{id:1,label:''},{id:2,label:''}];
+let optRowId = 3;
+
+function renderOptionInputs(){
+  const wrap = document.getElementById('options-wrap');
+  wrap.innerHTML = optionRows.map((o,i) => `
+    <div class="option-row">
+      <div class="option-num">${i+1}</div>
+      <input class="option-input" id="opt-${o.id}" value="${o.label}" placeholder="항목 이름 (비워두면 번호만 표시)"/>
+      ${optionRows.length > 1 ? `<button class="btn-remove-opt" onclick="removeOption(${o.id})">×</button>` : '<div style="width:28px"></div>'}
+    </div>
+  `).join('');
+}
+
+function addOption(){
+  optionRows.push({id:optRowId++, label:''});
+  renderOptionInputs();
+}
+
+function removeOption(id){
+  if(optionRows.length<=1) return;
+  optionRows = optionRows.filter(o=>o.id!==id);
+  renderOptionInputs();
+}
+
+function applyOptions(){
+  // 현재 입력값 저장
+  optionRows.forEach((o,i) => {
+    o.label = document.getElementById(`opt-${o.id}`)?.value?.trim() || '';
+  });
+  // voteOptions 업데이트
+  voteOptions = {};
+  optionRows.forEach((o,i) => { voteOptions[String(i+1)] = o.label || String(i+1); });
+  // 기존 카운트 보존하면서 새 항목 반영
+  const newCounts = {};
+  Object.keys(voteOptions).forEach(k => { newCounts[k] = voteCounts[k] || 0; });
+  voteCounts = newCounts;
+  renderResults();
+  showToast('✅ 항목 적용 완료!');
+}
+
+// ── 웹소켓 ──
+async function wsConnect(){
+  try {
+    setWsStatus('connecting');
+    const liveRes = await fetch('/api/live-status').then(r=>r.json());
+    if(!liveRes?.content?.chatChannelId) throw new Error('방송 중이 아니에요');
+    channelIdCache = liveRes.content.chatChannelId;
+    const tokenRes = await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`).then(r=>r.json());
+    const accessToken = tokenRes?.content?.accessToken || '';
+    ws = new WebSocket('wss://kr-ss1.chat.naver.com/chat');
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:channelIdCache,bdy:{uid:null,devType:2001,accTkn:accessToken,auth:'READ'},tid:1}));
+      setWsStatus(true);
+    };
+    ws.onmessage = onWsMsg;
+    ws.onclose = () => {
+      setWsStatus(false);
+      if(wsAutoReconnect && channelIdCache) wsReconnectTimer = setTimeout(wsConnect, 5000);
+    };
+    ws.onerror = () => setWsStatus('err');
+  } catch(e) {
+    setWsStatus('err');
+    showToast('⚠️ ' + e.message);
+  }
+}
+
+function wsDisconnect(){
+  wsAutoReconnect = false;
+  clearTimeout(wsReconnectTimer);
+  if(ws) ws.close();
+  setWsStatus(false);
+}
+
+function onWsMsg(e){
+  try {
+    const msg = JSON.parse(e.data);
+    if(msg.cmd === 93101 && msg.bdy){
+      const chats = Array.isArray(msg.bdy) ? msg.bdy : [msg.bdy];
+      chats.forEach(chat => {
+        if(!chat.msg || !chat.profile) return;
+        const profile = typeof chat.profile==='string' ? JSON.parse(chat.profile) : chat.profile;
+        const nick = profile.nickname || '익명';
+        processVote(nick, chat.msg.trim());
+      });
+    }
+    if(msg.cmd === 0) ws.send(JSON.stringify({ver:'2',cmd:10000}));
+  } catch(err){}
+}
+
+setInterval(()=>{
+  if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000}));
+},20000);
+
+// ── 투표 처리 ──
+function processVote(nick, msg){
+  // !투표1 또는 !투표 1 패턴
+  const m = msg.match(/^!투표\s*(\d+)$/);
+  if(!m) return;
+  const num = m[1];
+
+  // 유효한 번호인지 확인
+  if(!voteOptions[num] && Object.keys(voteOptions).length > 0) return;
+
+  // 중복 투표 처리
+  const prev = voterMap[nick];
+  if(prev === num) return; // 같은 번호 중복
+  if(prev) {
+    // 이전 투표 취소
+    voteCounts[prev] = Math.max(0, (voteCounts[prev]||0) - 1);
+    addFeed(nick, num, true); // 변경
+  } else {
+    addFeed(nick, num, false);
+  }
+
+  voterMap[nick] = num;
+  voteCounts[num] = (voteCounts[num]||0) + 1;
+
+  updateStats();
+  renderResults();
+}
+
+function addFeed(nick, num, isChange){
+  const feed = document.getElementById('feed');
+  const label = voteOptions[num] || `${num}번`;
+  const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const div = document.createElement('div');
+  div.innerHTML = `<span style="color:var(--text3)">[${time}]</span> <span style="color:var(--accent2);font-weight:700">${nick}</span> → <span style="color:#fbbf24;font-weight:700">${num}번 ${label}</span>${isChange?' <span style="color:var(--text3)">(변경)</span>':''}`;
+  // 첫 placeholder 제거
+  if(feed.firstChild?.tagName !== 'DIV' || feed.childNodes.length === 1 && feed.innerHTML.includes('표시돼요')) feed.innerHTML = '';
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function updateStats(){
+  document.getElementById('total-votes').textContent = Object.values(voteCounts).reduce((s,v)=>s+v,0);
+  document.getElementById('total-voters').textContent = Object.keys(voterMap).length;
+}
+
+function renderResults(){
+  const el = document.getElementById('results');
+  const keys = Object.keys(voteOptions).length > 0 ? Object.keys(voteOptions) : Object.keys(voteCounts);
+  if(!keys.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🗳</div><div>항목을 설정하고 연결하면<br>실시간으로 집계돼요</div></div>`;
+    return;
+  }
+  const total = Object.values(voteCounts).reduce((s,v)=>s+v,0)||1;
+  // 정렬 (득표 많은 순)
+  const sorted = keys.slice().sort((a,b)=>(voteCounts[b]||0)-(voteCounts[a]||0));
+  const maxVotes = voteCounts[sorted[0]] || 0;
+
+  el.innerHTML = keys.map((k,i) => {
+    const cnt = voteCounts[k] || 0;
+    const pct = Math.round(cnt/total*100);
+    const isFirst = cnt > 0 && cnt === maxVotes;
+    const colors = ['#5b4ae8','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
+    return `
+      <div class="vote-item${isFirst?' first':''}">
+        <div class="vote-item-header">
+          <div class="vote-item-name">
+            <div class="vote-badge" style="${!isFirst?`background:${colors[i%colors.length]||'var(--accent)'}`:''}">${k}</div>
+            ${voteOptions[k] && voteOptions[k]!==k ? voteOptions[k] : ''}
+          </div>
+          <div class="vote-count">${cnt}표 (${pct}%)</div>
+        </div>
+        <div class="vote-bar-wrap">
+          <div class="vote-bar" style="width:${pct}%;${!isFirst?`background:${colors[i%colors.length]||'var(--accent)'}`:''}" ></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function resetVote(){
+  voteCounts = {};
+  voterMap = {};
+  Object.keys(voteOptions).forEach(k=>{ voteCounts[k]=0; });
+  document.getElementById('feed').innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px 0">투표가 들어오면 여기에 표시돼요</div>';
+  updateStats();
+  renderResults();
+  showToast('🗑 초기화 완료');
+}
+
+function setWsStatus(state){
+  const dot = document.getElementById('ws-dot');
+  const label = document.getElementById('ws-label');
+  const btnC = document.getElementById('btn-connect');
+  const btnD = document.getElementById('btn-disconnect');
+  if(state === true){
+    wsConnected = true; wsAutoReconnect = true;
+    dot.className='ws-dot on'; label.textContent='채팅 연결됨';
+    btnC.style.display='none'; btnD.style.display='';
+  } else if(state === 'connecting'){
+    dot.className='ws-dot'; dot.style.background='#f59e0b';
+    label.textContent='연결 중...';
+  } else if(state === 'err'){
+    wsConnected = false;
+    dot.className='ws-dot err'; label.textContent='연결 실패';
+    btnC.style.display=''; btnD.style.display='none';
+  } else {
+    wsConnected = false;
+    dot.className='ws-dot'; dot.style.background=''; 
+    label.textContent='연결 안됨';
+    btnC.style.display=''; btnD.style.display='none';
+  }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+// ── 초기화 ──
+renderOptionInputs();
+applyOptions();
+renderResults();
+</script>
+</body>
+</html>
