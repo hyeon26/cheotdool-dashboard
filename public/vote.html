@@ -215,6 +215,7 @@ body::before{
       <button class="btn btn-primary" id="btn-start" onclick="startVote()">▶ 투표 시작</button>
       <button class="btn btn-ghost" id="btn-reset" onclick="resetVote()">🗑 초기화</button>
       <button class="btn btn-danger" id="btn-end" onclick="endVote()" style="display:none">⏹ 투표 중지</button>
+      <button class="btn" id="btn-test" onclick="toggleTestMode()" style="background:#444;color:#ccc;border:1px solid rgba(255,255,255,.15)">🧪 테스트</button>
     </div>
   </div>
 
@@ -482,6 +483,42 @@ function onWsMsg(e){
   } catch(err){}
 }
 setInterval(()=>{ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000})); },20000);
+
+/* ── 테스트 모드 ── */
+let testMode=false, testTimer=null;
+const TEST_NICKS=['김철수','이영희','박민준','최수아','정하늘','강지우','윤도현','임채원','한소희','오준혁','신예진','류성민','장나연','백준서','전미래','송태양','노은별','문지호','안서연','황민재','조하린','고태경','남승연','구준표','변하은'];
+
+function toggleTestMode(){
+  testMode=!testMode;
+  const btn=document.getElementById('btn-test');
+  if(testMode){
+    btn.style.background='#2ecc71';
+    btn.style.color='#000';
+    btn.textContent='🧪 테스트 중';
+    // 투표 시작 안 됐으면 자동 시작
+    if(!voteRunning) startVote();
+    // 2초마다 랜덤 투표 발생
+    testTimer=setInterval(sendTestVote, 800);
+    // 처음 10개 빠르게 발생
+    for(let i=0;i<10;i++) setTimeout(sendTestVote, i*100);
+    showToast('🧪 테스트 모드 ON');
+  } else {
+    btn.style.background='#444';
+    btn.style.color='#ccc';
+    btn.textContent='🧪 테스트';
+    clearInterval(testTimer);
+    showToast('🧪 테스트 모드 OFF');
+  }
+}
+
+function sendTestVote(){
+  if(!voteRunning) return;
+  const nick=TEST_NICKS[Math.floor(Math.random()*TEST_NICKS.length)];
+  const keys=Object.keys(voteOptions);
+  if(!keys.length) return;
+  const num=keys[Math.floor(Math.random()*keys.length)];
+  processVote(nick, `!투표${num}`);
+}
 
 /* ── 투표 처리 ── */
 function processVote(nick,msg){
