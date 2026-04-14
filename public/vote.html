@@ -605,19 +605,17 @@ function startRaffle(){
   const chips=raffleVoters.map((_,i)=>document.getElementById(`chip-${i}`));
   const total=raffleVoters.length;
 
-  // 빠른 구간: 40~80프레임 랜덤, 25~45ms 랜덤 속도
-  const fastFrames=40+Math.floor(Math.random()*41);
-  const fastDelay=25+Math.floor(Math.random()*21);
-
-  // 느린 구간: 고정 12스텝, 80→1000ms 선형
+  // 느린 구간 시작점을 완전 랜덤으로 뽑음 → 당첨자 결정
   const SLOW_STEPS=8;
   const slowDelays=[80,194,309,423,537,651,766,1000];
-
-  // 느린 구간 시작 인덱스 = 빠른 구간 끝난 자리
-  const slowStartIdx=fastFrames%total;
-
-  // 당첨자 = 느린 구간 마지막(12번째)에 멈추는 자리
+  const slowStartIdx=Math.floor(Math.random()*total); // 0~total-1 완전 균등
   const winnerIdx=(slowStartIdx+SLOW_STEPS-1)%total;
+
+  // 빠른 구간: slowStartIdx에서 끝나도록 역산
+  // 랜덤 바퀴 수(3~7) + slowStartIdx로 끝나는 프레임 수 계산
+  const laps=3+Math.floor(Math.random()*5); // 3~7바퀴
+  const fastFrames=total*laps+slowStartIdx;  // 정확히 slowStartIdx에서 끝남
+  const fastDelay=20+Math.floor(Math.random()*31); // 20~50ms 랜덤
 
   let frame=0, lastLit=-1;
 
@@ -632,7 +630,7 @@ function startRaffle(){
       return;
     }
 
-    const idx = frame<fastFrames
+    const idx=frame<fastFrames
       ? frame%total
       : (slowStartIdx+(frame-fastFrames))%total;
 
