@@ -13,8 +13,8 @@
   --surface:#13131c;
   --surface2:#1c1c2a;
   --border:rgba(255,255,255,.08);
-  --accent:#5b4ae8;
-  --accent2:#7c6ef0;
+  --accent:#00e564;
+  --accent2:#00c850;
   --text:#f0effe;
   --text2:#9d8fcc;
   --text3:#4a4068;
@@ -31,7 +31,7 @@ body::before{
 
 /* 헤더 */
 .header{text-align:center;margin-bottom:40px;position:relative;padding-top:56px}
-.header-badge{position:absolute;top:0;left:0;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(91,74,232,.15);font-size:16px;font-weight:800;color:var(--accent2);letter-spacing:.4px}
+.header-badge{position:absolute;top:0;left:0;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(0,229,100,.12);font-size:16px;font-weight:800;color:var(--accent2);letter-spacing:.4px}
 .brand-logo{width:26px;height:26px;border-radius:7px;object-fit:cover;display:block}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .header h1{font-size:44px;font-weight:900;letter-spacing:-.7px;margin-bottom:10px}
@@ -41,7 +41,7 @@ body::before{
 .status-bar{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:28px;gap:16px;flex-wrap:wrap}
 .status-left{display:flex;align-items:center;gap:10px}
 .ws-dot{width:14px;height:14px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
-.ws-dot.on{background:#10b981;box-shadow:0 0 12px #10b981;animation:blink 1.4s infinite}
+.ws-dot.on{background:#00e564;box-shadow:0 0 12px #00e564;animation:blink 1.4s infinite}
 .ws-dot.err{background:#ef4444}
 #ws-label{font-size:18px;font-weight:700;color:var(--text2)}
 .status-right{display:flex;gap:8px;flex-wrap:wrap}
@@ -50,7 +50,7 @@ body::before{
 /* 버튼 */
 .btn{padding:12px 22px;border-radius:10px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;transition:opacity .15s,transform .1s;letter-spacing:.2px}
 .btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(91,74,232,.4)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(0,229,100,.35)}
 .btn-danger{background:#ef4444;color:#fff}
 .btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
 
@@ -102,7 +102,7 @@ body::before{
   position:relative;
   height:260px;
   border-radius:12px;
-  background:linear-gradient(180deg,rgba(124,110,240,.12),rgba(124,110,240,.03));
+  background:linear-gradient(180deg,rgba(0,229,100,.10),rgba(0,229,100,.02));
   overflow:hidden;
   border:1px solid var(--border);
 }
@@ -112,19 +112,17 @@ body::before{
 /* 쌓인 투표용지 더미 */
 .pile-wrap{
   position:absolute;
-  bottom:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:160px;height:200px;
+  bottom:0;left:0;right:0;
+  height:200px;
   z-index:2;
   pointer-events:none;
 }
 .pile-paper{
   position:absolute;
-  bottom:0;left:50%;
-  width:50px;height:66px;
+  bottom:0;
+  width:44px;height:58px;
   border-radius:3px 3px 2px 2px;
-  background:linear-gradient(170deg,#fff,#e9e3ff);
+  background:linear-gradient(170deg,#fff,#e0ffe8);
   border:1px solid rgba(0,0,0,.1);
   box-shadow:0 2px 8px rgba(0,0,0,.28);
   transform-origin:bottom center;
@@ -132,35 +130,28 @@ body::before{
 .pile-paper::after{
   content:'';
   position:absolute;
-  top:10px;left:7px;right:7px;height:2px;
-  background:rgba(91,74,232,.22);border-radius:2px;
-  box-shadow:0 5px 0 rgba(91,74,232,.14),0 10px 0 rgba(91,74,232,.08);
+  top:8px;left:6px;right:6px;height:2px;
+  background:rgba(0,229,100,.3);border-radius:2px;
+  box-shadow:0 5px 0 rgba(0,229,100,.18),0 10px 0 rgba(0,229,100,.1);
 }
 
-/* 날아오는 투표용지 */
+/* 떨어지는 투표용지 */
 .ballot-fly{
   position:absolute;
-  width:50px;height:66px;
+  width:44px;height:58px;
   border-radius:3px 3px 2px 2px;
-  background:linear-gradient(170deg,#fff,#e9e3ff);
+  background:linear-gradient(170deg,#fff,#e0ffe8);
   border:1px solid rgba(0,0,0,.1);
-  box-shadow:0 6px 18px rgba(0,0,0,.35);
+  box-shadow:0 6px 18px rgba(0,0,0,.3);
   z-index:10;
   pointer-events:none;
-  will-change:transform,top,left,opacity;
-}
-.ballot-fly::before{
-  content:'🗳';
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;
 }
 .ballot-fly::after{
   content:'';
   position:absolute;
-  top:10px;left:7px;right:7px;height:2px;
-  background:rgba(91,74,232,.22);border-radius:2px;
-  box-shadow:0 5px 0 rgba(91,74,232,.14),0 10px 0 rgba(91,74,232,.08);
+  top:8px;left:6px;right:6px;height:2px;
+  background:rgba(0,229,100,.3);border-radius:2px;
+  box-shadow:0 5px 0 rgba(0,229,100,.18),0 10px 0 rgba(0,229,100,.1);
 }
 
 /* 빈 상태 */
@@ -214,7 +205,7 @@ body::before{
     <div class="ballot-stage" id="ballot-stage">
       <div class="pile-wrap" id="pile-wrap"></div>
     </div>
-    <div class="ballot-hint">투표가 들어올 때마다 투표용지가 쌓여요</div>
+    <div class="ballot-hint">투표가 들어올 때마다 투표용지가 떨어져요</div>
   </div>
 
   <div class="stat-row" id="stat-row">
@@ -327,29 +318,39 @@ function resetVote(){
 }
 
 /* ── 투표용지 더미 렌더 ── */
+// 각 용지의 고정 위치 기억 (시드 기반)
+function seededRand(seed){ return ((seed*9301+49297)%233280)/233280; }
+
 function renderPile(){
   const wrap=document.getElementById('pile-wrap');
   if(!wrap) return;
   wrap.innerHTML='';
   if(pileCount===0) return;
 
-  // 보이는 레이어 최대 28장, 하지만 두께/높이로 무한정 표현
-  const VISIBLE=28;
-  const layers=Math.min(pileCount,VISIBLE);
+  const ww=wrap.offsetWidth||400;
+  const VISIBLE=40;
+  const show=Math.min(pileCount,VISIBLE);
+  // 최근 VISIBLE장만 표시 (오래된 건 뒤에 숨음)
+  const startIdx=Math.max(0,pileCount-VISIBLE);
 
-  // 전체 더미 높이: 1장=10px 시작, 장당 2.5px 추가, 최대 140px
-  const totalH=Math.min(10+Math.max(0,pileCount-1)*2.5, 140);
-  const layerH=totalH/layers;
-
-  for(let i=0;i<layers;i++){
+  for(let i=0;i<show;i++){
+    const idx=startIdx+i; // 전체 중 몇 번째 용지인지
     const p=document.createElement('div');
     p.className='pile-paper';
-    const angle=((i*41)%22)-11;
-    const dx=((i*29)%18)-9;
-    const bottomPx=i*layerH;
-    // 맨 위 레이어만 온전한 용지 높이(66px), 나머지는 얇게
-    const h=(i===layers-1)?66:Math.max(layerH+1,3);
-    p.style.cssText=`left:50%;width:50px;height:${h}px;transform:translateX(calc(-50% + ${dx}px)) rotate(${angle}deg);bottom:${bottomPx}px;z-index:${i};`;
+
+    // 각 용지마다 고정된 랜덤 위치/각도 (시드로 재현 가능)
+    const rx=seededRand(idx*3+1);   // 0~1
+    const rAngle=seededRand(idx*7+2); // 0~1
+    const rH=seededRand(idx*13+3);   // 높이 변동
+
+    const xPos=Math.floor(rx*(ww-60))+8; // 바닥 좌우 랜덤
+    const angle=(rAngle*28)-14;           // -14~14도
+
+    // 같은 x 근처 용지끼리 쌓임 높이 계산
+    // 단순하게: 뒤에 올수록 약간 위에 (겹쳐 보이게)
+    const localStack=i*1.8;
+
+    p.style.cssText=`left:${xPos}px;bottom:${localStack}px;transform:rotate(${angle}deg);`;
     wrap.appendChild(p);
   }
 }
@@ -366,46 +367,51 @@ function processBallotQueue(){
   if(ballotQueue===0){ ballotRunning=false; return; }
   ballotRunning=true;
 
-  // 몰릴 때 최대 6장 동시 처리
-  const batch=Math.min(ballotQueue,6);
+  // 몰릴 때 최대 8장 동시 처리
+  const batch=Math.min(ballotQueue,8);
   ballotQueue-=batch;
 
   const stage=document.getElementById('ballot-stage');
   if(!stage){ ballotRunning=false; return; }
 
   const sw=stage.offsetWidth, sh=stage.offsetHeight;
-  const targetX=sw/2-25;
-  const targetY=sh-76;
 
   for(let b=0;b<batch;b++){
     setTimeout(()=>{
       const paper=document.createElement('div');
       paper.className='ballot-fly';
-      const startX=sw+20;
-      const startY=Math.random()*(sh*0.55)+10;
-      paper.style.cssText=`top:${startY}px;left:${startX}px;opacity:0;`;
+
+      // 랜덤 X (바닥 전체에 분산), 위에서 떨어짐
+      const targetX=Math.floor(Math.random()*(sw-60))+8;
+      const targetY=sh-66; // 바닥 근처
+
+      paper.style.cssText=`
+        top:-70px;
+        left:${targetX}px;
+        opacity:1;
+        transform:rotate(${Math.random()*20-10}deg);
+      `;
       stage.appendChild(paper);
 
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        const dur=450+Math.random()*150;
-        // 날아오는 동안 회전 없음 - 정면 유지하다가 도착 즉시 쌓임
-        paper.style.transition=`left ${dur}ms cubic-bezier(.3,0,.45,1), top ${dur}ms cubic-bezier(.3,0,.45,1), opacity 120ms ease`;
-        paper.style.opacity='1';
+        const dur=280+Math.random()*120; // 빠르게 뚝 떨어짐
+        paper.style.transition=`top ${dur}ms cubic-bezier(.4,0,1,1), opacity 80ms ease ${dur-80}ms`;
         paper.style.top=`${targetY}px`;
-        paper.style.left=`${targetX}px`;
 
-        // 도착 즉시 제거 후 더미에 추가 (별도 사라짐 없이 바로)
         setTimeout(()=>{
-          paper.remove();
-          pileCount++;
-          renderPile();
+          paper.style.opacity='0';
+          setTimeout(()=>{
+            paper.remove();
+            pileCount++;
+            renderPile();
+          },80);
         }, dur);
       }));
-    }, b*50);
+    }, b*40);
   }
 
   // 다음 큐 처리
-  setTimeout(processBallotQueue, 650);
+  setTimeout(processBallotQueue, 500);
 }
 
 /* ── 웹소켓 ── */
