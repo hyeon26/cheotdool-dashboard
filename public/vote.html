@@ -189,10 +189,6 @@ body::before{
       <div class="stat-num" id="total-votes">0</div>
       <div class="stat-label">총 투표수</div>
     </div>
-    <div class="stat-box">
-      <div class="stat-num" id="total-voters">0</div>
-      <div class="stat-label">참여자 수</div>
-    </div>
   </div>
 
   <!-- 결과 -->
@@ -240,13 +236,22 @@ function renderOptionInputs(){
   `).join('');
 }
 
+function syncOptionInputs(){
+  optionRows.forEach(o => {
+    const input = document.getElementById(`opt-${o.id}`);
+    if(input) o.label = input.value;
+  });
+}
+
 function addOption(){
+  syncOptionInputs();
   optionRows.push({id:optRowId++, label:''});
   renderOptionInputs();
 }
 
 function removeOption(id){
   if(optionRows.length<=1) return;
+  syncOptionInputs();
   optionRows = optionRows.filter(o=>o.id!==id);
   renderOptionInputs();
 }
@@ -424,7 +429,6 @@ function addFeed(nick, num, isChange){
 
 function updateStats(){
   document.getElementById('total-votes').textContent = Object.values(voteCounts).reduce((s,v)=>s+v,0);
-  document.getElementById('total-voters').textContent = Object.keys(voterMap).length;
 }
 
 function renderResults(){
@@ -469,6 +473,7 @@ function resetVote(){
   document.getElementById('feed').innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px 0">투표가 들어오면 여기에 표시돼요</div>';
   updateStats();
   renderResults();
+  toggleVotePanels();
   showToast('🗑 초기화 완료');
 }
 
