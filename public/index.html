@@ -1442,7 +1442,6 @@ window.openSessionHistory=async()=>{
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <button onclick="loadSession('${s.id}')" class="chat-btn" style="background:var(--accent);color:#fff;padding:5px 12px;font-size:11px">불러오기</button>
-            <button onclick="downloadSession('${s.id}','${(s.liveTitle||'방송').replace(/'/g,'')}')" class="chat-btn" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border2);padding:5px 12px;font-size:11px">⬇ TXT</button>
             <button onclick="deleteSession('${s.id}',this)" class="chat-btn" style="background:#fee2e2;color:#ef4444;border:1.5px solid #fecaca;padding:5px 12px;font-size:11px">🗑</button>
           </div>
         </div>
