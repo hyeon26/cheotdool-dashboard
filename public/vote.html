@@ -164,6 +164,7 @@ body::before{
 /* 당첨자 뽑기 */
 .voter-chip{position:relative;padding:8px 14px;border-radius:999px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);font-size:15px;color:#ccc;cursor:default;transition:background .15s,border-color .15s,color .15s}
 .voter-chip.lit{background:#2ecc71;border-color:#2ecc71;color:#000;font-weight:800;box-shadow:0 0 16px rgba(46,204,113,.7)}
+.voter-chip.won{background:#1a6e3e;border-color:#2ecc71;color:#2ecc71;font-weight:800;opacity:.7;text-decoration:line-through}
 .btn-raffle{padding:10px 20px;border-radius:10px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;box-shadow:0 2px 12px rgba(245,158,11,.4);transition:opacity .15s,transform .1s}
 .btn-raffle:hover{opacity:.88}.btn-raffle:active{transform:scale(.97)}
 .btn-raffle:disabled{opacity:.4;cursor:not-allowed}
@@ -580,13 +581,14 @@ function renderResults(){
 }
 
 /* ── 투표자 팝업 ── */
-let currentRaffleKey=null, raffleVoters=[];
+let currentRaffleKey=null, raffleVoters=[], winnersSet=new Set();
 
 function showOptionVoters(key){
   const voters=Object.keys(voterMap).filter(n=>voterMap[n]===key);
   const label=voteOptions[key]||`${key}번`;
   currentRaffleKey=key;
   raffleVoters=voters;
+  winnersSet=new Set(); // 항목 바뀌면 당첨 이력 초기화
   document.getElementById('modal-title').textContent=`${key}번 ${label} (${voters.length}명)`;
   document.getElementById('modal-voters').innerHTML=voters.length
     ?voters.map((n,i)=>`<span class="voter-chip" id="chip-${i}">${n}</span>`).join('')
@@ -599,48 +601,65 @@ function showOptionVoters(key){
 /* ── 당첨자 뽑기 ── */
 function startRaffle(){
   if(!raffleVoters.length) return;
+
+  // 아직 안 뽑힌 사람만 대상
+  const eligible = raffleVoters
+    .map((n,i)=>({name:n, idx:i}))
+    .filter(o=>!winnersSet.has(o.name));
+
+  if(!eligible.length){
+    showToast('🎉 모든 참가자가 당첨됐어요!');
+    return;
+  }
+
   const btn=document.getElementById('btn-raffle');
   btn.disabled=true;
 
   const chips=raffleVoters.map((_,i)=>document.getElementById(`chip-${i}`));
-  const total=raffleVoters.length;
+  const total=eligible.length; // 대상자만 카운트
 
-  // 느린 구간 시작점을 완전 랜덤으로 뽑음 → 당첨자 결정
+  // 느린 구간 시작점 완전 랜덤 → 당첨자 결정
   const SLOW_STEPS=8;
   const slowDelays=[80,194,309,423,537,651,766,1000];
-  const slowStartIdx=Math.floor(Math.random()*total); // 0~total-1 완전 균등
-  const winnerIdx=(slowStartIdx+SLOW_STEPS-1)%total;
+  const slowStartPos=Math.floor(Math.random()*total);
+  const winnerEligibleIdx=(slowStartPos+SLOW_STEPS-1)%total;
+  const winner=eligible[winnerEligibleIdx];
 
-  // 빠른 구간: slowStartIdx에서 끝나도록 역산
-  // 랜덤 바퀴 수(3~7) + slowStartIdx로 끝나는 프레임 수 계산
-  const laps=3+Math.floor(Math.random()*5); // 3~7바퀴
-  const fastFrames=total*laps+slowStartIdx;  // 정확히 slowStartIdx에서 끝남
-  const fastDelay=20+Math.floor(Math.random()*31); // 20~50ms 랜덤
+  // 빠른 구간: eligible 순서로 돌기, 3~7바퀴
+  const laps=3+Math.floor(Math.random()*5);
+  const fastFrames=total*laps+slowStartPos;
+  const fastDelay=20+Math.floor(Math.random()*31);
 
   let frame=0, lastLit=-1;
 
+  function litChip(eligiblePos, on){
+    const chip=chips[eligible[eligiblePos%total].idx];
+    if(!chip) return;
+    if(on) chip.classList.add('lit');
+    else chip.classList.remove('lit');
+  }
+
   function step(){
-    if(lastLit>=0) chips[lastLit].classList.remove('lit');
+    if(lastLit>=0) litChip(lastLit, false);
 
     if(frame>=fastFrames+SLOW_STEPS){
-      chips[winnerIdx].classList.add('lit');
-      chips[winnerIdx].scrollIntoView({block:'nearest',behavior:'smooth'});
-      setTimeout(()=>showWinner(raffleVoters[winnerIdx]),800);
+      // 당첨자 초록 고정
+      const winChip=chips[winner.idx];
+      if(winChip) winChip.classList.add('lit');
+      winChip?.scrollIntoView({block:'nearest',behavior:'smooth'});
+      setTimeout(()=>showWinner(winner.name), 800);
       btn.disabled=false;
       return;
     }
 
-    const idx=frame<fastFrames
+    const pos=frame<fastFrames
       ? frame%total
-      : (slowStartIdx+(frame-fastFrames))%total;
+      : (slowStartPos+(frame-fastFrames))%total;
 
-    chips[idx].classList.add('lit');
-    lastLit=idx;
+    litChip(pos, true);
+    lastLit=pos;
 
-    const delay=frame<fastFrames
-      ? fastDelay
-      : slowDelays[frame-fastFrames];
-
+    const delay=frame<fastFrames ? fastDelay : slowDelays[frame-fastFrames];
     frame++;
     setTimeout(step, delay);
   }
@@ -649,10 +668,19 @@ function startRaffle(){
 }
 
 function showWinner(name){
+  // 당첨자 목록에 추가
+  winnersSet.add(name);
+  // 해당 칩을 won 스타일로 고정
+  const idx=raffleVoters.indexOf(name);
+  if(idx>=0){
+    const chip=document.getElementById(`chip-${idx}`);
+    if(chip){ chip.classList.remove('lit'); chip.classList.add('won'); }
+  }
   const key=currentRaffleKey;
   const label=voteOptions[key]||`${key}번`;
+  const num=winnersSet.size;
   document.getElementById('winner-name').textContent=name;
-  document.getElementById('winner-option').textContent=`${key}번 ${label} 투표자`;
+  document.getElementById('winner-option').textContent=`${key}번 ${label} · ${num}번째 당첨자`;
   document.getElementById('winner-overlay').classList.add('show');
 }
 
