@@ -604,37 +604,36 @@ function startRaffle(){
 
   const chips=raffleVoters.map((_,i)=>document.getElementById(`chip-${i}`));
   const total=raffleVoters.length;
+
+  // ── 완전 랜덤: 당첨자 먼저 뽑고 경로는 나중에 ──
   const winnerIdx=Math.floor(Math.random()*total);
 
-  // ── 미리 전체 경로 계산 ──
-  // 빠른 구간: 랜덤 바퀴 수 (3~6바퀴) → 당첨자 위치 랜덤
-  const randomLaps=3+Math.floor(Math.random()*4); // 3~6바퀴
-  const fastFrames=total*randomLaps;
-
-  // 느린 구간 시작 인덱스
+  // 빠른 구간: 랜덤 프레임 수 (사람 수와 무관하게 40~80프레임)
+  const fastFrames=40+Math.floor(Math.random()*41); // 40~80, 완전 랜덤
+  // 느린 구간: 항상 딱 total 칸 (한 바퀴 천천히 돌면서 멈춤)
+  // 느린 구간 시작 인덱스 계산
   const slowStart=fastFrames%total;
-  // slowStart → winnerIdx까지 몇 칸? (최소 total칸으로 한 바퀴 더 보장)
+  // slowStart에서 winnerIdx까지 남은 칸
   const toWinner=(winnerIdx-slowStart+total)%total||total;
-  const totalFrames=fastFrames+toWinner;
 
-  // 딜레이: 빠른 구간 고정 28ms, 느린 구간 천천히 최대 900ms까지
-  function getDelay(f){
-    if(f<fastFrames) return 28;
-    const t=(f-fastFrames)/toWinner; // 0~1
-    // easeInQuart: 처음엔 별로 안 느리다가 후반에 확 느려짐
-    return 55 + Math.pow(t, 2.5) * 900;
-  }
+  // 딜레이 함수: 빠른 구간은 랜덤 속도(25~45ms), 느린 구간은 일정한 간격으로 증가
+  const fastDelay=25+Math.floor(Math.random()*21); // 25~45ms 랜덤 고정
+  const SLOW_STEPS=toWinner;
+  // 느린 구간 딜레이 배열: 80ms → 700ms, 균등 간격
+  const slowDelays=Array.from({length:SLOW_STEPS},(_,i)=>{
+    const t=i/(SLOW_STEPS-1||1);
+    return Math.round(80+t*620); // 80ms → 700ms 선형
+  });
 
   let frame=0, lastLit=-1;
 
   function step(){
     if(lastLit>=0) chips[lastLit].classList.remove('lit');
 
-    if(frame>=totalFrames){
-      // 당첨자에서 멈춤
+    if(frame>=fastFrames+SLOW_STEPS){
       chips[winnerIdx].classList.add('lit');
       chips[winnerIdx].scrollIntoView({block:'nearest',behavior:'smooth'});
-      setTimeout(()=>showWinner(raffleVoters[winnerIdx]), 700);
+      setTimeout(()=>showWinner(raffleVoters[winnerIdx]),800);
       btn.disabled=false;
       return;
     }
@@ -642,8 +641,13 @@ function startRaffle(){
     const idx=frame%total;
     chips[idx].classList.add('lit');
     lastLit=idx;
+
+    const delay=frame<fastFrames
+      ? fastDelay
+      : slowDelays[frame-fastFrames];
+
     frame++;
-    setTimeout(step, getDelay(frame));
+    setTimeout(step, delay);
   }
 
   step();
