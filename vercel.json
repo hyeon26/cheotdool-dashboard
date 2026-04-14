@@ -1,13 +1,10 @@
 {
   "crons": [
-    {
-      "path": "/api/cache-clips",
-      "schedule": "0 19 * * *"
-    }
+    { "path": "/api/cache-clips", "schedule": "0 19 * * *" }
   ],
   "redirects": [
     {
-      "source": "/",
+      "source": "/((?!clips$|api/).*)",
       "has": [{ "type": "host", "value": "cheotdool.vercel.app" }],
       "destination": "/__blocked__",
       "permanent": false
@@ -18,7 +15,7 @@
     { "source": "/content", "destination": "/index.html" },
     { "source": "/tools", "destination": "/index.html" },
     { "source": "/chat", "destination": "/index.html" },
-    { "source": "/clips", "destination": "/index.html" },
+    { "source": "/clips", "destination": "/clips.html" },
     { "source": "/vote", "destination": "/vote.html" }
   ]
 }
