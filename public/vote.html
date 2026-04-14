@@ -9,29 +9,29 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0f;
-  --surface:#13131c;
-  --surface2:#1c1c2a;
-  --border:rgba(255,255,255,.08);
-  --accent:#00e564;
-  --accent2:#00c850;
+  --bg:#111111;
+  --surface:#1a1a1a;
+  --surface2:#222222;
+  --border:rgba(255,255,255,.09);
+  --accent:#2ecc71;
+  --accent2:#27ae60;
   --text:#f0effe;
-  --text2:#9d8fcc;
-  --text3:#4a4068;
+  --text2:#999999;
+  --text3:#555555;
   --radius:14px;
   --shadow:0 4px 24px rgba(0,0,0,.4);
 }
 body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 body::before{
   content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(91,74,232,.18),transparent);
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(46,204,113,.07),transparent);
   pointer-events:none;z-index:0;
 }
 .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:36px 26px 80px}
 
 /* 헤더 */
 .header{text-align:center;margin-bottom:40px;position:relative;padding-top:56px}
-.header-badge{position:absolute;top:0;left:0;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(0,229,100,.12);font-size:16px;font-weight:800;color:var(--accent2);letter-spacing:.4px}
+.header-badge{position:absolute;top:0;left:0;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(46,204,113,.12);font-size:16px;font-weight:800;color:#2ecc71;letter-spacing:.4px}
 .brand-logo{width:26px;height:26px;border-radius:7px;object-fit:cover;display:block}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .header h1{font-size:44px;font-weight:900;letter-spacing:-.7px;margin-bottom:10px}
@@ -41,7 +41,7 @@ body::before{
 .status-bar{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:28px;gap:16px;flex-wrap:wrap}
 .status-left{display:flex;align-items:center;gap:10px}
 .ws-dot{width:14px;height:14px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
-.ws-dot.on{background:#00e564;box-shadow:0 0 12px #00e564;animation:blink 1.4s infinite}
+.ws-dot.on{background:#2ecc71;box-shadow:0 0 10px #2ecc71;animation:blink 1.4s infinite}
 .ws-dot.err{background:#ef4444}
 #ws-label{font-size:18px;font-weight:700;color:var(--text2)}
 .status-right{display:flex;gap:8px;flex-wrap:wrap}
@@ -50,7 +50,7 @@ body::before{
 /* 버튼 */
 .btn{padding:12px 22px;border-radius:10px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;transition:opacity .15s,transform .1s;letter-spacing:.2px}
 .btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(0,229,100,.35)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(46,204,113,.3)}
 .btn-danger{background:#ef4444;color:#fff}
 .btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
 
@@ -122,7 +122,7 @@ body::before{
   bottom:0;
   width:44px;height:58px;
   border-radius:3px 3px 2px 2px;
-  background:linear-gradient(170deg,#fff,#e0ffe8);
+  background:linear-gradient(170deg,#fff,#eafbf1);
   border:1px solid rgba(0,0,0,.1);
   box-shadow:0 2px 8px rgba(0,0,0,.28);
   transform-origin:bottom center;
@@ -131,8 +131,8 @@ body::before{
   content:'';
   position:absolute;
   top:8px;left:6px;right:6px;height:2px;
-  background:rgba(0,229,100,.3);border-radius:2px;
-  box-shadow:0 5px 0 rgba(0,229,100,.18),0 10px 0 rgba(0,229,100,.1);
+  background:rgba(46,204,113,.25);border-radius:2px;
+  box-shadow:0 5px 0 rgba(46,204,113,.18),0 10px 0 rgba(46,204,113,.1);
 }
 
 /* 떨어지는 투표용지 */
@@ -140,7 +140,7 @@ body::before{
   position:absolute;
   width:44px;height:58px;
   border-radius:3px 3px 2px 2px;
-  background:linear-gradient(170deg,#fff,#e0ffe8);
+  background:linear-gradient(170deg,#fff,#eafbf1);
   border:1px solid rgba(0,0,0,.1);
   box-shadow:0 6px 18px rgba(0,0,0,.3);
   z-index:10;
@@ -150,8 +150,8 @@ body::before{
   content:'';
   position:absolute;
   top:8px;left:6px;right:6px;height:2px;
-  background:rgba(0,229,100,.3);border-radius:2px;
-  box-shadow:0 5px 0 rgba(0,229,100,.18),0 10px 0 rgba(0,229,100,.1);
+  background:rgba(46,204,113,.25);border-radius:2px;
+  box-shadow:0 5px 0 rgba(46,204,113,.18),0 10px 0 rgba(46,204,113,.1);
 }
 
 /* 빈 상태 */
