@@ -571,7 +571,7 @@ function renderResults(){
       <div class="vote-item-header">
         <div class="vote-item-name">
           <div class="vote-badge" style="${!isFirst?`background:${col}`:''}">${k}</div>
-          ${voteOptions[k]&&voteOptions[k]!==k?voteOptions[k]:''}
+          ${voteOptions[k]||k}
         </div>
         <div class="vote-count">${cnt}표 (${pct}%)</div>
       </div>
@@ -589,7 +589,7 @@ function showOptionVoters(key){
   currentRaffleKey=key;
   raffleVoters=voters;
   winnersSet=new Set(); // 항목 바뀌면 당첨 이력 초기화
-  document.getElementById('modal-title').textContent=`${key}번 ${label} (${voters.length}명)`;
+  document.getElementById('modal-title').textContent=`${label} (${voters.length}명)`;
   document.getElementById('modal-voters').innerHTML=voters.length
     ?voters.map((n,i)=>`<span class="voter-chip" id="chip-${i}">${n}</span>`).join('')
     :`<div class="modal-empty">투표 인원 없음</div>`;
@@ -680,7 +680,7 @@ function showWinner(name){
   const label=voteOptions[key]||`${key}번`;
   const num=winnersSet.size;
   document.getElementById('winner-name').textContent=name;
-  document.getElementById('winner-option').textContent=`${key}번 ${label} · ${num}번째 당첨자`;
+  document.getElementById('winner-option').textContent=`${label} · ${num}번째 당첨자`;
   document.getElementById('winner-overlay').classList.add('show');
 }
 
