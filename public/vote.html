@@ -370,7 +370,6 @@ function updateVoteControls(){
   const setupVisible=!voteRunning&&!voteEnded;
   document.getElementById('btn-add-option').style.display=setupVisible?'':'none';
   document.getElementById('vote-title-input').readOnly=!setupVisible;
-  document.getElementById('vote-title-input').style.opacity=setupVisible?'1':'.5';
   document.querySelectorAll('.option-input').forEach(el=>{ el.readOnly=!setupVisible; });
   document.querySelectorAll('.btn-remove-opt').forEach(el=>{ el.style.display=setupVisible?'':'none'; });
 }
