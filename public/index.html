@@ -354,6 +354,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 </style>
 
 <link rel="icon" type="image/png" href="/logo.png"/>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -1859,8 +1860,40 @@ window.fmtTime=(el)=>{ let v=el.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.
 
 renderCal();
 
-// URL 해시로 초기 탭 설정
+// 호스트 감지 - cheotdool.vercel.app이면 클립 탭만 표시
 (function(){
+  const isPublic = location.hostname === 'cheotdool.vercel.app';
+
+  if(isPublic){
+    // 클립 탭 외 모두 숨김
+    document.querySelectorAll('.tab').forEach(tab=>{
+      if(!tab.getAttribute('onclick')?.includes("'clips'")) tab.style.display='none';
+    });
+    // 로고 서브텍스트 숨김
+    const sub = document.querySelector('.logo-sub');
+    if(sub) sub.style.display='none';
+
+    // switchTab 차단 먼저 설정
+    const origSwitch = window.switchTab;
+    window.switchTab = (name, el) => {
+      if(name !== 'clips') return;
+      origSwitch(name, el);
+    };
+
+    // 모든 탭 콘텐츠 숨기고 클립만 표시
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    const clipContent = document.getElementById('tab-clips');
+    if(clipContent) clipContent.classList.add('active');
+    const clipTab = document.querySelector('.tab[onclick*="'clips'"]');
+    if(clipTab) clipTab.classList.add('active');
+
+    // 클립 데이터 로드
+    allClipsCache=[]; clipsPage=0; loadClips(true);
+    return;
+  }
+
+  // 일반 접속: URL 해시로 초기 탭 설정
   const hash = location.pathname.replace('/','') || 'schedule';
   const tabs = ['schedule','content','tools','chat','clips'];
   const target = tabs.includes(hash) ? hash : 'schedule';
