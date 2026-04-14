@@ -127,8 +127,8 @@ body::before{
       <span id="ws-label">연결 안됨</span>
     </div>
     <div class="status-right">
-      <button class="btn btn-primary" id="btn-connect" onclick="wsConnect()">🔌 연결</button>
-      <button class="btn btn-danger" id="btn-disconnect" onclick="wsDisconnect()" style="display:none">⏹ 연결 끊기</button>
+      <button class="btn btn-primary" id="btn-start" onclick="startVote()">▶ 투표 시작</button>
+      <button class="btn btn-danger" id="btn-end" onclick="endVote()" style="display:none">⏹ 투표 종료</button>
       <button class="btn btn-ghost" onclick="resetVote()">🗑 초기화</button>
     </div>
   </div>
@@ -183,6 +183,7 @@ let voterMap    = {};   // { 닉네임: '1' } 중복 방지
 let ws = null, wsConnected = false;
 let wsReconnectTimer = null, wsAutoReconnect = true;
 let channelIdCache = null;
+let voteRunning = false;
 
 // ── 초기 항목 (2개) ──
 let optionRows = [{id:1,label:''},{id:2,label:''}];
@@ -224,6 +225,28 @@ function applyOptions(){
   voteCounts = newCounts;
   renderResults();
   showToast('✅ 항목 적용 완료!');
+}
+
+function updateVoteControls(){
+  const btnStart = document.getElementById('btn-start');
+  const btnEnd = document.getElementById('btn-end');
+  btnStart.style.display = voteRunning ? 'none' : '';
+  btnEnd.style.display = voteRunning ? '' : 'none';
+}
+
+function startVote(){
+  applyOptions();
+  voteRunning = true;
+  updateVoteControls();
+  if(!wsConnected) wsConnect();
+  else showToast('▶ 투표 진행 중');
+}
+
+function endVote(){
+  voteRunning = false;
+  updateVoteControls();
+  wsDisconnect();
+  showToast('⏹ 투표 종료');
 }
 
 // ── 웹소켓 ──
@@ -281,6 +304,7 @@ setInterval(()=>{
 
 // ── 투표 처리 ──
 function processVote(nick, msg){
+  if(!voteRunning) return;
   // !투표1 또는 !투표 1 패턴
   const m = msg.match(/^!투표\s*(\d+)$/);
   if(!m) return;
@@ -371,24 +395,21 @@ function resetVote(){
 function setWsStatus(state){
   const dot = document.getElementById('ws-dot');
   const label = document.getElementById('ws-label');
-  const btnC = document.getElementById('btn-connect');
-  const btnD = document.getElementById('btn-disconnect');
   if(state === true){
     wsConnected = true; wsAutoReconnect = true;
     dot.className='ws-dot on'; label.textContent='채팅 연결됨';
-    btnC.style.display='none'; btnD.style.display='';
   } else if(state === 'connecting'){
     dot.className='ws-dot'; dot.style.background='#f59e0b';
     label.textContent='연결 중...';
   } else if(state === 'err'){
     wsConnected = false;
     dot.className='ws-dot err'; label.textContent='연결 실패';
-    btnC.style.display=''; btnD.style.display='none';
+    voteRunning = false;
+    updateVoteControls();
   } else {
     wsConnected = false;
     dot.className='ws-dot'; dot.style.background=''; 
     label.textContent='연결 안됨';
-    btnC.style.display=''; btnD.style.display='none';
   }
 }
 
@@ -402,6 +423,7 @@ function showToast(msg){
 renderOptionInputs();
 applyOptions();
 renderResults();
+updateVoteControls();
 </script>
 </body>
 </html>
