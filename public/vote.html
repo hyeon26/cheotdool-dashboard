@@ -282,6 +282,7 @@ function removeOption(id){
 function applyOptions(){
   optionRows.forEach(o=>{ o.label=document.getElementById(`opt-${o.id}`)?.value?.trim()||''; });
   voteOptions={};
+  window.optionColors={};  // 항목 바뀌면 색상 초기화
   optionRows.forEach((o,i)=>{ voteOptions[String(i+1)]=o.label||String(i+1); });
   const nc={};
   Object.keys(voteOptions).forEach(k=>{ nc[k]=voteCounts[k]||0; });
@@ -353,46 +354,58 @@ function renderPile(){
   }
 }
 
-/* ── 투표용지 날아오기 (오른쪽 밖 → 투표함 슬롯) ── */
+/* ── 투표용지 큐 처리 (몰림 대응) ── */
+let ballotQueue=0, ballotRunning=false;
+
 function launchBallot(){
+  ballotQueue++;
+  if(!ballotRunning) processBallotQueue();
+}
+
+function processBallotQueue(){
+  if(ballotQueue===0){ ballotRunning=false; return; }
+  ballotRunning=true;
+
+  // 몰릴 때 최대 6장 동시 처리
+  const batch=Math.min(ballotQueue,6);
+  ballotQueue-=batch;
+
   const stage=document.getElementById('ballot-stage');
-  if(!stage) return;
+  if(!stage){ ballotRunning=false; return; }
 
   const sw=stage.offsetWidth, sh=stage.offsetHeight;
+  const targetX=sw/2-25;
+  const targetY=sh-76;
 
-  // 목표: 투표함 슬롯 위치 (가운데, 슬롯 높이에 맞춤)
-  const targetX=sw/2-25;       // 용지 너비 50px → 중앙 정렬
-  const targetY=sh-76;         // 바닥 근처
-
-  // 시작: 오른쪽 완전히 밖, Y는 랜덤
-  const startX=sw+20;
-  const startY=Math.random()*(sh*0.5)+20;
-
-  const paper=document.createElement('div');
-  paper.className='ballot-fly';
-  paper.style.cssText=`top:${startY}px;left:${startX}px;opacity:0;`;
-  stage.appendChild(paper);
-
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const dur=650+Math.random()*250;
-    paper.style.transition=`left ${dur}ms cubic-bezier(.25,0,.4,1), top ${dur}ms cubic-bezier(.25,0,.4,1), transform ${dur}ms ease, opacity 150ms ease`;
-    paper.style.opacity='1';
-    paper.style.top=`${targetY}px`;
-    paper.style.left=`${targetX}px`;
-    paper.style.transform=`rotate(${Math.random()*10-5}deg)`;
-
-    // 슬롯 도착 후 → 빨려들어가는 효과 후 더미에 추가
+  for(let b=0;b<batch;b++){
     setTimeout(()=>{
-      paper.style.transition='transform 140ms ease, opacity 140ms ease';
-      paper.style.transform='scale(.35) translateY(18px)';
-      paper.style.opacity='0';
-      setTimeout(()=>{
-        paper.remove();
-        pileCount++;
-        renderPile();
-      },140);
-    }, dur+30);
-  }));
+      const paper=document.createElement('div');
+      paper.className='ballot-fly';
+      const startX=sw+20;
+      const startY=Math.random()*(sh*0.55)+10;
+      paper.style.cssText=`top:${startY}px;left:${startX}px;opacity:0;`;
+      stage.appendChild(paper);
+
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        const dur=450+Math.random()*150;
+        // 날아오는 동안 회전 없음 - 정면 유지하다가 도착 즉시 쌓임
+        paper.style.transition=`left ${dur}ms cubic-bezier(.3,0,.45,1), top ${dur}ms cubic-bezier(.3,0,.45,1), opacity 120ms ease`;
+        paper.style.opacity='1';
+        paper.style.top=`${targetY}px`;
+        paper.style.left=`${targetX}px`;
+
+        // 도착 즉시 제거 후 더미에 추가 (별도 사라짐 없이 바로)
+        setTimeout(()=>{
+          paper.remove();
+          pileCount++;
+          renderPile();
+        }, dur);
+      }));
+    }, b*50);
+  }
+
+  // 다음 큐 처리
+  setTimeout(processBallotQueue, 650);
 }
 
 /* ── 웹소켓 ── */
@@ -459,18 +472,29 @@ function renderResults(){
   const total=Object.values(voteCounts).reduce((s,v)=>s+v,0)||1;
   const sorted=keys.slice().sort((a,b)=>(voteCounts[b]||0)-(voteCounts[a]||0));
   const maxV=voteCounts[sorted[0]]||0;
-  const colors=['#5b4ae8','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
+  // 항목별 고정 색상 (처음 렌더 시 생성, 이후 유지)
+  if(!window.optionColors) window.optionColors={};
+  keys.forEach(k=>{
+    if(!window.optionColors[k]){
+      const h=Math.floor(Math.random()*360);
+      window.optionColors[k]=`hsl(${h},70%,58%)`;
+    }
+  });
+  // 없어진 항목 정리
+  Object.keys(window.optionColors).forEach(k=>{ if(!keys.includes(k)) delete window.optionColors[k]; });
+
   el.innerHTML=keys.map((k,i)=>{
     const cnt=voteCounts[k]||0, pct=Math.round(cnt/total*100), isFirst=cnt>0&&cnt===maxV;
+    const col=window.optionColors[k];
     return `<div class="vote-item${isFirst?' first':''}" onclick="showOptionVoters('${k}')">
       <div class="vote-item-header">
         <div class="vote-item-name">
-          <div class="vote-badge" style="${!isFirst?`background:${colors[i%colors.length]}`:''}">${k}</div>
+          <div class="vote-badge" style="${!isFirst?`background:${col}`:''}">${k}</div>
           ${voteOptions[k]&&voteOptions[k]!==k?voteOptions[k]:''}
         </div>
         <div class="vote-count">${cnt}표 (${pct}%)</div>
       </div>
-      <div class="vote-bar-wrap"><div class="vote-bar" style="width:${pct}%;${!isFirst?`background:${colors[i%colors.length]}`:''}" ></div></div>
+      <div class="vote-bar-wrap"><div class="vote-bar" style="width:${pct}%;${!isFirst?`background:${col}`:''}" ></div></div>
     </div>`;
   }).join('');
 }
