@@ -1689,11 +1689,9 @@ async function loadClips(reset=false){
           for(let i = 0; i < meta.chunks; i++){
             const chunk = chunkDocs[`chunk_${i}`];
             if(!chunk) continue;
-            // SDK로 읽힌 경우 (clips가 배열)
             if(Array.isArray(chunk.clips)){
               items.push(...chunk.clips);
             }
-            // REST API로 저장된 경우 (arrayValue 구조)
             else if(chunk.clips?.arrayValue?.values){
               const parsed = chunk.clips.arrayValue.values.map(v => {
                 const f = v.mapValue.fields;
