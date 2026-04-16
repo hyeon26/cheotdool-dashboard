@@ -481,7 +481,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div id="tools-list"><div class="loading">불러오는 중...</div></div>
   </div>
 
-  <!-- 채팅 수집 -->
   <div id="tab-chat" class="tab-content">
     <div style="display:grid;grid-template-columns:1fr 320px 300px;gap:16px">
 
@@ -1870,7 +1869,11 @@ window.kakaoShareClip = () => {
 
 
 
-// ── 카카오 공유 ──
+// ── 접속 로그 기록 ──
+(function(){
+  const page = location.pathname || '/';
+  fetch(`/api/log-visit?page=${encodeURIComponent(page)}`).catch(()=>{});
+})();
 window.addEventListener('load', () => {
   if(window.Kakao && !Kakao.isInitialized()) Kakao.init('c4ce415a886b59c7828a0fac44057c94');
 });
