@@ -201,7 +201,7 @@ body::before{
   <div class="header">
     <div class="header-badge"><img class="brand-logo" src="/logo.png" alt="첫째와둘째 로고"/>첫째와둘째</div>
     <h1>🗳 실시간 채팅 투표</h1>
-    <p>채팅창에 <strong>!투표숫자</strong> 또는 <strong>!투표 숫자</strong> 를 입력하세요</p>
+    <p>채팅창에 <strong>항목 이름</strong> 또는 <strong>번호</strong>를 입력하면 투표됩니다</p>
   </div>
 
   <div class="card" id="setup-card">
@@ -564,15 +564,28 @@ setInterval(()=>{ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(
 /* ── 투표 처리 ── */
 function processVote(nick,msg){
   if(!voteRunning) return;
-  const m=msg.match(/^!투표\s*(\d+)$/);
-  if(!m) return;
-  const num=m[1];
-  if(!voteOptions[num]&&Object.keys(voteOptions).length>0) return;
+  const text = msg.trim();
+  const keys = Object.keys(voteOptions);
+  if(!keys.length) return;
+
+  // 1. 항목 텍스트 완전 일치
+  let matchedKey = keys.find(k => voteOptions[k] === text);
+
+  // 2. 숫자 입력 시 순서로 매칭 (1번→첫번째 항목, 111/1111 등 반복도 인정)
+  if(!matchedKey){
+    const repeated = text.match(/^(\d)\1*$/); // 같은 숫자 반복 (1, 11, 111 등)
+    const num = repeated ? parseInt(repeated[1]) : parseInt(text);
+    if(!isNaN(num) && num >= 1 && num <= keys.length){
+      matchedKey = keys[num-1];
+    }
+  }
+
+  if(!matchedKey) return;
   const prev=voterMap[nick];
-  if(prev===num) return;
+  if(prev===matchedKey) return;
   if(prev) voteCounts[prev]=Math.max(0,(voteCounts[prev]||0)-1);
-  voterMap[nick]=num;
-  voteCounts[num]=(voteCounts[num]||0)+1;
+  voterMap[nick]=matchedKey;
+  voteCounts[matchedKey]=(voteCounts[matchedKey]||0)+1;
   updateStats(); renderResults();
   launchBallot();
 }
