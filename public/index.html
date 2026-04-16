@@ -1844,20 +1844,22 @@ window.kakaoShareSchedule = () => {
   const s = schedules.find(x => x.id === currentScheduleId); if(!s) return;
   const title = s.name;
   const desc = [formatDate(s.date), s.time, TYPE_LABEL[s.type]||'일정', s.note].filter(Boolean).join(' · ');
+  const url = `https://firstandsecond.vercel.app/schedule?open=${s.id}`;
   Kakao.Share.sendDefault({
     objectType: 'text',
     text: `📅 ${title}\n${desc}`,
-    link: { mobileWebUrl: 'https://firstandsecond.vercel.app', webUrl: 'https://firstandsecond.vercel.app' }
+    link: { mobileWebUrl: url, webUrl: url }
   });
 };
 
 window.kakaoShareContent = () => {
   const c = contents.find(x => x.id === currentContentId); if(!c) return;
   const desc = [c.date, c.duration, c.note].filter(Boolean).join(' · ');
+  const url = `https://firstandsecond.vercel.app/content?open=${c.id}`;
   Kakao.Share.sendDefault({
     objectType: 'text',
     text: `🎬 ${c.title}\n${desc}`,
-    link: { mobileWebUrl: 'https://firstandsecond.vercel.app', webUrl: 'https://firstandsecond.vercel.app' }
+    link: { mobileWebUrl: url, webUrl: url }
   });
 };
 
@@ -1883,13 +1885,32 @@ window.fmtTime=(el)=>{ let v=el.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.
 
 renderCal();
 
-// URL 해시로 초기 탭 설정
+// URL 해시로 초기 탭 설정 + ?open= 파라미터로 모달 자동 오픈
 (function(){
   const hash = location.pathname.replace('/','') || 'schedule';
   const tabs = ['schedule','content','tools','chat','clips'];
   const target = tabs.includes(hash) ? hash : 'schedule';
   const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
   if(el) switchTab(target, el);
+
+  // ?open=ID 파라미터 처리
+  const openId = new URLSearchParams(location.search).get('open');
+  if(openId){
+    if(target === 'schedule'){
+      // 스케줄 로드 후 모달 오픈
+      const tryOpen = setInterval(() => {
+        const s = schedules.find(x => x.id === openId);
+        if(s){ clearInterval(tryOpen); s.type==='vod' ? openStreamDetail(openId) : openScheduleView(openId); }
+      }, 300);
+      setTimeout(() => clearInterval(tryOpen), 5000);
+    } else if(target === 'content'){
+      const tryOpen = setInterval(() => {
+        const c = contents.find(x => x.id === openId);
+        if(c){ clearInterval(tryOpen); openContentDetail(openId); }
+      }, 300);
+      setTimeout(() => clearInterval(tryOpen), 5000);
+    }
+  }
 })();
 
 </script>
