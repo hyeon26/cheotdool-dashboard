@@ -1861,8 +1861,8 @@ window.kakaoShareStream = () => {
     formatDate(s.date),
     s.time,
     s.duration ? '⏱ '+s.duration : '',
-    s.maxViewers ? '최고 '+s.maxViewers+'명' : '',
-    s.avgViewers ? '평균 '+s.avgViewers+'명' : ''
+    s.maxViewers ? '최고 '+s.maxViewers : '',
+    s.avgViewers ? '평균 '+s.avgViewers : ''
   ].filter(Boolean).join(' · ');
   const url = `https://firstandsecond.vercel.app/schedule?open=${s.id}`;
   Kakao.Share.sendDefault({
