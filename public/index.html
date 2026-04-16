@@ -668,6 +668,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <button class="btn-del" id="sd-del-btn">삭제</button>
       <button class="btn-cancel" onclick="closeModal('stream-detail-modal')">닫기</button>
       <button class="btn-save" onclick="saveStreamYoutube()">저장</button>
+      <button onclick="kakaoShareStream()" style="padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.8 3.1c-.1.3.3.5.5.3l3.7-2.4c.8.1 1.7.2 2.6.2 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg> 공유</button>
     </div>
   </div>
 </div>
@@ -1856,7 +1857,16 @@ window.addEventListener('load', () => {
   if(window.Kakao && !Kakao.isInitialized()) Kakao.init('c4ce415a886b59c7828a0fac44057c94');
 });
 
-window.kakaoShareSchedule = () => {
+window.kakaoShareStream = () => {
+  const s = schedules.find(x => x.id === currentStreamId); if(!s) return;
+  const desc = [formatDate(s.date), s.time, s.duration ? '⏱ '+s.duration : '', s.maxViewers ? '👥 최고 '+s.maxViewers+'명' : ''].filter(Boolean).join(' · ');
+  const url = `https://firstandsecond.vercel.app/schedule?open=${s.id}`;
+  Kakao.Share.sendDefault({
+    objectType: 'text',
+    text: `📺 ${s.name}\n${desc}`,
+    link: { mobileWebUrl: url, webUrl: url }
+  });
+};
   const s = schedules.find(x => x.id === currentScheduleId); if(!s) return;
   const title = s.name;
   const desc = [formatDate(s.date), s.time, TYPE_LABEL[s.type]||'일정', s.note].filter(Boolean).join(' · ');
