@@ -1437,15 +1437,12 @@ window.openSessionHistory=async()=>{
     const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-3);
     for(const s of sessions){
       if(s.startedAt?.toDate?.() < cutoff){
-        // 서브컬렉션까지 삭제
         try {
           const cSnap=await getDocs(collection(db,`chatSessions/${s.id}/chats`));
           const dSnap=await getDocs(collection(db,`chatSessions/${s.id}/donations`));
-          const batch=writeBatch(db);
-          cSnap.docs.forEach(d=>batch.delete(d.ref));
-          dSnap.docs.forEach(d=>batch.delete(d.ref));
-          batch.delete(doc(db,'chatSessions',s.id));
-          await batch.commit();
+          await batchDelete(cSnap.docs);
+          await batchDelete(dSnap.docs);
+          const b=writeBatch(db); b.delete(doc(db,'chatSessions',s.id)); await b.commit();
         } catch(e){}
       }
     }
@@ -1523,18 +1520,25 @@ window.loadSession=async(sessionId)=>{
 };
 
 
+async function batchDelete(docs){
+  const chunks = [];
+  for(let i=0; i<docs.length; i+=400) chunks.push(docs.slice(i,i+400));
+  for(const chunk of chunks){
+    const batch = writeBatch(db);
+    chunk.forEach(d=>batch.delete(d.ref));
+    await batch.commit();
+  }
+}
+
 window.deleteSession=async(sessionId, btn)=>{
   if(!confirm('이 기록을 삭제할까요?')) return;
   btn.textContent='삭제 중...'; btn.disabled=true;
   try {
     const cSnap=await getDocs(collection(db,`chatSessions/${sessionId}/chats`));
     const dSnap=await getDocs(collection(db,`chatSessions/${sessionId}/donations`));
-    const batch=writeBatch(db);
-    cSnap.docs.forEach(d=>batch.delete(d.ref));
-    dSnap.docs.forEach(d=>batch.delete(d.ref));
-    batch.delete(doc(db,'chatSessions',sessionId));
-    await batch.commit();
-    // 해당 세션 카드 제거
+    await batchDelete(cSnap.docs);
+    await batchDelete(dSnap.docs);
+    const b=writeBatch(db); b.delete(doc(db,'chatSessions',sessionId)); await b.commit();
     let el = btn;
     while(el && !el.style.borderRadius) el = el.parentElement;
     if(el) el.remove();
