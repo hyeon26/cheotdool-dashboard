@@ -15,6 +15,7 @@
     { "source": "/chat", "destination": "/index.html" },
     { "source": "/clips", "destination": "/index.html" },
     { "source": "/vote", "destination": "/vote.html" },
-    { "source": "/logs", "destination": "/logs.html" }
+    { "source": "/logs", "destination": "/logs.html" },
+    { "source": "/roulette", "destination": "/roulette.html" }
   ]
 }
