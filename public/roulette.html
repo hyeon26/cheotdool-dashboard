@@ -140,18 +140,10 @@ select:focus{border-color:var(--accent2)}
       <div class="panel">
         <div class="panel-title" style="justify-content:space-between">
           <span>📋 룰렛 항목</span>
-          <button class="btn btn-primary" onclick="toggleItemInput()" id="add-item-btn" style="padding:4px 12px;font-size:12px">+ 추가</button>
+          <button class="btn btn-primary" onclick="openItemModal()" style="padding:4px 12px;font-size:12px">+ 추가</button>
         </div>
         <div class="panel-sub">항목 이름 = 도네 내용과 일치 시 카운트</div>
-        <div id="item-input-wrap" style="display:none;gap:8px;margin-bottom:12px">
-          <input id="item-input" type="text" placeholder="항목 이름 입력" onkeydown="if(event.key==='Enter')addItem()"
-            style="width:100%;padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px"/>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-primary" onclick="addItem()" style="padding:7px 16px;flex:1">확인</button>
-            <button class="btn btn-ghost" onclick="toggleItemInput()" style="padding:7px 16px">취소</button>
-          </div>
-        </div>
-        <div id="item-list" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto">
+        <div id="item-list" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;margin-top:8px">
           <div class="empty">항목을 추가하세요</div>
         </div>
       </div>
@@ -169,6 +161,18 @@ select:focus{border-color:var(--accent2)}
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- 항목 추가/수정 모달 -->
+<div class="modal-bg" id="item-modal" onclick="if(event.target===this)closeItemModal()">
+  <div class="modal">
+    <h3 id="item-modal-title">항목 추가</h3>
+    <input id="item-input" type="text" placeholder="항목 이름 입력" onkeydown="if(event.key==='Enter')confirmItem()"/>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeItemModal()">취소</button>
+      <button class="btn btn-primary" onclick="confirmItem()">확인</button>
     </div>
   </div>
 </div>
@@ -205,30 +209,55 @@ function renderItemList(){
   el.innerHTML = rouletteItems.map((name,i)=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--surface2);border-radius:8px">
       <span style="font-size:13px;font-weight:600;color:var(--text)">${name}</span>
-      <button onclick="removeItem(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 4px">×</button>
+      <div style="display:flex;gap:4px">
+        <button onclick="openItemModal(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:2px 6px">✏️</button>
+        <button onclick="removeItem(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 4px">×</button>
+      </div>
     </div>`).join('');
 }
 
-window.toggleItemInput = () => {
-  const wrap = document.getElementById('item-input-wrap');
-  const visible = wrap.style.display !== 'none';
-  wrap.style.display = visible ? 'none' : 'flex';
-  wrap.style.flexDirection = 'column';
-  if(!visible) document.getElementById('item-input').focus();
+let editingItemIdx = -1;
+
+window.openItemModal = (idx = -1) => {
+  editingItemIdx = idx;
+  const input = document.getElementById('item-input');
+  const title = document.getElementById('item-modal-title');
+  if(idx >= 0){
+    title.textContent = '항목 수정';
+    input.value = rouletteItems[idx];
+  } else {
+    title.textContent = '항목 추가';
+    input.value = '';
+  }
+  document.getElementById('item-modal').classList.add('open');
+  setTimeout(()=>input.focus(), 100);
 };
 
-window.addItem = () => {
+window.closeItemModal = () => {
+  document.getElementById('item-modal').classList.remove('open');
+};
+
+window.confirmItem = () => {
   const input = document.getElementById('item-input');
   const name = input.value.trim();
   if(!name) return;
-  if(rouletteItems.includes(name)){ alert('이미 있는 항목이에요'); return; }
-  rouletteItems.push(name);
-  saveItems();
+  if(editingItemIdx >= 0){
+    // 수정
+    const oldName = rouletteItems[editingItemIdx];
+    rouletteItems[editingItemIdx] = name;
+    saveItems();
+    const entry = entries.find(e=>e.name===oldName);
+    if(entry) entry.name = name;
+  } else {
+    // 추가
+    if(rouletteItems.includes(name)){ alert('이미 있는 항목이에요'); return; }
+    rouletteItems.push(name);
+    saveItems();
+    if(!entries.find(e=>e.name===name)) entries.push({name, amt:0, count:0});
+  }
   renderItemList();
-  input.value = '';
-  document.getElementById('item-input-wrap').style.display = 'none';
-  if(!entries.find(e=>e.name===name)) entries.push({name, amt:0, count:0});
   rebuildPool(); renderEntries(); drawWheel();
+  closeItemModal();
 };
 
 window.removeItem = (i) => {
@@ -575,10 +604,8 @@ function onWsMsg(e){
         const extras = d.extras ? (typeof d.extras==='string' ? JSON.parse(d.extras) : d.extras) : {};
         const amt = Number(extras?.payAmount || 0);
         const isMission = extras?.donationType === 'MISSION' || !!extras?.missionDonationId;
-        console.log('도네 수신:', { msg: d.msg, message: d.message, amt, isMission, extras });
         if(isMission || !amt) return;
-        const content = (d.msg || d.message || extras?.donationText || extras?.message || '').trim();
-        console.log('도네 내용:', content, '/ 등록 항목:', rouletteItems);
+        const content = (d.msg || extras?.donationText || extras?.message || '').trim();
         if(!content) return;
         addDonation(content, amt);
       });
@@ -589,15 +616,18 @@ function onWsMsg(e){
 setInterval(()=>{ if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000})); }, 20000);
 
 function addDonation(content, amt){
-  // 등록된 항목과 일치하는 경우만 처리
-  if(!rouletteItems.includes(content)) return;
-  const existing = entries.find(e => e.name === content);
-  if(existing){
-    existing.amt += amt;
-    existing.count = Math.floor(existing.amt / 1000);
-  } else {
-    entries.push({ name: content, amt, count: Math.floor(amt/1000) });
-  }
+  // 등록된 항목 이름이 도네 내용에 포함되면 카운트
+  const matched = rouletteItems.filter(item => content.includes(item));
+  if(!matched.length) return;
+  matched.forEach(item => {
+    const existing = entries.find(e => e.name === item);
+    if(existing){
+      existing.amt += amt;
+      existing.count = Math.floor(existing.amt / 1000);
+    } else {
+      entries.push({ name: item, amt, count: Math.floor(amt/1000) });
+    }
+  });
   entries = entries.sort((a,b)=>b.amt-a.amt);
   rebuildPool();
   renderEntries();
@@ -614,5 +644,6 @@ renderEntries();
 renderHistory();
 wsConnect();
 </script>
+
 </body>
 </html>
