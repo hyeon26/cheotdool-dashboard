@@ -54,6 +54,12 @@ select:focus{border-color:var(--accent2)}
 .pointer{position:absolute;top:50%;right:-8px;transform:translateY(-50%);width:0;height:0;border-top:18px solid transparent;border-bottom:18px solid transparent;border-right:36px solid var(--gold);filter:drop-shadow(0 0 8px rgba(251,191,36,.6))}
 .spin-btn-wrap{display:flex;gap:10px}
 
+/* 핀볼 */
+.pinball-wrap{width:100%;max-width:640px}
+.pinball-stage{position:relative;background:#0f1020;border:1.5px solid var(--border);border-radius:14px;overflow:hidden}
+.pinball-stage canvas{width:100%;height:auto;display:block}
+.pinball-note{font-size:12px;color:var(--text3);margin-top:8px;text-align:center}
+
 /* 결과 */
 .result-banner{background:linear-gradient(135deg,var(--surface),var(--surface2));border:2px solid var(--gold2);border-radius:var(--radius);padding:20px 28px;text-align:center;display:none}
 .result-banner.show{display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
@@ -131,6 +137,12 @@ select:focus{border-color:var(--accent2)}
         <button class="btn btn-gold" id="spin-btn" onclick="spin()" disabled>🎰 돌리기</button>
         <button class="btn btn-ghost" onclick="removeWinner()" id="remove-btn" style="display:none">🗑 당첨자 제거</button>
       </div>
+      <div class="pinball-wrap">
+        <div class="pinball-stage">
+          <canvas id="pinball-canvas" width="640" height="320"></canvas>
+        </div>
+        <div class="pinball-note">도네가 들어오면 항목 칸으로 핀볼이 떨어집니다 (1,000원당 1개)</div>
+      </div>
     </div>
 
     <!-- 사이드 패널 -->
@@ -204,6 +216,9 @@ let pool = [];    // 이름 * count 배열
 let history = JSON.parse(localStorage.getItem('roulette-history') || '[]');
 let isSpinning = false;
 let lastWinner = null;
+let pinball = null;
+let pinballs = [];
+let pegs = [];
 
 // ── 항목 관리 ──
 let rouletteItems = JSON.parse(localStorage.getItem('roulette-items') || '[]'); // 등록된 항목 이름 배열
@@ -583,6 +598,103 @@ function launchConfetti(){
   }
 }
 
+// ── 핀볼 ──
+function initPinball(){
+  const canvas=document.getElementById('pinball-canvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  pinball={canvas,ctx,w:canvas.width,h:canvas.height,gravity:0.22,friction:0.992,bounce:0.7};
+  buildPegs();
+  drawPinball();
+}
+
+function buildPegs(){
+  if(!pinball) return;
+  pegs=[];
+  for(let r=0;r<6;r++){
+    const y=50+r*35;
+    const cols=8+(r%2);
+    const gap=pinball.w/(cols+1);
+    for(let c=1;c<=cols;c++){
+      const shift=(r%2)?gap*0.5:0;
+      pegs.push({x:Math.min(pinball.w-20,c*gap+shift),y,rr:5});
+    }
+  }
+}
+
+function spawnPinball(itemName, count){
+  if(!pinball) return;
+  const names=rouletteItems.slice();
+  const idx=Math.max(0,names.indexOf(itemName));
+  const targetX=((idx+0.5)/Math.max(1,names.length))*pinball.w;
+  for(let i=0;i<count;i++){
+    pinballs.push({
+      x:pinball.w*0.5+(Math.random()*100-50),
+      y:-10-i*8,
+      vx:(Math.random()-0.5)*2.2,
+      vy:0,
+      r:7,
+      targetX,
+      color:COLORS[idx%COLORS.length]||'#fbbf24'
+    });
+  }
+}
+
+function drawPinball(){
+  if(!pinball) return;
+  const {ctx,w,h,gravity,friction,bounce}=pinball;
+  ctx.clearRect(0,0,w,h);
+  const bg=ctx.createLinearGradient(0,0,0,h);
+  bg.addColorStop(0,'#1a1b34');
+  bg.addColorStop(1,'#0b1022');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+
+  const names=rouletteItems.slice();
+  const binTop=h-58;
+  const binW=w/Math.max(1,names.length||1);
+  ctx.fillStyle='rgba(255,255,255,.12)';
+  for(let i=0;i<names.length;i++){
+    const x=i*binW;
+    ctx.fillRect(x,binTop,binW-2,h-binTop);
+    ctx.fillStyle='rgba(255,255,255,.8)';
+    ctx.font='600 11px Noto Sans KR';
+    const label=names[i].length>8?names[i].slice(0,7)+'…':names[i];
+    ctx.fillText(label,x+8,h-18);
+    ctx.fillStyle='rgba(255,255,255,.12)';
+  }
+
+  ctx.fillStyle='rgba(255,255,255,.4)';
+  pegs.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.rr,0,Math.PI*2); ctx.fill(); });
+
+  for(let i=pinballs.length-1;i>=0;i--){
+    const b=pinballs[i];
+    b.vx+=(b.targetX-b.x)*0.001;
+    b.vy+=gravity;
+    b.vx*=friction; b.vy*=friction;
+    b.x+=b.vx; b.y+=b.vy;
+    if(b.x<b.r){b.x=b.r;b.vx*=-bounce;}
+    if(b.x>w-b.r){b.x=w-b.r;b.vx*=-bounce;}
+
+    for(const p of pegs){
+      const dx=b.x-p.x,dy=b.y-p.y;
+      const d=Math.hypot(dx,dy), min=b.r+p.rr;
+      if(d<min){
+        const nx=dx/(d||1), ny=dy/(d||1);
+        const overlap=min-d;
+        b.x+=nx*overlap; b.y+=ny*overlap;
+        const dot=b.vx*nx+b.vy*ny;
+        b.vx=(b.vx-2*dot*nx)*0.8;
+        b.vy=(b.vy-2*dot*ny)*0.8;
+      }
+    }
+    if(b.y>binTop-b.r){ pinballs.splice(i,1); continue; }
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fillStyle=b.color; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.65)'; ctx.stroke();
+  }
+  requestAnimationFrame(drawPinball);
+}
+
 // ── WebSocket ──
 let ws = null, wsConnected = false, wsAutoReconnect = true, channelIdCache = null;
 
@@ -639,6 +751,7 @@ function addDonation(content, amt){
   if(!matched) return;
   const count = Math.floor(amt / 1000);
   if(!count) return;
+  spawnPinball(matched, Math.min(count, 24));
 
   // 1000원씩 0.5초 간격으로 순차 추가
   for(let i = 0; i < count; i++){
@@ -663,6 +776,7 @@ renderItemList();
 // 저장된 항목으로 entries 초기화
 entries = rouletteItems.map(name => ({ name, amt:0, count:0 }));
 drawWheel();
+initPinball();
 renderEntries();
 renderHistory();
 wsConnect();
