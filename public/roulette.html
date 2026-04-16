@@ -129,12 +129,18 @@ select:focus{border-color:var(--accent2)}
 
       <!-- 항목 등록 -->
       <div class="panel">
-        <div class="panel-title">📋 룰렛 항목</div>
+        <div class="panel-title" style="justify-content:space-between">
+          <span>📋 룰렛 항목</span>
+          <button class="btn btn-primary" onclick="toggleItemInput()" id="add-item-btn" style="padding:4px 12px;font-size:12px">+ 추가</button>
+        </div>
         <div class="panel-sub">항목 이름 = 도네 내용과 일치 시 카운트</div>
-        <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div id="item-input-wrap" style="display:none;gap:8px;margin-bottom:12px">
           <input id="item-input" type="text" placeholder="항목 이름 입력" onkeydown="if(event.key==='Enter')addItem()"
-            style="flex:1;padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none"/>
-          <button class="btn btn-primary" onclick="addItem()" style="padding:8px 16px">추가</button>
+            style="width:100%;padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px"/>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="addItem()" style="padding:7px 16px;flex:1">확인</button>
+            <button class="btn btn-ghost" onclick="toggleItemInput()" style="padding:7px 16px">취소</button>
+          </div>
         </div>
         <div id="item-list" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto">
           <div class="empty">항목을 추가하세요</div>
@@ -194,6 +200,14 @@ function renderItemList(){
     </div>`).join('');
 }
 
+window.toggleItemInput = () => {
+  const wrap = document.getElementById('item-input-wrap');
+  const visible = wrap.style.display !== 'none';
+  wrap.style.display = visible ? 'none' : 'flex';
+  wrap.style.flexDirection = 'column';
+  if(!visible) document.getElementById('item-input').focus();
+};
+
 window.addItem = () => {
   const input = document.getElementById('item-input');
   const name = input.value.trim();
@@ -203,7 +217,7 @@ window.addItem = () => {
   saveItems();
   renderItemList();
   input.value = '';
-  // 항목 추가되면 entries에도 초기 0으로 추가
+  document.getElementById('item-input-wrap').style.display = 'none';
   if(!entries.find(e=>e.name===name)) entries.push({name, amt:0, count:0});
   rebuildPool(); renderEntries(); drawWheel();
 };
