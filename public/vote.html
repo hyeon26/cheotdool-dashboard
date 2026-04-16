@@ -156,10 +156,10 @@ body::before{
 .toast.show{transform:translateX(-50%) translateY(0)}
 
 /* 당첨자 뽑기 */
-.voter-chip{position:relative;padding:8px 14px;border-radius:999px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);font-size:15px;color:#ccc;cursor:default;transition:background .15s,border-color .15s,color .15s}
-.voter-chip.lit{background:#2ecc71;border-color:#2ecc71;color:#000;font-weight:800;box-shadow:0 0 16px rgba(46,204,113,.7)}
-.voter-chip.won{background:#1a6e3e;border-color:#2ecc71;color:#2ecc71;font-weight:800;opacity:.7;text-decoration:line-through}
-.voter-chip.won-cancelled{background:#2a2a2a;border-color:#555;color:#555;font-weight:800;opacity:.5;text-decoration:line-through}
+.voter-chip{position:relative;padding:8px 14px;border-radius:999px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);font-size:15px;color:#ccc;cursor:default;transition:background .15s,border-color .15s,color .15s;display:inline-flex;align-items:center;font-weight:700;min-width:0;white-space:nowrap}
+.voter-chip.lit{background:#2ecc71;border-color:#2ecc71;color:#000;box-shadow:0 0 16px rgba(46,204,113,.7)}
+.voter-chip.won{background:#1a6e3e;border-color:#2ecc71;color:#2ecc71;opacity:.7;text-decoration:line-through}
+.voter-chip.won-cancelled{background:#2a2a2a;border-color:#555;color:#555;opacity:.5;text-decoration:line-through}
 .btn-raffle{padding:10px 20px;border-radius:10px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;box-shadow:0 2px 12px rgba(245,158,11,.4);transition:opacity .15s,transform .1s}
 .btn-raffle:hover{opacity:.88}.btn-raffle:active{transform:scale(.97)}
 .btn-raffle:disabled{opacity:.4;cursor:not-allowed}
