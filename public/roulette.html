@@ -621,21 +621,27 @@ function onWsMsg(e){
 setInterval(()=>{ if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000})); }, 20000);
 
 function addDonation(content, amt){
-  // 등록된 항목 순서대로 첫 번째 매칭 항목만 카운트
   const matched = rouletteItems.find(item => content.includes(item));
   if(!matched) return;
-  const existing = entries.find(e => e.name === matched);
-  if(existing){
-    existing.amt += amt;
-    existing.count = Math.floor(existing.amt / 1000);
-  } else {
-    entries.push({ name: matched, amt, count: Math.floor(amt/1000) });
+  const count = Math.floor(amt / 1000);
+  if(!count) return;
+
+  // 1000원씩 0.5초 간격으로 순차 추가
+  for(let i = 0; i < count; i++){
+    setTimeout(() => {
+      const existing = entries.find(e => e.name === matched);
+      if(existing){
+        existing.amt += 1000;
+        existing.count = Math.floor(existing.amt / 1000);
+      } else {
+        entries.push({ name: matched, amt: 1000, count: 1 });
+      }
+      rebuildPool();
+      renderEntries();
+      drawWheel();
+      if(pool.length > 0) document.getElementById('spin-btn').disabled = false;
+    }, i * 100);
   }
-  entries = entries.sort((a,b)=>b.amt-a.amt);
-  rebuildPool();
-  renderEntries();
-  drawWheel();
-  if(pool.length > 0) document.getElementById('spin-btn').disabled = false;
 }
 
 // ── 초기 로드 ──
