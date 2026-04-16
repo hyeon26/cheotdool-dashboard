@@ -217,6 +217,8 @@ window.removeItem = (i) => {
   rebuildPool(); renderEntries(); drawWheel();
   if(pool.length===0) document.getElementById('spin-btn').disabled=true;
 };
+
+function rebuildPool(){
   pool = [];
   entries.forEach(e => { for(let i=0; i<e.count; i++) pool.push(e.name); });
 }
