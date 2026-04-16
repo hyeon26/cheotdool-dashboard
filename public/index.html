@@ -1858,7 +1858,7 @@ window.addEventListener('load', () => {
 window.kakaoShareStream = () => {
   const s = schedules.find(x => x.id === currentStreamId); if(!s) return;
   const desc = [formatDate(s.date), s.time, s.duration ? '⏱ '+s.duration : '', s.maxViewers ? '👥 최고 '+s.maxViewers+'명' : ''].filter(Boolean).join(' · ');
-  const url = 'https://firstandsecond.vercel.app/schedule';
+  const url = `https://firstandsecond.vercel.app/schedule?open=${s.id}`;
   Kakao.Share.sendDefault({
     objectType: 'text',
     text: `📺 ${s.name}\n${desc}`,
@@ -1870,7 +1870,7 @@ window.kakaoShareSchedule = () => {
   const s = schedules.find(x => x.id === currentScheduleId); if(!s) return;
   const title = s.name;
   const desc = [formatDate(s.date), s.time, TYPE_LABEL[s.type]||'일정', s.note].filter(Boolean).join(' · ');
-  const url = 'https://firstandsecond.vercel.app/schedule';
+  const url = `https://firstandsecond.vercel.app/schedule?open=${s.id}`;
   Kakao.Share.sendDefault({
     objectType: 'text',
     text: `📅 ${title}\n${desc}`,
@@ -1881,7 +1881,7 @@ window.kakaoShareSchedule = () => {
 window.kakaoShareContent = () => {
   const c = contents.find(x => x.id === currentContentId); if(!c) return;
   const desc = [c.date, c.duration, c.note].filter(Boolean).join(' · ');
-  const url = 'https://firstandsecond.vercel.app/content';
+  const url = `https://firstandsecond.vercel.app/content?open=${c.id}`;
   Kakao.Share.sendDefault({
     objectType: 'text',
     text: `🎬 ${c.title}\n${desc}`,
