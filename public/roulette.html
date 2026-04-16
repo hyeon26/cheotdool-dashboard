@@ -263,7 +263,7 @@ function drawWheel(highlightIdx = -1){
   if(!uniqueNames.length){
     ctx.fillStyle='#1a1a2e';
     ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#5c4f88'; ctx.font='bold 18px Noto Sans KR';
+    ctx.fillStyle='#5c4f88'; ctx.font='500 18px Noto Sans KR';
     ctx.textAlign='center'; ctx.fillText('참여자 없음',cx,cy);
     return;
   }
@@ -301,7 +301,7 @@ function drawWheel(highlightIdx = -1){
     ctx.rotate(midAngle + Math.PI/2);
     ctx.fillStyle = isHL ? '#1a0a00' : '#fff';
     const fontSize = Math.max(9, Math.min(15, 160/uniqueNames.length));
-    ctx.font = `bold ${fontSize}px Noto Sans KR`;
+    ctx.font = `500 ${fontSize}px Noto Sans KR`;
     ctx.textAlign='center';
     ctx.textBaseline='middle';
     // 긴 이름 자르기
@@ -316,7 +316,7 @@ function drawWheel(highlightIdx = -1){
   ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2);
   ctx.fillStyle='#0a0a14'; ctx.fill();
   ctx.strokeStyle='rgba(124,58,237,.5)'; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle='#7c3aed'; ctx.font='bold 13px Noto Sans KR';
+  ctx.fillStyle='#7c3aed'; ctx.font='500 13px Noto Sans KR';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('GO',cx,cy);
 }
@@ -432,7 +432,7 @@ function drawWheelRaw(ctx, W, H){
     ctx.save(); ctx.translate(tx,ty); ctx.rotate(midAngle+Math.PI/2);
     ctx.fillStyle='#fff';
     const fontSize=Math.max(9,Math.min(15,160/uniqueNames.length));
-    ctx.font=`bold ${fontSize}px Noto Sans KR`;
+    ctx.font=`500 ${fontSize}px Noto Sans KR`;
     ctx.textAlign='center'; ctx.textBaseline='middle';
     const label=name.length>6?name.slice(0,5)+'…':name;
     ctx.fillText(label,0,0);
@@ -442,7 +442,7 @@ function drawWheelRaw(ctx, W, H){
   ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2);
   ctx.fillStyle='#0a0a14'; ctx.fill();
   ctx.strokeStyle='rgba(124,58,237,.5)'; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle='#7c3aed'; ctx.font='bold 13px Noto Sans KR';
+  ctx.fillStyle='#7c3aed'; ctx.font='500 13px Noto Sans KR';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('GO',cx,cy);
 }
