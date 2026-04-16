@@ -634,8 +634,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('schedule-view-modal')">닫기</button>
-      <button onclick="kakaoShareSchedule()" style="padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.8 3.1c-.1.3.3.5.5.3l3.7-2.4c.8.1 1.7.2 2.6.2 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg> 카카오톡 공유</button>
       <button class="btn-save" onclick="switchToEdit()" style="background:var(--surface2);color:var(--text);box-shadow:none;border:1.5px solid var(--border2)">수정</button>
+      <button onclick="kakaoShareSchedule()" style="padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.8 3.1c-.1.3.3.5.5.3l3.7-2.4c.8.1 1.7.2 2.6.2 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg> 공유</button>
     </div>
   </div>
 </div>
@@ -705,10 +705,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div id="cv-duration" style="font-size:13px;color:var(--text2);margin-bottom:8px"></div>
     <div id="cv-note" style="font-size:14px;color:var(--text);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin-bottom:12px"></div>
     <div id="cv-files" style="margin-bottom:16px"></div>
-    <div class="modal-actions">
+    <div class="modal-btns">
       <button onclick="closeModal('content-view-modal')" class="btn-cancel">닫기</button>
-      <button onclick="kakaoShareContent()" style="padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.8 3.1c-.1.3.3.5.5.3l3.7-2.4c.8.1 1.7.2 2.6.2 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg> 카카오톡 공유</button>
       <button onclick="openContentEditFromView()" class="btn-save">✏️ 수정</button>
+      <button onclick="kakaoShareContent()" style="padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.8 3.1c-.1.3.3.5.5.3l3.7-2.4c.8.1 1.7.2 2.6.2 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg> 공유</button>
     </div>
   </div>
 </div>
@@ -1910,11 +1910,12 @@ renderCal();
   const hash = location.pathname.replace('/','') || 'schedule';
   const tabs = ['schedule','content','tools','chat','clips'];
   const target = tabs.includes(hash) ? hash : 'schedule';
-  const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
-  if(el) switchTab(target, el);
 
   const openId = new URLSearchParams(location.search).get('open');
   if(openId) window._pendingOpenId = { id: openId, tab: target };
+
+  const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
+  if(el) switchTab(target, el);
 })();
 
 </script>
