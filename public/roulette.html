@@ -227,8 +227,9 @@ function renderEntries(){
   const listEl = document.getElementById('entry-list');
   const totalTix = entries.reduce((s,e)=>s+e.count,0);
   document.getElementById('entry-total').textContent = `· 총 ${totalTix}장`;
+  if(!entries.length){ listEl.innerHTML='<div class="empty">도네 대기 중...</div>'; return; }
   listEl.innerHTML = entries.map(e=>{
-    const pct = Math.round(e.count/totalTix*100);
+    const pct = totalTix > 0 ? Math.round(e.count/totalTix*100) : 0;
     return `<div class="entry-item">
       <div class="entry-name">${e.name}</div>
       <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
