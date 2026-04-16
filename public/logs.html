@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>접속 로그 - 첫째와둘째</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f7ff;--surface:#fff;--surface2:#f0effe;
+  --text:#1a1033;--text2:#7b6fa0;--text3:#a99fcc;
+  --accent:#5B4AE8;--accent2:#7c6ef0;--accent-light:#ede9fe;
+  --red:#ef4444;--red-light:#fff1f1;
+  --border:rgba(91,74,232,.1);--border2:rgba(91,74,232,.2);
+  --shadow:0 2px 12px rgba(91,74,232,.08);--shadow-md:0 4px 24px rgba(91,74,232,.13);
+  --radius:14px;--radius-sm:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0f0d1a;--surface:#1a1730;--surface2:#221f38;
+    --text:#ede9fe;--text2:#9d8fcc;--text3:#5c4f88;
+    --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+    --accent-light:#1e1a38;--red-light:#2a1010;
+  }
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 32px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.title{font-size:20px;font-weight:900}
+.controls{display:flex;gap:8px;align-items:center}
+select{padding:7px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none}
+.btn{padding:7px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-del{background:#fee2e2;color:#991b1b}
+.summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+.stat-label{font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat-value{font-size:20px;font-weight:900;color:var(--text)}
+.table-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:10px 14px;text-align:left;font-weight:700;color:var(--text2);background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:9px 14px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+.loading{text-align:center;padding:48px;color:var(--text2)}
+.empty{text-align:center;padding:48px;color:var(--text2)}
+.back{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600}
+.back:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="/schedule" class="back">← 대시보드</a>
+    <div class="title">🔒 접속 로그</div>
+  </div>
+  <div class="controls">
+    <select id="log-filter-days" onchange="loadLogs()">
+      <option value="1">오늘</option>
+      <option value="7" selected>최근 7일</option>
+      <option value="30">최근 30일</option>
+      <option value="0">전체</option>
+    </select>
+    <button class="btn btn-primary" onclick="loadLogs()">새로고침</button>
+    <button class="btn btn-del" onclick="clearLogs()">전체 삭제</button>
+  </div>
+</div>
+
+<div class="summary" id="summary"></div>
+<div class="table-wrap" id="table-wrap">
+  <div class="loading">불러오는 중...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, getDocs, writeBatch, doc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw",
+  authDomain:"firstandsecond-b449c.firebaseapp.com",
+  projectId:"firstandsecond-b449c",
+  storageBucket:"firstandsecond-b449c.firebasestorage.app",
+  messagingSenderId:"794631097887",
+  appId:"1:794631097887:web:e03fe5f49915f4c741cf2a"
+});
+const db = getFirestore(app);
+
+async function loadLogs(){
+  const days = parseInt(document.getElementById('log-filter-days').value);
+  const tableEl = document.getElementById('table-wrap');
+  const summaryEl = document.getElementById('summary');
+  tableEl.innerHTML = '<div class="loading">불러오는 중...</div>';
+
+  try {
+    const snap = await getDocs(query(collection(db,'visitLogs'), orderBy('createdAt','desc')));
+    let logs = snap.docs.map(d=>({id:d.id,...d.data()}));
+
+    if(days > 0){
+      const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
+      logs = logs.filter(l => new Date(l.time) >= cutoff);
+    }
+
+    const uniqueIPs = new Set(logs.map(l=>l.ip)).size;
+    const countries = {};
+    logs.forEach(l=>{ countries[l.country]=(countries[l.country]||0)+1; });
+    const topCountry = Object.entries(countries).sort((a,b)=>b[1]-a[1])[0];
+
+    summaryEl.innerHTML = [
+      { label:'총 방문', value: logs.length+'회' },
+      { label:'고유 IP', value: uniqueIPs+'개' },
+      { label:'주요 국가', value: topCountry ? `${topCountry[0]} (${topCountry[1]})` : '-' },
+    ].map(s=>`<div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+    </div>`).join('');
+
+    if(!logs.length){ tableEl.innerHTML='<div class="empty">기록이 없어요</div>'; return; }
+
+    tableEl.innerHTML = `<table>
+      <thead><tr>
+        <th>시간</th><th>IP</th><th>국가/도시</th><th>페이지</th><th>브라우저</th>
+      </tr></thead>
+      <tbody>${logs.map(l=>{
+        const t = new Date(l.time);
+        const timeStr = `${t.getFullYear()}.${t.getMonth()+1}.${t.getDate()} ${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}`;
+        const ua = l.userAgent||'';
+        const browser = ua.includes('Chrome')?'Chrome':ua.includes('Firefox')?'Firefox':ua.includes('Safari')?'Safari':ua.includes('Edg')?'Edge':'Other';
+        const device = ua.includes('Mobile')?'📱':'🖥';
+        return `<tr>
+          <td style="color:var(--text2);white-space:nowrap">${timeStr}</td>
+          <td style="font-family:monospace;color:var(--text)">${l.ip}</td>
+          <td style="color:var(--text2)">${l.country}${l.city&&l.city!=='unknown'?' · '+l.city:''}</td>
+          <td style="color:var(--accent)">${l.page||'/'}</td>
+          <td style="color:var(--text2)">${device} ${browser}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  } catch(e){
+    tableEl.innerHTML = `<div style="padding:20px;color:var(--red)">오류: ${e.message}</div>`;
+  }
+}
+
+window.clearLogs = async() => {
+  if(!confirm('접속 로그를 전부 삭제할까요?')) return;
+  const snap = await getDocs(collection(db,'visitLogs'));
+  const batch = writeBatch(db);
+  snap.docs.forEach(d=>batch.delete(d.ref));
+  await batch.commit();
+  loadLogs();
+};
+
+loadLogs();
+</script>
+</body>
+</html>
