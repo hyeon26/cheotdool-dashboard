@@ -905,6 +905,12 @@ async function loadSchedules(){
   const snap=await getDocs(query(collection(db,'schedules'),orderBy('date')));
   schedules=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderCal(); renderUpcoming();
+  // 카카오 공유 링크로 진입 시 모달 자동 오픈
+  if(window._pendingOpenId?.tab === 'schedule'){
+    const { id } = window._pendingOpenId; window._pendingOpenId = null;
+    const s = schedules.find(x => x.id === id);
+    if(s) s.type==='vod' ? openStreamDetail(id) : openScheduleView(id);
+  }
 }
 loadSchedules();
 
@@ -1066,6 +1072,11 @@ async function loadContents(){
   const raw=snap.docs.map(d=>({id:d.id,...d.data()}));
   contents=raw.sort((a,b)=>(a.order??Infinity)-(b.order??Infinity));
   renderContents();
+  // 카카오 공유 링크로 진입 시 모달 자동 오픈
+  if(window._pendingOpenId?.tab === 'content'){
+    const { id } = window._pendingOpenId; window._pendingOpenId = null;
+    if(contents.find(x => x.id === id)) openContentDetail(id);
+  }
 }
 function renderContents(){
   const grid=document.getElementById('content-grid');
@@ -1893,24 +1904,8 @@ renderCal();
   const el = document.querySelector(`.tab[onclick*="'${target}'"]`);
   if(el) switchTab(target, el);
 
-  // ?open=ID 파라미터 처리
   const openId = new URLSearchParams(location.search).get('open');
-  if(openId){
-    if(target === 'schedule'){
-      // 스케줄 로드 후 모달 오픈
-      const tryOpen = setInterval(() => {
-        const s = schedules.find(x => x.id === openId);
-        if(s){ clearInterval(tryOpen); s.type==='vod' ? openStreamDetail(openId) : openScheduleView(openId); }
-      }, 300);
-      setTimeout(() => clearInterval(tryOpen), 5000);
-    } else if(target === 'content'){
-      const tryOpen = setInterval(() => {
-        const c = contents.find(x => x.id === openId);
-        if(c){ clearInterval(tryOpen); openContentDetail(openId); }
-      }, 300);
-      setTimeout(() => clearInterval(tryOpen), 5000);
-    }
-  }
+  if(openId) window._pendingOpenId = { id: openId, tab: target };
 })();
 
 </script>
