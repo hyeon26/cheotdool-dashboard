@@ -3,784 +3,450 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>도네 룰렛 - 첫째와둘째</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<title>도네 핀볼 룰렛 - 첫째와둘째</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a14;--surface:#12121e;--surface2:#1a1a2e;
-  --text:#f0effe;--text2:#9d8fcc;--text3:#5c4f88;
-  --accent:#7c3aed;--accent2:#a855f7;--accent-light:#1e1a38;
-  --gold:#fbbf24;--gold2:#f59e0b;
-  --border:rgba(124,58,237,.2);--border2:rgba(124,58,237,.4);
-  --radius:16px;--radius-sm:10px;
+  --bg:#0b0f1a;--surface:#141a28;--surface2:#1b2335;
+  --text:#eef2ff;--text2:#96a3c7;--text3:#576389;
+  --accent:#6d5dfc;--accent2:#a855f7;--gold:#fbbf24;
+  --border:rgba(255,255,255,.12);--radius:14px;
 }
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-
-/* 배경 효과 */
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(124,58,237,.15) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(168,85,247,.1) 0%,transparent 50%);pointer-events:none;z-index:0}
-
-.page{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:28px 24px}
-
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
-.header-left{display:flex;align-items:center;gap:12px}
-.back{font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;padding:6px 14px;border:1.5px solid var(--border2);border-radius:20px;transition:all .2s}
-.back:hover{color:var(--text);border-color:var(--accent2)}
-.title{font-family:'Noto Sans KR',sans-serif;font-size:22px;font-weight:800;color:var(--text);letter-spacing:0px}
+body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.page{max-width:1180px;margin:0 auto;padding:24px 18px 36px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.title{font-size:28px;font-weight:900;letter-spacing:-.4px}
 .title span{color:var(--gold)}
-
-/* 세션 선택 */
-.session-bar{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.session-bar label{font-size:13px;color:var(--text2);font-weight:600;white-space:nowrap}
-select{flex:1;min-width:200px;padding:8px 14px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;cursor:pointer}
-select:focus{border-color:var(--accent2)}
-.btn{padding:9px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all .2s;white-space:nowrap}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.4)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.5)}
-.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border2)}
-.btn-ghost:hover{color:var(--text);border-color:var(--accent2)}
-.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a0a00;box-shadow:0 4px 16px rgba(251,191,36,.3)}
-.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(251,191,36,.4)}
-.btn-gold:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-/* 메인 레이아웃 */
-.main{display:grid;grid-template-columns:1fr 340px;gap:24px}
-@media(max-width:800px){.main{grid-template-columns:1fr}}
-
-/* 룰렛 */
-.roulette-wrap{display:flex;flex-direction:column;align-items:center;gap:20px}
-.canvas-wrap{position:relative;width:100%;max-width:480px}
-.canvas-wrap canvas{width:100%;height:auto;display:block}
-.pointer{position:absolute;top:50%;right:-8px;transform:translateY(-50%);width:0;height:0;border-top:18px solid transparent;border-bottom:18px solid transparent;border-right:36px solid var(--gold);filter:drop-shadow(0 0 8px rgba(251,191,36,.6))}
-.spin-btn-wrap{display:flex;gap:10px}
-
-/* 핀볼 */
-.pinball-wrap{width:100%;max-width:640px}
-.pinball-stage{position:relative;background:#0f1020;border:1.5px solid var(--border);border-radius:14px;overflow:hidden}
-.pinball-stage canvas{width:100%;height:auto;display:block}
-.pinball-note{font-size:12px;color:var(--text3);margin-top:8px;text-align:center}
-
-/* 결과 */
-.result-banner{background:linear-gradient(135deg,var(--surface),var(--surface2));border:2px solid var(--gold2);border-radius:var(--radius);padding:20px 28px;text-align:center;display:none}
-.result-banner.show{display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-.result-label{font-size:12px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.result-name{font-family:'Noto Sans KR',sans-serif;font-weight:900;font-size:32px;color:var(--gold);text-shadow:0 0 20px rgba(251,191,36,.5)}
-
-/* 참여자 목록 */
-.panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;height:fit-content}
-.panel-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.panel-sub{font-size:11px;color:var(--text3);margin-bottom:14px}
-.entry-list{max-height:480px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-.entry-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:8px;font-size:13px}
-.entry-name{color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.entry-count{font-size:11px;font-weight:700;color:var(--accent2);background:var(--accent-light);padding:2px 8px;border-radius:20px;flex-shrink:0;margin-left:8px}
-.entry-amt{font-size:11px;color:var(--text3);flex-shrink:0;margin-left:4px}
-
-/* 히스토리 */
-.history{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
-.history-title{font-size:12px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.history-item{font-size:12px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border)}
-.history-item:last-child{border-bottom:none}
-.history-item span{color:var(--gold);font-weight:700}
-
-.empty{text-align:center;padding:32px;color:var(--text3);font-size:13px}
-.loading{text-align:center;padding:32px;color:var(--text2);font-size:13px}
-.ws-dot{width:12px;height:12px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
-.ws-dot.on{background:#2ecc71;box-shadow:0 0 8px #2ecc71;animation:blink 1.4s infinite}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--text2)}
+.ws-dot{width:11px;height:11px;border-radius:50%;background:var(--text3)}
+.ws-dot.on{background:#22c55e;box-shadow:0 0 8px #22c55e;animation:blink 1.4s infinite}
 .ws-dot.err{background:#ef4444}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
 
-/* 스핀 중 오버레이 */
-.spinning .btn-gold{pointer-events:none;opacity:.6}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}
+@media (max-width:980px){.main{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
 
-/* 팝업 모달 */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-bg.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius);padding:24px;width:min(400px,90vw)}
-.modal h3{font-size:16px;font-weight:700;margin-bottom:16px}
-.modal input{width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:16px}
-.modal input:focus{border-color:var(--accent2)}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.board-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.note{font-size:12px;color:var(--text2)}
+.btn{border:none;cursor:pointer;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:800;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1f1200}
+.btn-ghost{background:#232c40;color:var(--text2);border:1px solid rgba(255,255,255,.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.pinball-wrap{background:#0f1422;border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden}
+.pinball-wrap canvas{display:block;width:100%;height:auto}
+
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.input,.select{background:var(--surface2);border:1px solid rgba(255,255,255,.13);border-radius:9px;color:#fff;padding:9px 10px;font-size:13px;font-family:inherit;outline:none}
+.input{min-width:110px;flex:1}
+.select{min-width:130px}
+
+.winner{margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(251,191,36,.18),rgba(245,158,11,.1));border:1px solid rgba(251,191,36,.5);display:none;text-align:center}
+.winner.show{display:block}
+.winner .label{font-size:12px;color:#fcd34d;font-weight:800;letter-spacing:.6px}
+.winner .name{font-size:34px;font-weight:900;color:#fff;margin-top:4px}
+
+.side-title{font-size:14px;font-weight:800;margin-bottom:8px}
+.list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.item{background:var(--surface2);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.item-name{font-weight:700}
+.badge{font-size:11px;background:#2a3350;color:#c9d6ff;border-radius:20px;padding:2px 8px;font-weight:800}
+.empty{color:var(--text3);font-size:13px;padding:10px;text-align:center}
+
+.history{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.09)}
+.history .item{padding:6px 8px;font-size:12px}
+
+.item-add{display:flex;gap:6px;margin-bottom:8px}
+.item-add .input{flex:1;min-width:0}
 </style>
 </head>
 <body>
 <div class="page">
   <div class="header">
-    <div class="header-left">
-      <div class="title">🎡 도네 <span>룰렛</span></div>
-    </div>
-  </div>
-
-
-  <!-- 연결 상태 -->
-  <div class="session-bar">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div class="ws-dot" id="ws-dot"></div>
-      <span id="ws-label" style="font-size:14px;font-weight:700;color:var(--text2)">연결 안됨</span>
-    </div>
-    <button class="btn btn-ghost" onclick="resetRoulette()">룰렛 초기화</button>
+    <div class="title">🎯 도네 <span>핀볼 룰렛</span></div>
+    <div class="status"><div class="ws-dot" id="ws-dot"></div><span id="ws-label">연결 안됨</span></div>
   </div>
 
   <div class="main">
-    <!-- 룰렛 -->
-    <div class="roulette-wrap">
-      <div class="canvas-wrap">
-        <canvas id="roulette-canvas" width="480" height="480"></canvas>
-        <div class="pointer"></div>
+    <div class="card">
+      <div class="board-top">
+        <div class="note">참고 사이트 느낌처럼 핀볼 추첨 · 1,000원당 1개 · 도네 내용에 항목명이 포함되면 적립</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" onclick="resetAll()">초기화</button>
+          <button class="btn btn-gold" id="draw-btn" onclick="startDraw()" disabled>🎰 추첨 시작</button>
+        </div>
       </div>
-      <div id="result-banner" class="result-banner">
-        <div class="result-label">🎉 당첨!</div>
-        <div class="result-name" id="result-name"></div>
-      </div>
-      <div class="spin-btn-wrap">
-        <button class="btn btn-gold" id="spin-btn" onclick="spin()" disabled>🎰 돌리기</button>
-        <button class="btn btn-ghost" onclick="removeWinner()" id="remove-btn" style="display:none">🗑 당첨자 제거</button>
-      </div>
+
       <div class="pinball-wrap">
-        <div class="pinball-stage">
-          <canvas id="pinball-canvas" width="640" height="320"></canvas>
-        </div>
-        <div class="pinball-note">도네가 들어오면 항목 칸으로 핀볼이 떨어집니다 (1,000원당 1개)</div>
+        <canvas id="pinball-canvas" width="860" height="420"></canvas>
+      </div>
+
+      <div class="controls">
+        <input class="input" id="manual-name" placeholder="테스트 닉네임"/>
+        <input class="input" id="manual-amount" type="number" min="1000" step="1000" placeholder="금액(원)"/>
+        <select class="select" id="manual-item"></select>
+        <button class="btn btn-primary" onclick="manualDonate()">도네 테스트</button>
+      </div>
+
+      <div class="winner" id="winner-box">
+        <div class="label">WINNER</div>
+        <div class="name" id="winner-name"></div>
       </div>
     </div>
 
-    <!-- 사이드 패널 -->
-    <div style="display:flex;flex-direction:column;gap:16px">
-
-      <!-- 항목 등록 -->
-      <div class="panel">
-        <div class="panel-title" style="justify-content:space-between">
-          <span>📋 룰렛 항목</span>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-ghost" onclick="openEntriesModal()" style="padding:4px 12px;font-size:12px">현황</button>
-            <button class="btn btn-primary" onclick="openItemModal()" style="padding:4px 12px;font-size:12px">+ 추가</button>
-          </div>
-        </div>
-        <div id="item-list" style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-          <div class="empty">항목을 추가하세요</div>
-        </div>
+    <div class="card">
+      <div class="side-title">📌 항목 설정</div>
+      <div class="item-add">
+        <input class="input" id="new-item" placeholder="항목 이름" onkeydown="if(event.key==='Enter')addItem()"/>
+        <button class="btn btn-primary" onclick="addItem()">추가</button>
       </div>
+      <div id="item-list" class="list"></div>
 
+      <div class="side-title" style="margin-top:12px">🎫 도네 현황</div>
+      <div id="entry-list" class="list"></div>
+
+      <div class="history">
+        <div class="side-title">🏆 당첨 히스토리</div>
+        <div id="history-list" class="list"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 현황 모달 -->
-<div class="modal-bg" id="entries-modal" onclick="if(event.target===this)closeEntriesModal()">
-  <div class="modal" style="width:min(480px,90vw)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h3 style="margin:0">🎫 현황 <span id="entry-total" style="color:var(--text2);font-size:13px;font-weight:400"></span></h3>
-      <button onclick="closeEntriesModal()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">✕</button>
-    </div>
-    <div class="panel-sub" style="margin-bottom:12px">도네 내용 기준 · 1,000원 = 1회</div>
-    <div class="entry-list" id="entry-list" style="max-height:360px;overflow-y:auto">
-      <div class="empty">도네 대기 중...</div>
-    </div>
-    <div class="history" id="history-wrap" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-      <div class="history-title">🏆 당첨 히스토리</div>
-      <div id="history-list"></div>
-    </div>
-  </div>
-</div>
+<script>
+const STORAGE_ITEMS='roulette-items-v2';
+const STORAGE_HISTORY='roulette-history-v2';
 
-<!-- 항목 추가/수정 모달 -->
-<div class="modal-bg" id="item-modal" onclick="if(event.target===this)closeItemModal()">
-  <div class="modal">
-    <h3 id="item-modal-title">항목 추가</h3>
-    <input id="item-input" type="text" placeholder="항목 이름 입력" onkeydown="if(event.key==='Enter')confirmItem()"/>
-    <div class="modal-btns">
-      <button class="btn btn-ghost" onclick="closeItemModal()">취소</button>
-      <button class="btn btn-primary" onclick="confirmItem()">확인</button>
-    </div>
-  </div>
-</div>
+let rouletteItems=JSON.parse(localStorage.getItem(STORAGE_ITEMS)||'[]');
+let entries=[]; // {name, amt, count}
+let history=JSON.parse(localStorage.getItem(STORAGE_HISTORY)||'[]');
+let ws=null, wsAutoReconnect=true, channelIdCache=null;
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+let pinball=null;
+let pegs=[];
+let balls=[];
+let raf=0;
+let isDrawing=false;
 
-const app = initializeApp({
-  apiKey:"AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw",
-  authDomain:"firstandsecond-b449c.firebaseapp.com",
-  projectId:"firstandsecond-b449c",
-  storageBucket:"firstandsecond-b449c.firebasestorage.app",
-  messagingSenderId:"794631097887",
-  appId:"1:794631097887:web:e03fe5f49915f4c741cf2a"
-});
-const db = getFirestore(app);
+const COLORS=['#7c3aed','#ec4899','#22c55e','#f59e0b','#3b82f6','#14b8a6','#ef4444','#a855f7','#06b6d4'];
 
-// ── 상태 ──
-let entries = []; // [{name, count, amt}]
-let pool = [];    // 이름 * count 배열
-let history = JSON.parse(localStorage.getItem('roulette-history') || '[]');
-let isSpinning = false;
-let lastWinner = null;
-let pinball = null;
-let pinballs = [];
-let pegs = [];
+function saveItems(){ localStorage.setItem(STORAGE_ITEMS, JSON.stringify(rouletteItems)); }
+function saveHistory(){ localStorage.setItem(STORAGE_HISTORY, JSON.stringify(history)); }
+function getEntry(name){ return entries.find(e=>e.name===name); }
+function totalTickets(){ return entries.reduce((s,e)=>s+e.count,0); }
 
-// ── 항목 관리 ──
-let rouletteItems = JSON.parse(localStorage.getItem('roulette-items') || '[]'); // 등록된 항목 이름 배열
-
-function saveItems(){ localStorage.setItem('roulette-items', JSON.stringify(rouletteItems)); }
-
-window.openEntriesModal = () => {
-  document.getElementById('entries-modal').classList.add('open');
-};
-window.closeEntriesModal = () => {
-  document.getElementById('entries-modal').classList.remove('open');
-};
-
-function renderItemList(){
-  const el = document.getElementById('item-list');
-  if(!rouletteItems.length){ el.innerHTML='<div class="empty">항목을 추가하세요</div>'; return; }
-  el.innerHTML = rouletteItems.map((name,i)=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2);border-radius:10px;border:1.5px solid var(--border)">
-      <span style="font-size:16px;font-weight:700;color:var(--text)">${name}</span>
-      <div style="display:flex;gap:4px">
-        <button onclick="openItemModal(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:2px 8px">✏️</button>
-        <button onclick="removeItem(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:0 6px">×</button>
-      </div>
-    </div>`).join('');
+function syncEntriesWithItems(){
+  entries = rouletteItems.map(n=>{
+    const ex=getEntry(n);
+    return ex ? ex : {name:n, amt:0, count:0};
+  });
 }
 
-let editingItemIdx = -1;
-
-window.openItemModal = (idx = -1) => {
-  editingItemIdx = idx;
-  const input = document.getElementById('item-input');
-  const title = document.getElementById('item-modal-title');
-  if(idx >= 0){
-    title.textContent = '항목 수정';
-    input.value = rouletteItems[idx];
-  } else {
-    title.textContent = '항목 추가';
-    input.value = '';
+function renderItems(){
+  const list=document.getElementById('item-list');
+  const select=document.getElementById('manual-item');
+  if(!rouletteItems.length){
+    list.innerHTML='<div class="empty">항목을 추가하세요</div>';
+    select.innerHTML='';
+    return;
   }
-  document.getElementById('item-modal').classList.add('open');
-  setTimeout(()=>input.focus(), 100);
-};
-
-window.closeItemModal = () => {
-  document.getElementById('item-modal').classList.remove('open');
-};
-
-window.confirmItem = () => {
-  const input = document.getElementById('item-input');
-  const name = input.value.trim();
-  if(!name) return;
-  if(editingItemIdx >= 0){
-    // 수정
-    const oldName = rouletteItems[editingItemIdx];
-    rouletteItems[editingItemIdx] = name;
-    saveItems();
-    const entry = entries.find(e=>e.name===oldName);
-    if(entry) entry.name = name;
-  } else {
-    // 추가
-    if(rouletteItems.includes(name)){ alert('이미 있는 항목이에요'); return; }
-    rouletteItems.push(name);
-    saveItems();
-    if(!entries.find(e=>e.name===name)) entries.push({name, amt:0, count:0});
-  }
-  renderItemList();
-  rebuildPool(); renderEntries(); drawWheel();
-  closeItemModal();
-};
-
-window.removeItem = (i) => {
-  const name = rouletteItems[i];
-  rouletteItems.splice(i,1);
-  saveItems();
-  renderItemList();
-  entries = entries.filter(e=>e.name!==name);
-  rebuildPool(); renderEntries(); drawWheel();
-  if(pool.length===0) document.getElementById('spin-btn').disabled=true;
-};
-
-function rebuildPool(){
-  pool = [];
-  entries.forEach(e => { for(let i=0; i<e.count; i++) pool.push(e.name); });
+  list.innerHTML=rouletteItems.map((name,i)=>`
+    <div class="item">
+      <span class="item-name">${name}</span>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-ghost" style="padding:4px 8px" onclick="editItem(${i})">수정</button>
+        <button class="btn btn-ghost" style="padding:4px 8px" onclick="removeItem(${i})">삭제</button>
+      </div>
+    </div>
+  `).join('');
+  select.innerHTML=rouletteItems.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
 }
 
 function renderEntries(){
-  const listEl = document.getElementById('entry-list');
-  const totalTix = entries.reduce((s,e)=>s+e.count,0);
-  document.getElementById('entry-total').textContent = `· 총 ${totalTix}장`;
-  if(!entries.length){ listEl.innerHTML='<div class="empty">도네 대기 중...</div>'; return; }
-  listEl.innerHTML = entries.map(e=>{
-    const pct = totalTix > 0 ? Math.round(e.count/totalTix*100) : 0;
-    return `<div class="entry-item">
-      <div class="entry-name">${e.name}</div>
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-        <div class="entry-count">${e.count}장 (${pct}%)</div>
-        ${e.amt > 0 ? `<div class="entry-amt">${e.amt.toLocaleString()}원</div>` : ''}
-      </div>
-    </div>`;
+  const list=document.getElementById('entry-list');
+  const t=totalTickets();
+  document.getElementById('draw-btn').disabled = t===0 || isDrawing;
+  if(!entries.length){ list.innerHTML='<div class="empty">도네 대기 중...</div>'; return; }
+  list.innerHTML=entries.map(e=>{
+    const pct=t?Math.round(e.count/t*100):0;
+    return `<div class="item"><span class="item-name">${e.name}</span><span class="badge">${e.count}장 · ${pct}%</span></div>`;
   }).join('');
 }
 
-// ── 룰렛 그리기 ──
-const COLORS = [
-  '#7c3aed','#a855f7','#ec4899','#f97316','#eab308',
-  '#22c55e','#06b6d4','#3b82f6','#8b5cf6','#f43f5e',
-  '#10b981','#f59e0b','#6366f1','#14b8a6','#ef4444'
-];
-
-function getUniqueNames(){
-  const seen = new Set();
-  return pool.filter(n=>{ if(seen.has(n)) return false; seen.add(n); return true; });
-}
-
-function drawWheel(highlightIdx = -1){
-  const canvas = document.getElementById('roulette-canvas');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const cx = W/2, cy = H/2, r = W/2 - 16;
-  ctx.clearRect(0,0,W,H);
-
-  const uniqueNames = getUniqueNames();
-  if(!uniqueNames.length){
-    ctx.fillStyle='#1a1a2e';
-    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#5c4f88'; ctx.font='500 18px Noto Sans KR';
-    ctx.textAlign='center'; ctx.fillText('참여자 없음',cx,cy);
-    return;
-  }
-
-  // 각 이름의 가중치(pool 내 비율)
-  const weights = {};
-  pool.forEach(n=>{ weights[n]=(weights[n]||0)+1; });
-
-  const total = pool.length;
-  let startAngle = -Math.PI/2;
-
-  uniqueNames.forEach((name, i)=>{
-    const slice = (weights[name]/total) * Math.PI*2;
-    const color = COLORS[i % COLORS.length];
-    const isHL = i === highlightIdx;
-
-    // 부채꼴
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,r,startAngle,startAngle+slice);
-    ctx.closePath();
-    ctx.fillStyle = isHL ? '#fbbf24' : color;
-    ctx.fill();
-    ctx.strokeStyle = '#0a0a14';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // 텍스트
-    const midAngle = startAngle + slice/2;
-    const textR = r * 0.68;
-    const tx = cx + Math.cos(midAngle)*textR;
-    const ty = cy + Math.sin(midAngle)*textR;
-    ctx.save();
-    ctx.translate(tx,ty);
-    ctx.rotate(midAngle + Math.PI/2);
-    ctx.fillStyle = isHL ? '#1a0a00' : '#fff';
-    const fontSize = Math.max(9, Math.min(15, 160/uniqueNames.length));
-    ctx.font = `500 ${fontSize}px Noto Sans KR`;
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    // 긴 이름 자르기
-    const label = name.length>6 ? name.slice(0,5)+'…' : name;
-    ctx.fillText(label, 0, 0);
-    ctx.restore();
-
-    startAngle += slice;
-  });
-
-  // 중앙 원
-  ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2);
-  ctx.fillStyle='#0a0a14'; ctx.fill();
-  ctx.strokeStyle='rgba(124,58,237,.5)'; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle='#7c3aed'; ctx.font='500 13px Noto Sans KR';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('GO',cx,cy);
-}
-
-// ── 스핀 ──
-let currentAngle = 0; // 룰렛 회전 각도 (캔버스 회전량)
-
-window.spin = () => {
-  if(isSpinning || pool.length === 0) return;
-  isSpinning = true;
-  document.getElementById('result-banner').classList.remove('show');
-  document.getElementById('remove-btn').style.display='none';
-  lastWinner = null;
-
-  // 당첨자 미리 결정
-  const winnerName = pool[Math.floor(Math.random()*pool.length)];
-
-  const uniqueNames = getUniqueNames();
-  const weights = {};
-  pool.forEach(n=>{ weights[n]=(weights[n]||0)+1; });
-  const total = pool.length;
-
-  // 포인터는 오른쪽(3시 방향 = 0도)
-  // 룰렛은 -π/2(12시)부터 시작해서 시계방향으로 그려짐
-  // 포인터(0도)에 당첨 항목 중앙이 오려면:
-  // sector 중앙각(절대) + currentAngle = 0 (mod 2π) → currentAngle = -sector중앙각
-  
-  let sectorStart = -Math.PI/2;
-  for(let i=0; i<uniqueNames.length; i++){
-    const slice = (weights[uniqueNames[i]]/total)*Math.PI*2;
-    if(uniqueNames[i] === winnerName){
-      const sectorMid = sectorStart + slice/2;
-      // 당첨 섹터 중앙이 오른쪽(0도)에 오도록 회전량 계산
-      const targetOffset = -sectorMid; // 이 만큼 회전하면 중앙이 0도에 옴
-      const spins = 5 + Math.floor(Math.random()*3);
-      const finalAngle = currentAngle + spins*Math.PI*2 + (targetOffset - currentAngle % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
-      animateSpin(finalAngle, winnerName);
-      break;
-    }
-    sectorStart += slice;
-  }
-};
-
-function animateSpin(targetAngle, winnerName){
-  const startAngle = currentAngle;
-  const duration = 4000 + Math.random()*1500;
-  const startTime = performance.now();
-
-  function ease(t){ return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
-
-  function frame(now){
-    const elapsed = now - startTime;
-    const t = Math.min(elapsed/duration, 1);
-    currentAngle = startAngle + (targetAngle-startAngle)*ease(t);
-
-    // 현재 각도에서 포인터가 가리키는 항목 계산
-    const normalizedAngle = ((currentAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
-    const uniqueNames = getUniqueNames();
-    const weights = {};
-    pool.forEach(n=>{ weights[n]=(weights[n]||0)+1; });
-    const total2 = pool.length;
-    let a = -Math.PI/2 + normalizedAngle;
-    let hlIdx = 0;
-    let cumAngle = -Math.PI/2;
-    for(let i=0; i<uniqueNames.length; i++){
-      const slice = (weights[uniqueNames[i]]/total2)*Math.PI*2;
-      // 포인터는 오른쪽(0도, π) 기준
-      const pointerAngle = Math.PI;
-      const check = ((pointerAngle - normalizedAngle) % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
-      // 간단하게 섹터 중앙각이 포인터에 가장 가까운 항목 하이라이트
-      cumAngle += slice;
-      if(check <= cumAngle + Math.PI/2) { hlIdx=i; }
-    }
-
-    // 캔버스를 회전시켜 그리기
-    const canvas = document.getElementById('roulette-canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.save();
-    ctx.translate(240,240);
-    ctx.rotate(currentAngle);
-    ctx.translate(-240,-240);
-    drawWheelRaw(ctx, canvas.width, canvas.height);
-    ctx.restore();
-
-    if(t < 1){
-      requestAnimationFrame(frame);
-    } else {
-      isSpinning = false;
-      lastWinner = winnerName;
-      showResult(winnerName);
-    }
-  }
-  requestAnimationFrame(frame);
-}
-
-function drawWheelRaw(ctx, W, H){
-  const cx=W/2, cy=H/2, r=W/2-16;
-  ctx.clearRect(-cx,-cy,W,H); // cleared via save/restore
-
-  const uniqueNames = getUniqueNames();
-  const weights={};
-  pool.forEach(n=>{weights[n]=(weights[n]||0)+1;});
-  const total=pool.length;
-  let startAngle=-Math.PI/2;
-
-  uniqueNames.forEach((name,i)=>{
-    const slice=(weights[name]/total)*Math.PI*2;
-    const color=COLORS[i%COLORS.length];
-    ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,r,startAngle,startAngle+slice);
-    ctx.closePath();
-    ctx.fillStyle=color; ctx.fill();
-    ctx.strokeStyle='#0a0a14'; ctx.lineWidth=2; ctx.stroke();
-
-    const midAngle=startAngle+slice/2;
-    const textR=r*0.68;
-    const tx=cx+Math.cos(midAngle)*textR, ty=cy+Math.sin(midAngle)*textR;
-    ctx.save(); ctx.translate(tx,ty); ctx.rotate(midAngle+Math.PI/2);
-    ctx.fillStyle='#fff';
-    const fontSize=Math.max(9,Math.min(15,160/uniqueNames.length));
-    ctx.font=`500 ${fontSize}px Noto Sans KR`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    const label=name.length>6?name.slice(0,5)+'…':name;
-    ctx.fillText(label,0,0);
-    ctx.restore();
-    startAngle+=slice;
-  });
-  ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2);
-  ctx.fillStyle='#0a0a14'; ctx.fill();
-  ctx.strokeStyle='rgba(124,58,237,.5)'; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle='#7c3aed'; ctx.font='500 13px Noto Sans KR';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('GO',cx,cy);
-}
-
-function showResult(name){
-  document.getElementById('result-name').textContent = name;
-  document.getElementById('result-banner').classList.add('show');
-  document.getElementById('remove-btn').style.display='';
-
-  // 히스토리 추가
-  history.unshift({ name, time: new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) });
-  if(history.length>20) history.pop();
-  localStorage.setItem('roulette-history', JSON.stringify(history));
-  renderHistory();
-
-  // 폭죽
-  launchConfetti();
-}
-
-window.removeWinner = () => {
-  if(!lastWinner) return;
-  // pool에서 당첨자 전부 제거
-  pool = pool.filter(n=>n!==lastWinner);
-  entries = entries.filter(e=>e.name!==lastWinner);
-  lastWinner = null;
-  document.getElementById('remove-btn').style.display='none';
-  renderEntries();
-  drawWheel();
-  if(pool.length===0) document.getElementById('spin-btn').disabled=true;
-};
-
-window.clearHistory = () => {
-  history=[]; localStorage.removeItem('roulette-history'); renderHistory();
-};
-
-window.resetRoulette = () => {
-  if(!confirm('룰렛을 초기화할까요? (도네 카운트 + 히스토리)')) return;
-  entries = rouletteItems.map(name => ({ name, amt:0, count:0 }));
-  pool = [];
-  history = []; localStorage.removeItem('roulette-history');
-  lastWinner = null;
-  document.getElementById('result-banner').classList.remove('show');
-  document.getElementById('remove-btn').style.display='none';
-  document.getElementById('spin-btn').disabled = true;
-  rebuildPool(); renderEntries(); drawWheel(); renderHistory();
-};
-
 function renderHistory(){
-  const wrap = document.getElementById('history-wrap');
-  const list = document.getElementById('history-list');
-  if(!history.length){ wrap.style.display='none'; return; }
-  wrap.style.display='';
-  list.innerHTML = history.map(h=>`<div class="history-item"><span>${h.name}</span> · ${h.time}</div>`).join('');
+  const list=document.getElementById('history-list');
+  if(!history.length){ list.innerHTML='<div class="empty">아직 없음</div>'; return; }
+  list.innerHTML=history.slice(0,20).map(h=>`<div class="item"><span>${h.name}</span><span class="badge">${h.time}</span></div>`).join('');
 }
 
-// ── 폭죽 ──
-function launchConfetti(){
-  const colors=['#fbbf24','#a855f7','#ec4899','#22c55e','#3b82f6','#f97316'];
-  for(let i=0;i<80;i++){
-    setTimeout(()=>{
-      const el=document.createElement('div');
-      el.style.cssText=`position:fixed;width:8px;height:8px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};left:${Math.random()*100}vw;top:-10px;z-index:9999;pointer-events:none;opacity:1`;
-      document.body.appendChild(el);
-      const tx=(Math.random()-.5)*200, ty=Math.random()*window.innerHeight+200;
-      el.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1},{transform:`translate(${tx}px,${ty}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:2000+Math.random()*1000,easing:'cubic-bezier(.25,.46,.45,.94)'}).onfinish=()=>el.remove();
-    },i*20);
+function addItem(){
+  const el=document.getElementById('new-item');
+  const name=(el.value||'').trim();
+  if(!name) return;
+  if(rouletteItems.includes(name)){ alert('이미 있는 항목입니다.'); return; }
+  rouletteItems.push(name);
+  saveItems();
+  syncEntriesWithItems();
+  renderItems(); renderEntries();
+  el.value='';
+}
+
+function editItem(i){
+  const next=prompt('항목 이름 수정', rouletteItems[i]||'');
+  if(next===null) return;
+  const name=next.trim();
+  if(!name) return;
+  if(rouletteItems.some((n,idx)=>idx!==i&&n===name)){ alert('중복된 항목입니다.'); return; }
+  rouletteItems[i]=name;
+  saveItems();
+  syncEntriesWithItems();
+  renderItems(); renderEntries();
+}
+
+function removeItem(i){
+  rouletteItems.splice(i,1);
+  saveItems();
+  syncEntriesWithItems();
+  renderItems(); renderEntries();
+}
+
+function addDonation(content, amt){
+  if(!rouletteItems.length) return;
+  const matched=rouletteItems.find(item=>content.includes(item));
+  if(!matched) return;
+  const count=Math.floor(Number(amt||0)/1000);
+  if(!count) return;
+
+  const entry=getEntry(matched);
+  if(entry){
+    entry.amt+=count*1000;
+    entry.count=Math.floor(entry.amt/1000);
   }
+  renderEntries();
+  spawnBalls(matched, Math.min(count, 50));
 }
 
-// ── 핀볼 ──
+function manualDonate(){
+  const donor=(document.getElementById('manual-name').value||'테스터').trim()||'테스터';
+  const amt=Number(document.getElementById('manual-amount').value||0);
+  const idx=Number(document.getElementById('manual-item').value||0);
+  if(!rouletteItems.length){ alert('항목을 먼저 추가하세요.'); return; }
+  if(amt<1000){ alert('최소 1,000원'); return; }
+  const target=rouletteItems[Math.max(0,Math.min(idx,rouletteItems.length-1))];
+  addDonation(`${donor} ${target}`, amt);
+}
+
+function getWeightedPool(){
+  const pool=[];
+  entries.forEach(e=>{ for(let i=0;i<e.count;i++) pool.push(e.name); });
+  return pool;
+}
+
+function startDraw(){
+  const pool=getWeightedPool();
+  if(!pool.length||isDrawing) return;
+  isDrawing=true;
+  document.getElementById('draw-btn').disabled=true;
+  document.getElementById('winner-box').classList.remove('show');
+
+  const winner=pool[Math.floor(Math.random()*pool.length)];
+  const names=rouletteItems.slice();
+  let frame=0;
+  const totalFrames=30;
+
+  function step(){
+    const idx=(frame<totalFrames-1) ? Math.floor(Math.random()*names.length) : names.indexOf(winner);
+    highlightLane(idx);
+    frame++;
+    if(frame<totalFrames){
+      setTimeout(step, frame<20?50:120);
+    } else {
+      showWinner(winner);
+      isDrawing=false;
+      document.getElementById('draw-btn').disabled=false;
+    }
+  }
+  step();
+}
+
+function showWinner(name){
+  const winner=document.getElementById('winner-box');
+  document.getElementById('winner-name').textContent=name;
+  winner.classList.add('show');
+  history.unshift({name,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
+  if(history.length>30) history.pop();
+  saveHistory();
+  renderHistory();
+}
+
+function resetAll(){
+  if(!confirm('도네 집계와 당첨 히스토리를 초기화할까요?')) return;
+  entries=rouletteItems.map(name=>({name,amt:0,count:0}));
+  history=[];
+  saveHistory();
+  renderEntries();
+  renderHistory();
+  document.getElementById('winner-box').classList.remove('show');
+}
+
 function initPinball(){
   const canvas=document.getElementById('pinball-canvas');
-  if(!canvas) return;
   const ctx=canvas.getContext('2d');
-  pinball={canvas,ctx,w:canvas.width,h:canvas.height,gravity:0.22,friction:0.992,bounce:0.7};
+  pinball={canvas,ctx,w:canvas.width,h:canvas.height,gravity:0.22,friction:0.992,bounce:0.72,hl:-1};
   buildPegs();
-  drawPinball();
+  if(raf) cancelAnimationFrame(raf);
+  draw();
 }
 
 function buildPegs(){
   if(!pinball) return;
   pegs=[];
-  for(let r=0;r<6;r++){
-    const y=50+r*35;
-    const cols=8+(r%2);
+  for(let r=0;r<7;r++){
+    const y=64+r*36;
+    const cols=9+(r%2);
     const gap=pinball.w/(cols+1);
     for(let c=1;c<=cols;c++){
       const shift=(r%2)?gap*0.5:0;
-      pegs.push({x:Math.min(pinball.w-20,c*gap+shift),y,rr:5});
+      pegs.push({x:Math.min(pinball.w-24,c*gap+shift),y,rr:5});
     }
   }
 }
 
-function spawnPinball(itemName, count){
+function spawnBalls(itemName,count){
   if(!pinball) return;
-  const names=rouletteItems.slice();
-  const idx=Math.max(0,names.indexOf(itemName));
-  const targetX=((idx+0.5)/Math.max(1,names.length))*pinball.w;
+  const idx=Math.max(0,rouletteItems.indexOf(itemName));
+  const targetX=((idx+0.5)/Math.max(1,rouletteItems.length))*pinball.w;
   for(let i=0;i<count;i++){
-    pinballs.push({
-      x:pinball.w*0.5+(Math.random()*100-50),
-      y:-10-i*8,
-      vx:(Math.random()-0.5)*2.2,
-      vy:0,
-      r:7,
+    balls.push({
+      x:pinball.w*0.5+(Math.random()*120-60), y:-8-i*8,
+      vx:(Math.random()-0.5)*2.5, vy:0, r:7,
       targetX,
-      color:COLORS[idx%COLORS.length]||'#fbbf24'
+      col:COLORS[idx%COLORS.length]||'#fbbf24'
     });
   }
 }
 
-function drawPinball(){
+function highlightLane(idx){ if(pinball) pinball.hl=idx; }
+
+function draw(){
   if(!pinball) return;
-  const {ctx,w,h,gravity,friction,bounce}=pinball;
+  const {ctx,w,h,gravity,friction,bounce,hl}=pinball;
   ctx.clearRect(0,0,w,h);
+
   const bg=ctx.createLinearGradient(0,0,0,h);
-  bg.addColorStop(0,'#1a1b34');
-  bg.addColorStop(1,'#0b1022');
+  bg.addColorStop(0,'#1a2040'); bg.addColorStop(1,'#0a1020');
   ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
 
-  const names=rouletteItems.slice();
-  const binTop=h-58;
-  const binW=w/Math.max(1,names.length||1);
-  ctx.fillStyle='rgba(255,255,255,.12)';
-  for(let i=0;i<names.length;i++){
-    const x=i*binW;
-    ctx.fillRect(x,binTop,binW-2,h-binTop);
-    ctx.fillStyle='rgba(255,255,255,.8)';
-    ctx.font='600 11px Noto Sans KR';
-    const label=names[i].length>8?names[i].slice(0,7)+'…':names[i];
-    ctx.fillText(label,x+8,h-18);
-    ctx.fillStyle='rgba(255,255,255,.12)';
+  const laneTop=h-72;
+  const laneW=w/Math.max(1,rouletteItems.length||1);
+  for(let i=0;i<rouletteItems.length;i++){
+    const x=i*laneW;
+    ctx.fillStyle = i===hl ? 'rgba(251,191,36,.42)' : 'rgba(255,255,255,.12)';
+    ctx.fillRect(x,laneTop,laneW-2,h-laneTop);
+    ctx.fillStyle='rgba(255,255,255,.9)';
+    ctx.font='700 12px Pretendard';
+    const label=rouletteItems[i].length>10?rouletteItems[i].slice(0,9)+'…':rouletteItems[i];
+    ctx.fillText(label,x+8,h-22);
   }
 
-  ctx.fillStyle='rgba(255,255,255,.4)';
+  ctx.fillStyle='rgba(255,255,255,.35)';
   pegs.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.rr,0,Math.PI*2); ctx.fill(); });
 
-  for(let i=pinballs.length-1;i>=0;i--){
-    const b=pinballs[i];
+  for(let i=balls.length-1;i>=0;i--){
+    const b=balls[i];
     b.vx+=(b.targetX-b.x)*0.001;
     b.vy+=gravity;
     b.vx*=friction; b.vy*=friction;
     b.x+=b.vx; b.y+=b.vy;
+
     if(b.x<b.r){b.x=b.r;b.vx*=-bounce;}
     if(b.x>w-b.r){b.x=w-b.r;b.vx*=-bounce;}
 
     for(const p of pegs){
-      const dx=b.x-p.x,dy=b.y-p.y;
-      const d=Math.hypot(dx,dy), min=b.r+p.rr;
-      if(d<min){
-        const nx=dx/(d||1), ny=dy/(d||1);
-        const overlap=min-d;
+      const dx=b.x-p.x, dy=b.y-p.y;
+      const dist=Math.hypot(dx,dy), min=b.r+p.rr;
+      if(dist<min){
+        const nx=dx/(dist||1), ny=dy/(dist||1);
+        const overlap=min-dist;
         b.x+=nx*overlap; b.y+=ny*overlap;
         const dot=b.vx*nx+b.vy*ny;
         b.vx=(b.vx-2*dot*nx)*0.8;
         b.vy=(b.vy-2*dot*ny)*0.8;
       }
     }
-    if(b.y>binTop-b.r){ pinballs.splice(i,1); continue; }
-    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-    ctx.fillStyle=b.color; ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,.65)'; ctx.stroke();
+
+    if(b.y>laneTop-b.r){ balls.splice(i,1); continue; }
+
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fillStyle=b.col;
+    ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.7)';
+    ctx.stroke();
   }
-  requestAnimationFrame(drawPinball);
+
+  raf=requestAnimationFrame(draw);
 }
 
-// ── WebSocket ──
-let ws = null, wsConnected = false, wsAutoReconnect = true, channelIdCache = null;
-
 function setWsStatus(state){
-  const dot = document.getElementById('ws-dot');
-  const label = document.getElementById('ws-label');
-  if(state===true){ wsConnected=true; dot.className='ws-dot on'; label.textContent='채팅 연결됨'; label.style.color='#2ecc71'; }
-  else if(state==='err'){ wsConnected=false; dot.className='ws-dot err'; label.textContent='연결 실패'; label.style.color='#ef4444'; }
-  else { wsConnected=false; dot.className='ws-dot'; label.textContent='연결 안됨'; label.style.color='var(--text2)'; }
+  const dot=document.getElementById('ws-dot');
+  const label=document.getElementById('ws-label');
+  if(state===true){ dot.className='ws-dot on'; label.textContent='채팅 연결됨'; }
+  else if(state==='err'){ dot.className='ws-dot err'; label.textContent='연결 실패'; }
+  else if(state==='connecting'){ dot.className='ws-dot'; dot.style.background='#f59e0b'; label.textContent='연결 중...'; }
+  else { dot.className='ws-dot'; dot.style.background=''; label.textContent='연결 안됨'; }
 }
 
 async function wsConnect(){
   try {
     setWsStatus('connecting');
-    const liveRes = await fetch('/api/live-status').then(r=>r.json());
-    if(!liveRes?.content?.chatChannelId) throw new Error('방송 중이 아니에요');
-    channelIdCache = liveRes.content.chatChannelId;
-    const tokenRes = await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`).then(r=>r.json());
-    const accessToken = tokenRes?.content?.accessToken || '';
-    ws = new WebSocket('wss://kr-ss1.chat.naver.com/chat');
-    ws.onopen = () => {
+    const liveRes=await fetch('/api/live-status').then(r=>r.json());
+    if(!liveRes?.content?.chatChannelId) throw new Error('방송 중 아님');
+    channelIdCache=liveRes.content.chatChannelId;
+    const tokenRes=await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`).then(r=>r.json());
+    const accessToken=tokenRes?.content?.accessToken||'';
+
+    ws=new WebSocket('wss://kr-ss1.chat.naver.com/chat');
+    ws.onopen=()=>{
       ws.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:channelIdCache,bdy:{uid:null,devType:2001,accTkn:accessToken,auth:'READ'},tid:1}));
       setWsStatus(true);
     };
-    ws.onmessage = onWsMsg;
-    ws.onclose = () => { setWsStatus(false); if(wsAutoReconnect && channelIdCache) setTimeout(wsConnect, 5000); };
-    ws.onerror = () => setWsStatus('err');
-  } catch(e){ setWsStatus('err'); }
+    ws.onmessage=onWsMsg;
+    ws.onclose=()=>{ setWsStatus(false); if(wsAutoReconnect&&channelIdCache) setTimeout(wsConnect,5000); };
+    ws.onerror=()=>setWsStatus('err');
+  } catch(_e){ setWsStatus('err'); }
 }
 
 function onWsMsg(e){
-  try {
-    const msg = JSON.parse(e.data);
-    // 도네 메시지
-    if(msg.cmd === 93102 && msg.bdy){
-      const dons = Array.isArray(msg.bdy) ? msg.bdy : [msg.bdy];
-      dons.forEach(d => {
-        const extras = d.extras ? (typeof d.extras==='string' ? JSON.parse(d.extras) : d.extras) : {};
-        const amt = Number(extras?.payAmount || 0);
-        const isMission = extras?.donationType === 'MISSION' || !!extras?.missionDonationId;
-        if(isMission || !amt) return;
-        const content = (d.msg || extras?.donationText || extras?.message || '').trim();
-        if(!content) return;
-        addDonation(content, amt);
-      });
-    }
-    if(msg.cmd === 0) ws.send(JSON.stringify({ver:'2',cmd:10000}));
-  } catch(err){}
-}
-setInterval(()=>{ if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000})); }, 20000);
-
-function addDonation(content, amt){
-  const matched = rouletteItems.find(item => content.includes(item));
-  if(!matched) return;
-  const count = Math.floor(amt / 1000);
-  if(!count) return;
-  spawnPinball(matched, Math.min(count, 24));
-
-  // 1000원씩 0.5초 간격으로 순차 추가
-  for(let i = 0; i < count; i++){
-    setTimeout(() => {
-      const existing = entries.find(e => e.name === matched);
-      if(existing){
-        existing.amt += 1000;
-        existing.count = Math.floor(existing.amt / 1000);
-      } else {
-        entries.push({ name: matched, amt: 1000, count: 1 });
-      }
-      rebuildPool();
-      renderEntries();
-      drawWheel();
-      if(pool.length > 0) document.getElementById('spin-btn').disabled = false;
-    }, i * 100);
+  const msg=JSON.parse(e.data);
+  if(msg.cmd===93102&&msg.bdy){
+    const dons=Array.isArray(msg.bdy)?msg.bdy:[msg.bdy];
+    dons.forEach(d=>{
+      const extras=d.extras?(typeof d.extras==='string'?JSON.parse(d.extras):d.extras):{};
+      const amt=Number(extras?.payAmount||0);
+      const isMission=extras?.donationType==='MISSION'||!!extras?.missionDonationId;
+      if(isMission||!amt) return;
+      const content=(d.msg||extras?.donationText||extras?.message||'').trim();
+      if(!content) return;
+      addDonation(content,amt);
+    });
   }
+  if(msg.cmd===0) ws.send(JSON.stringify({ver:'2',cmd:10000}));
 }
 
-// ── 초기 로드 ──
-renderItemList();
-// 저장된 항목으로 entries 초기화
-entries = rouletteItems.map(name => ({ name, amt:0, count:0 }));
-drawWheel();
-initPinball();
+setInterval(()=>{ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000})); },20000);
+
+// 초기화
+if(!rouletteItems.length){ rouletteItems=['첫째팀','둘째팀']; saveItems(); }
+entries=rouletteItems.map(name=>({name,amt:0,count:0}));
+renderItems();
 renderEntries();
 renderHistory();
+initPinball();
 wsConnect();
 </script>
-
 </body>
 </html>
