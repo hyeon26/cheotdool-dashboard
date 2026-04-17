@@ -3,361 +3,264 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>도네 핀볼 룰렛 - 첫째와둘째</title>
+<title>Marble Roulette - 첫째와둘째</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0b0f1a;--surface:#141a28;--surface2:#1b2335;
-  --text:#eef2ff;--text2:#96a3c7;--text3:#576389;
+  --bg:#0a0d16;--surface:#13192a;--surface2:#1b243a;
+  --text:#f5f7ff;--text2:#9aa7c9;--text3:#5f6e95;
   --accent:#6d5dfc;--accent2:#a855f7;--gold:#fbbf24;
   --border:rgba(255,255,255,.12);--radius:14px;
 }
-body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.page{max-width:1180px;margin:0 auto;padding:24px 18px 36px}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.title{font-size:28px;font-weight:900;letter-spacing:-.4px}
+body{font-family:'Pretendard',sans-serif;background:radial-gradient(1200px 500px at 20% 0%,rgba(109,93,252,.25),transparent),var(--bg);color:var(--text);min-height:100vh}
+.page{max-width:1080px;margin:0 auto;padding:22px 16px 34px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.title{font-size:30px;font-weight:900;letter-spacing:-.4px}
 .title span{color:var(--gold)}
-.status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--text2)}
-.ws-dot{width:11px;height:11px;border-radius:50%;background:var(--text3)}
-.ws-dot.on{background:#22c55e;box-shadow:0 0 8px #22c55e;animation:blink 1.4s infinite}
-.ws-dot.err{background:#ef4444}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+.sub{font-size:13px;color:var(--text2)}
 
-.main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}
-@media (max-width:980px){.main{grid-template-columns:1fr}}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
 
-.board-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.note{font-size:12px;color:var(--text2)}
-.btn{border:none;cursor:pointer;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:800;font-family:inherit}
+.board-wrap{background:#0f1423;border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow:hidden}
+.board-wrap canvas{display:block;width:100%;height:auto}
+
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.btn-gold{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1f1200}
-.btn-ghost{background:#232c40;color:var(--text2);border:1px solid rgba(255,255,255,.08)}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#231400}
+.btn-ghost{background:#25304a;color:#d1d8ef;border:1px solid rgba(255,255,255,.1)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 
-.pinball-wrap{background:#0f1422;border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden}
-.pinball-wrap canvas{display:block;width:100%;height:auto}
-
-.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.input,.select{background:var(--surface2);border:1px solid rgba(255,255,255,.13);border-radius:9px;color:#fff;padding:9px 10px;font-size:13px;font-family:inherit;outline:none}
-.input{min-width:110px;flex:1}
-.select{min-width:130px}
-
-.winner{margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(251,191,36,.18),rgba(245,158,11,.1));border:1px solid rgba(251,191,36,.5);display:none;text-align:center}
-.winner.show{display:block}
-.winner .label{font-size:12px;color:#fcd34d;font-weight:800;letter-spacing:.6px}
-.winner .name{font-size:34px;font-weight:900;color:#fff;margin-top:4px}
+.winner{margin-top:12px;padding:13px;border-radius:12px;border:1px solid rgba(251,191,36,.45);background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(245,158,11,.07));display:none;text-align:center}
+.winner.show{display:block;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.95);opacity:.3}to{transform:scale(1);opacity:1}}
+.winner small{display:block;color:#fcd34d;font-weight:800;letter-spacing:.7px}
+.winner b{font-size:38px;line-height:1.2}
 
 .side-title{font-size:14px;font-weight:800;margin-bottom:8px}
-.list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
-.item{background:var(--surface2);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}
-.item-name{font-weight:700}
-.badge{font-size:11px;background:#2a3350;color:#c9d6ff;border-radius:20px;padding:2px 8px;font-weight:800}
-.empty{color:var(--text3);font-size:13px;padding:10px;text-align:center}
+textarea{width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:var(--surface2);color:#fff;padding:10px 11px;font-family:inherit;font-size:13px;outline:none;resize:vertical}
+textarea:focus{border-color:#8b7cff}
+.help{font-size:12px;color:var(--text3);line-height:1.5;margin-top:7px}
 
-.history{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.09)}
-.history .item{padding:6px 8px;font-size:12px}
+.name-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;max-height:250px;overflow:auto}
+.name-item{display:flex;justify-content:space-between;gap:8px;padding:8px 9px;background:var(--surface2);border-radius:9px;border:1px solid rgba(255,255,255,.08)}
+.badge{font-size:11px;padding:2px 7px;border-radius:16px;background:#2a3654;color:#d2dcff;font-weight:800}
+.empty{padding:10px;color:var(--text3);text-align:center;font-size:13px}
 
-.item-add{display:flex;gap:6px;margin-bottom:8px}
-.item-add .input{flex:1;min-width:0}
+.history{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
+.history .name-item{font-size:12px;padding:6px 8px}
 </style>
 </head>
 <body>
 <div class="page">
   <div class="header">
-    <div class="title">🎯 도네 <span>핀볼 룰렛</span></div>
-    <div class="status"><div class="ws-dot" id="ws-dot"></div><span id="ws-label">연결 안됨</span></div>
+    <div>
+      <div class="title">🎯 Marble <span>Roulette</span></div>
+      <div class="sub">참고 사이트처럼 구슬이 떨어져 당첨자를 뽑는 방식</div>
+    </div>
+    <div class="sub">입력 예시: 수박*2, 키위*3, 귤</div>
   </div>
 
-  <div class="main">
+  <div class="grid">
     <div class="card">
-      <div class="board-top">
-        <div class="note">참고 사이트 느낌처럼 핀볼 추첨 · 1,000원당 1개 · 도네 내용에 항목명이 포함되면 적립</div>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-ghost" onclick="resetAll()">초기화</button>
-          <button class="btn btn-gold" id="draw-btn" onclick="startDraw()" disabled>🎰 추첨 시작</button>
-        </div>
+      <div class="board-wrap">
+        <canvas id="board" width="760" height="430"></canvas>
       </div>
-
-      <div class="pinball-wrap">
-        <canvas id="pinball-canvas" width="860" height="420"></canvas>
-      </div>
-
       <div class="controls">
-        <input class="input" id="manual-name" placeholder="테스트 닉네임"/>
-        <input class="input" id="manual-amount" type="number" min="1000" step="1000" placeholder="금액(원)"/>
-        <select class="select" id="manual-item"></select>
-        <button class="btn btn-primary" onclick="manualDonate()">도네 테스트</button>
+        <button class="btn btn-ghost" onclick="shuffleNames()">🔀 Shuffle</button>
+        <button class="btn btn-gold" id="start-btn" onclick="startDraw()">🎰 Start</button>
+        <button class="btn btn-ghost" onclick="resetHistory()">🗑 History Reset</button>
       </div>
-
-      <div class="winner" id="winner-box">
-        <div class="label">WINNER</div>
-        <div class="name" id="winner-name"></div>
-      </div>
+      <div class="winner" id="winner-box"><small>THE WINNER IS</small><b id="winner-name"></b></div>
     </div>
 
     <div class="card">
-      <div class="side-title">📌 항목 설정</div>
-      <div class="item-add">
-        <input class="input" id="new-item" placeholder="항목 이름" onkeydown="if(event.key==='Enter')addItem()"/>
-        <button class="btn btn-primary" onclick="addItem()">추가</button>
+      <div class="side-title">Enter names below</div>
+      <textarea id="name-input">수박*2, 키위*2, 귤*2</textarea>
+      <div class="controls" style="margin-top:8px">
+        <button class="btn btn-primary" onclick="applyNames()">적용</button>
       </div>
-      <div id="item-list" class="list"></div>
+      <div class="help">쉼표(,)로 구분 · <code>*숫자</code>는 가중치(구슬 개수)입니다.</div>
 
-      <div class="side-title" style="margin-top:12px">🎫 도네 현황</div>
-      <div id="entry-list" class="list"></div>
+      <div class="side-title" style="margin-top:12px">현재 참가자</div>
+      <div id="name-list" class="name-list"></div>
 
       <div class="history">
-        <div class="side-title">🏆 당첨 히스토리</div>
-        <div id="history-list" class="list"></div>
+        <div class="side-title">당첨 히스토리</div>
+        <div id="history-list" class="name-list"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const STORAGE_ITEMS='roulette-items-v2';
-const STORAGE_HISTORY='roulette-history-v2';
+const STORAGE_NAMES='marble-roulette-names';
+const STORAGE_HISTORY='marble-roulette-history';
 
-let rouletteItems=JSON.parse(localStorage.getItem(STORAGE_ITEMS)||'[]');
-let entries=[]; // {name, amt, count}
+let entrants=[]; // [{name,count}]
 let history=JSON.parse(localStorage.getItem(STORAGE_HISTORY)||'[]');
-let ws=null, wsAutoReconnect=true, channelIdCache=null;
 
-let pinball=null;
+let board=null;
 let pegs=[];
 let balls=[];
 let raf=0;
-let isDrawing=false;
+let drawing=false;
+let highlighted=-1;
 
-const COLORS=['#7c3aed','#ec4899','#22c55e','#f59e0b','#3b82f6','#14b8a6','#ef4444','#a855f7','#06b6d4'];
+const COLORS=['#7c3aed','#ec4899','#22c55e','#f59e0b','#3b82f6','#14b8a6','#ef4444','#a855f7','#06b6d4','#84cc16'];
 
-function saveItems(){ localStorage.setItem(STORAGE_ITEMS, JSON.stringify(rouletteItems)); }
-function saveHistory(){ localStorage.setItem(STORAGE_HISTORY, JSON.stringify(history)); }
-function getEntry(name){ return entries.find(e=>e.name===name); }
-function totalTickets(){ return entries.reduce((s,e)=>s+e.count,0); }
-
-function syncEntriesWithItems(){
-  entries = rouletteItems.map(n=>{
-    const ex=getEntry(n);
-    return ex ? ex : {name:n, amt:0, count:0};
+function parseNames(text){
+  const map=new Map();
+  text.split(',').map(v=>v.trim()).filter(Boolean).forEach(raw=>{
+    const m=raw.match(/^(.*?)(?:\*(\d+))?$/);
+    if(!m) return;
+    const name=(m[1]||'').trim();
+    const cnt=Math.max(1,Number(m[2]||1));
+    if(!name) return;
+    map.set(name,(map.get(name)||0)+cnt);
   });
+  return [...map.entries()].map(([name,count])=>({name,count}));
 }
 
-function renderItems(){
-  const list=document.getElementById('item-list');
-  const select=document.getElementById('manual-item');
-  if(!rouletteItems.length){
-    list.innerHTML='<div class="empty">항목을 추가하세요</div>';
-    select.innerHTML='';
-    return;
-  }
-  list.innerHTML=rouletteItems.map((name,i)=>`
-    <div class="item">
-      <span class="item-name">${name}</span>
-      <div style="display:flex;gap:4px">
-        <button class="btn btn-ghost" style="padding:4px 8px" onclick="editItem(${i})">수정</button>
-        <button class="btn btn-ghost" style="padding:4px 8px" onclick="removeItem(${i})">삭제</button>
-      </div>
-    </div>
-  `).join('');
-  select.innerHTML=rouletteItems.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
-}
+function saveNames(text){ localStorage.setItem(STORAGE_NAMES,text); }
+function saveHistory(){ localStorage.setItem(STORAGE_HISTORY,JSON.stringify(history)); }
 
-function renderEntries(){
-  const list=document.getElementById('entry-list');
-  const t=totalTickets();
-  document.getElementById('draw-btn').disabled = t===0 || isDrawing;
-  if(!entries.length){ list.innerHTML='<div class="empty">도네 대기 중...</div>'; return; }
-  list.innerHTML=entries.map(e=>{
-    const pct=t?Math.round(e.count/t*100):0;
-    return `<div class="item"><span class="item-name">${e.name}</span><span class="badge">${e.count}장 · ${pct}%</span></div>`;
-  }).join('');
+function renderNames(){
+  const el=document.getElementById('name-list');
+  if(!entrants.length){ el.innerHTML='<div class="empty">참가자를 입력해 주세요</div>'; return; }
+  const total=entrants.reduce((s,e)=>s+e.count,0);
+  el.innerHTML=entrants.map(e=>`<div class="name-item"><span>${e.name}</span><span class="badge">${e.count}장 · ${Math.round(e.count/total*100)}%</span></div>`).join('');
 }
 
 function renderHistory(){
-  const list=document.getElementById('history-list');
-  if(!history.length){ list.innerHTML='<div class="empty">아직 없음</div>'; return; }
-  list.innerHTML=history.slice(0,20).map(h=>`<div class="item"><span>${h.name}</span><span class="badge">${h.time}</span></div>`).join('');
+  const el=document.getElementById('history-list');
+  if(!history.length){ el.innerHTML='<div class="empty">아직 없음</div>'; return; }
+  el.innerHTML=history.slice(0,20).map(h=>`<div class="name-item"><span>${h.name}</span><span class="badge">${h.time}</span></div>`).join('');
 }
 
-function addItem(){
-  const el=document.getElementById('new-item');
-  const name=(el.value||'').trim();
-  if(!name) return;
-  if(rouletteItems.includes(name)){ alert('이미 있는 항목입니다.'); return; }
-  rouletteItems.push(name);
-  saveItems();
-  syncEntriesWithItems();
-  renderItems(); renderEntries();
-  el.value='';
+function applyNames(){
+  const input=document.getElementById('name-input');
+  entrants=parseNames(input.value||'');
+  saveNames(input.value||'');
+  renderNames();
+  highlighted=-1;
 }
 
-function editItem(i){
-  const next=prompt('항목 이름 수정', rouletteItems[i]||'');
-  if(next===null) return;
-  const name=next.trim();
-  if(!name) return;
-  if(rouletteItems.some((n,idx)=>idx!==i&&n===name)){ alert('중복된 항목입니다.'); return; }
-  rouletteItems[i]=name;
-  saveItems();
-  syncEntriesWithItems();
-  renderItems(); renderEntries();
-}
-
-function removeItem(i){
-  rouletteItems.splice(i,1);
-  saveItems();
-  syncEntriesWithItems();
-  renderItems(); renderEntries();
-}
-
-function addDonation(content, amt){
-  if(!rouletteItems.length) return;
-  const matched=rouletteItems.find(item=>content.includes(item));
-  if(!matched) return;
-  const count=Math.floor(Number(amt||0)/1000);
-  if(!count) return;
-
-  const entry=getEntry(matched);
-  if(entry){
-    entry.amt+=count*1000;
-    entry.count=Math.floor(entry.amt/1000);
+function shuffleNames(){
+  for(let i=entrants.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [entrants[i],entrants[j]]=[entrants[j],entrants[i]];
   }
-  renderEntries();
-  spawnBalls(matched, Math.min(count, 50));
+  renderNames();
 }
 
-function manualDonate(){
-  const donor=(document.getElementById('manual-name').value||'테스터').trim()||'테스터';
-  const amt=Number(document.getElementById('manual-amount').value||0);
-  const idx=Number(document.getElementById('manual-item').value||0);
-  if(!rouletteItems.length){ alert('항목을 먼저 추가하세요.'); return; }
-  if(amt<1000){ alert('최소 1,000원'); return; }
-  const target=rouletteItems[Math.max(0,Math.min(idx,rouletteItems.length-1))];
-  addDonation(`${donor} ${target}`, amt);
-}
-
-function getWeightedPool(){
+function buildPool(){
   const pool=[];
-  entries.forEach(e=>{ for(let i=0;i<e.count;i++) pool.push(e.name); });
+  entrants.forEach(e=>{ for(let i=0;i<e.count;i++) pool.push(e.name); });
   return pool;
 }
 
+function pickWinner(){
+  const pool=buildPool();
+  if(!pool.length) return null;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
 function startDraw(){
-  const pool=getWeightedPool();
-  if(!pool.length||isDrawing) return;
-  isDrawing=true;
-  document.getElementById('draw-btn').disabled=true;
+  if(drawing||!entrants.length) return;
+  const winner=pickWinner();
+  if(!winner) return;
+  drawing=true;
+  document.getElementById('start-btn').disabled=true;
   document.getElementById('winner-box').classList.remove('show');
 
-  const winner=pool[Math.floor(Math.random()*pool.length)];
-  const names=rouletteItems.slice();
-  let frame=0;
-  const totalFrames=30;
+  const idx=Math.max(0,entrants.findIndex(e=>e.name===winner));
+  spawnMarble(idx);
 
-  function step(){
-    const idx=(frame<totalFrames-1) ? Math.floor(Math.random()*names.length) : names.indexOf(winner);
-    highlightLane(idx);
-    frame++;
-    if(frame<totalFrames){
-      setTimeout(step, frame<20?50:120);
+  let phase=0;
+  function tick(){
+    phase++;
+    if(phase<28){
+      highlighted=Math.floor(Math.random()*entrants.length);
+      setTimeout(tick, phase<18?55:120);
     } else {
+      highlighted=idx;
       showWinner(winner);
-      isDrawing=false;
-      document.getElementById('draw-btn').disabled=false;
+      drawing=false;
+      document.getElementById('start-btn').disabled=false;
     }
   }
-  step();
+  tick();
 }
 
 function showWinner(name){
-  const winner=document.getElementById('winner-box');
   document.getElementById('winner-name').textContent=name;
-  winner.classList.add('show');
+  document.getElementById('winner-box').classList.add('show');
   history.unshift({name,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
-  if(history.length>30) history.pop();
+  if(history.length>40) history.pop();
   saveHistory();
   renderHistory();
 }
 
-function resetAll(){
-  if(!confirm('도네 집계와 당첨 히스토리를 초기화할까요?')) return;
-  entries=rouletteItems.map(name=>({name,amt:0,count:0}));
+function resetHistory(){
   history=[];
   saveHistory();
-  renderEntries();
   renderHistory();
-  document.getElementById('winner-box').classList.remove('show');
 }
 
-function initPinball(){
-  const canvas=document.getElementById('pinball-canvas');
+function initBoard(){
+  const canvas=document.getElementById('board');
   const ctx=canvas.getContext('2d');
-  pinball={canvas,ctx,w:canvas.width,h:canvas.height,gravity:0.22,friction:0.992,bounce:0.72,hl:-1};
-  buildPegs();
-  if(raf) cancelAnimationFrame(raf);
-  draw();
-}
-
-function buildPegs(){
-  if(!pinball) return;
+  board={canvas,ctx,w:canvas.width,h:canvas.height,gravity:0.2,friction:0.992,bounce:0.72};
   pegs=[];
   for(let r=0;r<7;r++){
-    const y=64+r*36;
+    const y=76+r*38;
     const cols=9+(r%2);
-    const gap=pinball.w/(cols+1);
+    const gap=board.w/(cols+1);
     for(let c=1;c<=cols;c++){
-      const shift=(r%2)?gap*0.5:0;
-      pegs.push({x:Math.min(pinball.w-24,c*gap+shift),y,rr:5});
+      const shift=(r%2)?gap*.5:0;
+      pegs.push({x:Math.min(board.w-20,c*gap+shift),y,rr:5});
     }
   }
+  if(raf) cancelAnimationFrame(raf);
+  drawBoard();
 }
 
-function spawnBalls(itemName,count){
-  if(!pinball) return;
-  const idx=Math.max(0,rouletteItems.indexOf(itemName));
-  const targetX=((idx+0.5)/Math.max(1,rouletteItems.length))*pinball.w;
-  for(let i=0;i<count;i++){
-    balls.push({
-      x:pinball.w*0.5+(Math.random()*120-60), y:-8-i*8,
-      vx:(Math.random()-0.5)*2.5, vy:0, r:7,
-      targetX,
-      col:COLORS[idx%COLORS.length]||'#fbbf24'
-    });
-  }
+function spawnMarble(targetIdx){
+  const laneW=board.w/Math.max(1,entrants.length||1);
+  const targetX=(targetIdx+.5)*laneW;
+  balls.push({x:board.w*.5+(Math.random()*100-50),y:-10,vx:(Math.random()-.5)*2.4,vy:0,r:8,targetX,col:COLORS[targetIdx%COLORS.length]||'#fbbf24'});
 }
 
-function highlightLane(idx){ if(pinball) pinball.hl=idx; }
-
-function draw(){
-  if(!pinball) return;
-  const {ctx,w,h,gravity,friction,bounce,hl}=pinball;
+function drawBoard(){
+  const {ctx,w,h,gravity,friction,bounce}=board;
   ctx.clearRect(0,0,w,h);
 
-  const bg=ctx.createLinearGradient(0,0,0,h);
-  bg.addColorStop(0,'#1a2040'); bg.addColorStop(1,'#0a1020');
-  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#1a2140'); g.addColorStop(1,'#0d1428');
+  ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
 
-  const laneTop=h-72;
-  const laneW=w/Math.max(1,rouletteItems.length||1);
-  for(let i=0;i<rouletteItems.length;i++){
+  const laneTop=h-76;
+  const laneW=w/Math.max(1,entrants.length||1);
+  for(let i=0;i<entrants.length;i++){
     const x=i*laneW;
-    ctx.fillStyle = i===hl ? 'rgba(251,191,36,.42)' : 'rgba(255,255,255,.12)';
+    ctx.fillStyle = i===highlighted ? 'rgba(251,191,36,.5)' : 'rgba(255,255,255,.12)';
     ctx.fillRect(x,laneTop,laneW-2,h-laneTop);
-    ctx.fillStyle='rgba(255,255,255,.9)';
+    ctx.fillStyle='rgba(255,255,255,.92)';
     ctx.font='700 12px Pretendard';
-    const label=rouletteItems[i].length>10?rouletteItems[i].slice(0,9)+'…':rouletteItems[i];
-    ctx.fillText(label,x+8,h-22);
+    const label=entrants[i].name.length>9?entrants[i].name.slice(0,8)+'…':entrants[i].name;
+    ctx.fillText(label,x+8,h-24);
   }
 
-  ctx.fillStyle='rgba(255,255,255,.35)';
+  ctx.fillStyle='rgba(255,255,255,.36)';
   pegs.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.rr,0,Math.PI*2); ctx.fill(); });
 
   for(let i=balls.length-1;i>=0;i--){
     const b=balls[i];
-    b.vx+=(b.targetX-b.x)*0.001;
+    b.vx+=(b.targetX-b.x)*0.0012;
     b.vy+=gravity;
     b.vx*=friction; b.vy*=friction;
     b.x+=b.vx; b.y+=b.vy;
@@ -367,10 +270,10 @@ function draw(){
 
     for(const p of pegs){
       const dx=b.x-p.x, dy=b.y-p.y;
-      const dist=Math.hypot(dx,dy), min=b.r+p.rr;
-      if(dist<min){
-        const nx=dx/(dist||1), ny=dy/(dist||1);
-        const overlap=min-dist;
+      const d=Math.hypot(dx,dy), min=b.r+p.rr;
+      if(d<min){
+        const nx=dx/(d||1), ny=dy/(d||1);
+        const overlap=min-d;
         b.x+=nx*overlap; b.y+=ny*overlap;
         const dot=b.vx*nx+b.vy*ny;
         b.vx=(b.vx-2*dot*nx)*0.8;
@@ -384,69 +287,19 @@ function draw(){
     ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
     ctx.fillStyle=b.col;
     ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,.7)';
+    ctx.strokeStyle='rgba(255,255,255,.72)';
     ctx.stroke();
   }
 
-  raf=requestAnimationFrame(draw);
+  raf=requestAnimationFrame(drawBoard);
 }
 
-function setWsStatus(state){
-  const dot=document.getElementById('ws-dot');
-  const label=document.getElementById('ws-label');
-  if(state===true){ dot.className='ws-dot on'; label.textContent='채팅 연결됨'; }
-  else if(state==='err'){ dot.className='ws-dot err'; label.textContent='연결 실패'; }
-  else if(state==='connecting'){ dot.className='ws-dot'; dot.style.background='#f59e0b'; label.textContent='연결 중...'; }
-  else { dot.className='ws-dot'; dot.style.background=''; label.textContent='연결 안됨'; }
-}
-
-async function wsConnect(){
-  try {
-    setWsStatus('connecting');
-    const liveRes=await fetch('/api/live-status').then(r=>r.json());
-    if(!liveRes?.content?.chatChannelId) throw new Error('방송 중 아님');
-    channelIdCache=liveRes.content.chatChannelId;
-    const tokenRes=await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`).then(r=>r.json());
-    const accessToken=tokenRes?.content?.accessToken||'';
-
-    ws=new WebSocket('wss://kr-ss1.chat.naver.com/chat');
-    ws.onopen=()=>{
-      ws.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:channelIdCache,bdy:{uid:null,devType:2001,accTkn:accessToken,auth:'READ'},tid:1}));
-      setWsStatus(true);
-    };
-    ws.onmessage=onWsMsg;
-    ws.onclose=()=>{ setWsStatus(false); if(wsAutoReconnect&&channelIdCache) setTimeout(wsConnect,5000); };
-    ws.onerror=()=>setWsStatus('err');
-  } catch(_e){ setWsStatus('err'); }
-}
-
-function onWsMsg(e){
-  const msg=JSON.parse(e.data);
-  if(msg.cmd===93102&&msg.bdy){
-    const dons=Array.isArray(msg.bdy)?msg.bdy:[msg.bdy];
-    dons.forEach(d=>{
-      const extras=d.extras?(typeof d.extras==='string'?JSON.parse(d.extras):d.extras):{};
-      const amt=Number(extras?.payAmount||0);
-      const isMission=extras?.donationType==='MISSION'||!!extras?.missionDonationId;
-      if(isMission||!amt) return;
-      const content=(d.msg||extras?.donationText||extras?.message||'').trim();
-      if(!content) return;
-      addDonation(content,amt);
-    });
-  }
-  if(msg.cmd===0) ws.send(JSON.stringify({ver:'2',cmd:10000}));
-}
-
-setInterval(()=>{ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000})); },20000);
-
-// 초기화
-if(!rouletteItems.length){ rouletteItems=['첫째팀','둘째팀']; saveItems(); }
-entries=rouletteItems.map(name=>({name,amt:0,count:0}));
-renderItems();
-renderEntries();
+// boot
+const saved=localStorage.getItem(STORAGE_NAMES);
+if(saved){ document.getElementById('name-input').value=saved; }
+applyNames();
 renderHistory();
-initPinball();
-wsConnect();
+initBoard();
 </script>
 </body>
 </html>
