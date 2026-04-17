@@ -3,303 +3,235 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Marble Roulette - 첫째와둘째</title>
+<title>Pinball Roulette - 첫째와둘째</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a0d16;--surface:#13192a;--surface2:#1b243a;
-  --text:#f5f7ff;--text2:#9aa7c9;--text3:#5f6e95;
-  --accent:#6d5dfc;--accent2:#a855f7;--gold:#fbbf24;
-  --border:rgba(255,255,255,.12);--radius:14px;
-}
-body{font-family:'Pretendard',sans-serif;background:radial-gradient(1200px 500px at 20% 0%,rgba(109,93,252,.25),transparent),var(--bg);color:var(--text);min-height:100vh}
-.page{max-width:1080px;margin:0 auto;padding:22px 16px 34px}
-.header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.title{font-size:30px;font-weight:900;letter-spacing:-.4px}
-.title span{color:var(--gold)}
+:root{--bg:#0b1020;--surface:#141b30;--surface2:#1d2742;--text:#eef2ff;--text2:#98a4c7;--accent:#6d5dfc;--gold:#fbbf24;--border:rgba(255,255,255,.14);--radius:14px}
+body{font-family:'Pretendard',sans-serif;background:radial-gradient(1200px 500px at 20% 0%,rgba(109,93,252,.22),transparent),var(--bg);color:var(--text)}
+.page{max-width:1120px;margin:0 auto;padding:22px 16px 34px}
+.header{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.title{font-size:30px;font-weight:900;letter-spacing:-.5px}.title span{color:var(--gold)}
 .sub{font-size:13px;color:var(--text2)}
-
-.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px}
-@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px}@media(max-width:980px){.layout{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
-
-.board-wrap{background:#0f1423;border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow:hidden}
-.board-wrap canvas{display:block;width:100%;height:auto}
-
+.board{height:520px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.12);background:#0f1529;position:relative}
+.board canvas{display:block}
 .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .btn{border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.btn-gold{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#231400}
-.btn-ghost{background:#25304a;color:#d1d8ef;border:1px solid rgba(255,255,255,.1)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-
-.winner{margin-top:12px;padding:13px;border-radius:12px;border:1px solid rgba(251,191,36,.45);background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(245,158,11,.07));display:none;text-align:center}
-.winner.show{display:block;animation:pop .35s ease}
-@keyframes pop{from{transform:scale(.95);opacity:.3}to{transform:scale(1);opacity:1}}
-.winner small{display:block;color:#fcd34d;font-weight:800;letter-spacing:.7px}
-.winner b{font-size:38px;line-height:1.2}
-
-.side-title{font-size:14px;font-weight:800;margin-bottom:8px}
-textarea{width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:var(--surface2);color:#fff;padding:10px 11px;font-family:inherit;font-size:13px;outline:none;resize:vertical}
-textarea:focus{border-color:#8b7cff}
-.help{font-size:12px;color:var(--text3);line-height:1.5;margin-top:7px}
-
-.name-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;max-height:250px;overflow:auto}
-.name-item{display:flex;justify-content:space-between;gap:8px;padding:8px 9px;background:var(--surface2);border-radius:9px;border:1px solid rgba(255,255,255,.08)}
-.badge{font-size:11px;padding:2px 7px;border-radius:16px;background:#2a3654;color:#d2dcff;font-weight:800}
-.empty{padding:10px;color:var(--text3);text-align:center;font-size:13px}
-
+.btn-primary{background:linear-gradient(135deg,var(--accent),#a855f7);color:#fff}.btn-gold{background:linear-gradient(135deg,#f59e0b,var(--gold));color:#261700}.btn-ghost{background:#283250;color:#d3dcff;border:1px solid rgba(255,255,255,.12)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.winner{margin-top:10px;padding:14px;border-radius:12px;border:1px solid rgba(251,191,36,.45);background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(245,158,11,.08));display:none;text-align:center}
+.winner.show{display:block}.winner small{display:block;color:#fcd34d;font-weight:800}.winner b{font-size:38px}
+textarea{width:100%;min-height:130px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:var(--surface2);color:#fff;padding:10px;font-family:inherit;font-size:13px;outline:none;resize:vertical}
+.help{font-size:12px;color:var(--text2);line-height:1.5;margin-top:8px}
+.list{margin-top:10px;display:flex;flex-direction:column;gap:6px;max-height:250px;overflow:auto}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid rgba(255,255,255,.09);border-radius:9px}
+.badge{font-size:11px;background:#2b3658;color:#d6e0ff;padding:2px 8px;border-radius:20px;font-weight:800}
+.empty{padding:10px;color:#5e6b90;text-align:center}
 .history{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
-.history .name-item{font-size:12px;padding:6px 8px}
 </style>
 </head>
 <body>
 <div class="page">
   <div class="header">
     <div>
-      <div class="title">🎯 Marble <span>Roulette</span></div>
-      <div class="sub">참고 사이트처럼 구슬이 떨어져 당첨자를 뽑는 방식</div>
+      <div class="title">🎯 <span>Pinball</span> Roulette</div>
+      <div class="sub">참고한 사이트처럼 핀볼 보드에서 공이 떨어져 당첨자를 결정합니다.</div>
     </div>
     <div class="sub">입력 예시: 수박*2, 키위*3, 귤</div>
   </div>
 
-  <div class="grid">
+  <div class="layout">
     <div class="card">
-      <div class="board-wrap">
-        <canvas id="board" width="760" height="430"></canvas>
-      </div>
+      <div id="board" class="board"></div>
       <div class="controls">
-        <button class="btn btn-ghost" onclick="shuffleNames()">🔀 Shuffle</button>
-        <button class="btn btn-gold" id="start-btn" onclick="startDraw()">🎰 Start</button>
+        <button id="draw-btn" class="btn btn-gold" onclick="startDraw()">🎰 Draw</button>
+        <button class="btn btn-ghost" onclick="shuffleEntrants()">🔀 Shuffle</button>
         <button class="btn btn-ghost" onclick="resetHistory()">🗑 History Reset</button>
       </div>
-      <div class="winner" id="winner-box"><small>THE WINNER IS</small><b id="winner-name"></b></div>
+      <div id="winner-box" class="winner"><small>WINNER</small><b id="winner-name"></b></div>
     </div>
 
     <div class="card">
-      <div class="side-title">Enter names below</div>
-      <textarea id="name-input">수박*2, 키위*2, 귤*2</textarea>
-      <div class="controls" style="margin-top:8px">
-        <button class="btn btn-primary" onclick="applyNames()">적용</button>
-      </div>
-      <div class="help">쉼표(,)로 구분 · <code>*숫자</code>는 가중치(구슬 개수)입니다.</div>
+      <div style="font-weight:800;margin-bottom:8px">참가자 입력</div>
+      <textarea id="names-input">수박*2, 키위*3, 귤*1</textarea>
+      <div class="controls" style="margin-top:8px"><button class="btn btn-primary" onclick="applyEntrants()">적용</button></div>
+      <div class="help">쉼표로 구분하고 <code>*숫자</code>로 가중치를 줄 수 있습니다.</div>
 
-      <div class="side-title" style="margin-top:12px">현재 참가자</div>
-      <div id="name-list" class="name-list"></div>
+      <div style="font-weight:800;margin-top:12px">현재 참가자</div>
+      <div id="entrant-list" class="list"></div>
 
       <div class="history">
-        <div class="side-title">당첨 히스토리</div>
-        <div id="history-list" class="name-list"></div>
+        <div style="font-weight:800">당첨 히스토리</div>
+        <div id="history-list" class="list"></div>
       </div>
     </div>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
 <script>
-const STORAGE_NAMES='marble-roulette-names';
-const STORAGE_HISTORY='marble-roulette-history';
+const {Engine,Render,Runner,World,Bodies,Body,Events}=Matter;
+const STORAGE_NAMES='pinball-roulette-names-v1';
+const STORAGE_HISTORY='pinball-roulette-history-v1';
 
-let entrants=[]; // [{name,count}]
+let entrants=[]; // {name,count}
 let history=JSON.parse(localStorage.getItem(STORAGE_HISTORY)||'[]');
-
-let board=null;
-let pegs=[];
-let balls=[];
-let raf=0;
+let engine, render, runner;
+let sensors=[];
 let drawing=false;
-let highlighted=-1;
 
-const COLORS=['#7c3aed','#ec4899','#22c55e','#f59e0b','#3b82f6','#14b8a6','#ef4444','#a855f7','#06b6d4','#84cc16'];
-
-function parseNames(text){
+function parseEntrants(text){
   const map=new Map();
   text.split(',').map(v=>v.trim()).filter(Boolean).forEach(raw=>{
     const m=raw.match(/^(.*?)(?:\*(\d+))?$/);
     if(!m) return;
     const name=(m[1]||'').trim();
-    const cnt=Math.max(1,Number(m[2]||1));
+    const count=Math.max(1,Number(m[2]||1));
     if(!name) return;
-    map.set(name,(map.get(name)||0)+cnt);
+    map.set(name,(map.get(name)||0)+count);
   });
   return [...map.entries()].map(([name,count])=>({name,count}));
 }
 
-function saveNames(text){ localStorage.setItem(STORAGE_NAMES,text); }
-function saveHistory(){ localStorage.setItem(STORAGE_HISTORY,JSON.stringify(history)); }
-
-function renderNames(){
-  const el=document.getElementById('name-list');
-  if(!entrants.length){ el.innerHTML='<div class="empty">참가자를 입력해 주세요</div>'; return; }
+function renderEntrants(){
+  const el=document.getElementById('entrant-list');
+  if(!entrants.length){ el.innerHTML='<div class="empty">참가자를 입력하세요</div>'; return; }
   const total=entrants.reduce((s,e)=>s+e.count,0);
-  el.innerHTML=entrants.map(e=>`<div class="name-item"><span>${e.name}</span><span class="badge">${e.count}장 · ${Math.round(e.count/total*100)}%</span></div>`).join('');
+  el.innerHTML=entrants.map(e=>`<div class="item"><span>${e.name}</span><span class="badge">${e.count}장 · ${Math.round(e.count/total*100)}%</span></div>`).join('');
 }
 
 function renderHistory(){
   const el=document.getElementById('history-list');
   if(!history.length){ el.innerHTML='<div class="empty">아직 없음</div>'; return; }
-  el.innerHTML=history.slice(0,20).map(h=>`<div class="name-item"><span>${h.name}</span><span class="badge">${h.time}</span></div>`).join('');
+  el.innerHTML=history.slice(0,20).map(h=>`<div class="item"><span>${h.name}</span><span class="badge">${h.time}</span></div>`).join('');
 }
 
-function applyNames(){
-  const input=document.getElementById('name-input');
-  entrants=parseNames(input.value||'');
-  saveNames(input.value||'');
-  renderNames();
-  highlighted=-1;
+function applyEntrants(){
+  const text=document.getElementById('names-input').value||'';
+  entrants=parseEntrants(text);
+  localStorage.setItem(STORAGE_NAMES,text);
+  renderEntrants();
+  buildWorld();
 }
 
-function shuffleNames(){
-  for(let i=entrants.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [entrants[i],entrants[j]]=[entrants[j],entrants[i]];
+function shuffleEntrants(){
+  for(let i=entrants.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [entrants[i],entrants[j]]=[entrants[j],entrants[i]]; }
+  renderEntrants();
+  buildWorld();
+}
+
+function resetHistory(){ history=[]; localStorage.setItem(STORAGE_HISTORY,JSON.stringify(history)); renderHistory(); }
+
+function initMatter(){
+  const host=document.getElementById('board');
+  const w=host.clientWidth, h=host.clientHeight;
+  engine=Engine.create();
+  render=Render.create({element:host,engine,options:{width:w,height:h,wireframes:false,background:'#0f1529',pixelRatio:window.devicePixelRatio||1}});
+  runner=Runner.create();
+  Render.run(render); Runner.run(runner,engine);
+
+  Events.on(engine,'collisionStart',event=>{
+    if(!drawing) return;
+    for(const pair of event.pairs){
+      const a=pair.bodyA,b=pair.bodyB;
+      const sensor=sensors.find(s=>s.body===a||s.body===b);
+      const ball=(a.label==='ball'?a:(b.label==='ball'?b:null));
+      if(sensor&&ball){ finishDraw(sensor.name,ball); return; }
+    }
+  });
+
+  buildWorld();
+}
+
+function buildWorld(){
+  const w=render.options.width, h=render.options.height;
+  World.clear(engine.world,false);
+  sensors=[];
+
+  const wallOpt={isStatic:true,render:{fillStyle:'#334155'}};
+  World.add(engine.world,[
+    Bodies.rectangle(w/2,h+20,w,40,wallOpt),
+    Bodies.rectangle(-20,h/2,40,h,wallOpt),
+    Bodies.rectangle(w+20,h/2,40,h,wallOpt),
+    Bodies.rectangle(w/2,-20,w,40,wallOpt)
+  ]);
+
+  // pegs
+  const pegRows=8;
+  for(let r=0;r<pegRows;r++){
+    const y=70+r*34;
+    const cols=10+(r%2);
+    const gap=w/(cols+1);
+    for(let c=1;c<=cols;c++){
+      const shift=(r%2)?gap*0.5:0;
+      const x=Math.min(w-18,c*gap+shift);
+      World.add(engine.world,Bodies.circle(x,y,5,{isStatic:true,restitution:.4,render:{fillStyle:'#c7d2fe'}}));
+    }
   }
-  renderNames();
-}
 
-function buildPool(){
-  const pool=[];
-  entrants.forEach(e=>{ for(let i=0;i<e.count;i++) pool.push(e.name); });
-  return pool;
-}
+  // weighted lanes + sensors
+  if(!entrants.length) return;
+  const total=entrants.reduce((s,e)=>s+e.count,0);
+  let x=0;
+  entrants.forEach((e,i)=>{
+    const laneW=Math.max(42,(e.count/total)*w);
+    const laneMid=x+laneW/2;
+    const color=['#7c3aed','#ec4899','#22c55e','#f59e0b','#3b82f6','#14b8a6','#ef4444','#a855f7'][i%8];
 
-function pickWinner(){
-  const pool=buildPool();
-  if(!pool.length) return null;
-  return pool[Math.floor(Math.random()*pool.length)];
+    World.add(engine.world,Bodies.rectangle(laneMid,h-20,laneW-2,40,{isStatic:true,render:{fillStyle:color,opacity:.25}}));
+    const sensor=Bodies.rectangle(laneMid,h-42,laneW-2,20,{isStatic:true,isSensor:true,label:'sensor',render:{fillStyle:'transparent'}});
+    sensors.push({body:sensor,name:e.name});
+    World.add(engine.world,sensor);
+
+    // separators
+    World.add(engine.world,Bodies.rectangle(x,h-60,4,120,{isStatic:true,angle:0.16,render:{fillStyle:'#64748b'}}));
+    x+=laneW;
+  });
 }
 
 function startDraw(){
   if(drawing||!entrants.length) return;
-  const winner=pickWinner();
-  if(!winner) return;
   drawing=true;
-  document.getElementById('start-btn').disabled=true;
+  document.getElementById('draw-btn').disabled=true;
   document.getElementById('winner-box').classList.remove('show');
 
-  const idx=Math.max(0,entrants.findIndex(e=>e.name===winner));
-  spawnMarble(idx);
+  const w=render.options.width;
+  const ball=Bodies.circle(w/2+(Math.random()*120-60),24,10,{label:'ball',restitution:.5,friction:.001,frictionAir:.0008,density:.0014,render:{fillStyle:'#fbbf24',strokeStyle:'#fff',lineWidth:1.5}});
+  Body.setVelocity(ball,{x:(Math.random()-.5)*2.2,y:0});
+  World.add(engine.world,ball);
 
-  let phase=0;
-  function tick(){
-    phase++;
-    if(phase<28){
-      highlighted=Math.floor(Math.random()*entrants.length);
-      setTimeout(tick, phase<18?55:120);
-    } else {
-      highlighted=idx;
-      showWinner(winner);
-      drawing=false;
-      document.getElementById('start-btn').disabled=false;
-    }
-  }
-  tick();
+  setTimeout(()=>{ if(drawing) finishDraw('선택 실패',ball); },9000);
 }
 
-function showWinner(name){
+function finishDraw(name,ball){
+  drawing=false;
+  document.getElementById('draw-btn').disabled=false;
+  if(ball) World.remove(engine.world,ball);
   document.getElementById('winner-name').textContent=name;
   document.getElementById('winner-box').classList.add('show');
   history.unshift({name,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
   if(history.length>40) history.pop();
-  saveHistory();
+  localStorage.setItem(STORAGE_HISTORY,JSON.stringify(history));
   renderHistory();
-}
-
-function resetHistory(){
-  history=[];
-  saveHistory();
-  renderHistory();
-}
-
-function initBoard(){
-  const canvas=document.getElementById('board');
-  const ctx=canvas.getContext('2d');
-  board={canvas,ctx,w:canvas.width,h:canvas.height,gravity:0.2,friction:0.992,bounce:0.72};
-  pegs=[];
-  for(let r=0;r<7;r++){
-    const y=76+r*38;
-    const cols=9+(r%2);
-    const gap=board.w/(cols+1);
-    for(let c=1;c<=cols;c++){
-      const shift=(r%2)?gap*.5:0;
-      pegs.push({x:Math.min(board.w-20,c*gap+shift),y,rr:5});
-    }
-  }
-  if(raf) cancelAnimationFrame(raf);
-  drawBoard();
-}
-
-function spawnMarble(targetIdx){
-  const laneW=board.w/Math.max(1,entrants.length||1);
-  const targetX=(targetIdx+.5)*laneW;
-  balls.push({x:board.w*.5+(Math.random()*100-50),y:-10,vx:(Math.random()-.5)*2.4,vy:0,r:8,targetX,col:COLORS[targetIdx%COLORS.length]||'#fbbf24'});
-}
-
-function drawBoard(){
-  const {ctx,w,h,gravity,friction,bounce}=board;
-  ctx.clearRect(0,0,w,h);
-
-  const g=ctx.createLinearGradient(0,0,0,h);
-  g.addColorStop(0,'#1a2140'); g.addColorStop(1,'#0d1428');
-  ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-
-  const laneTop=h-76;
-  const laneW=w/Math.max(1,entrants.length||1);
-  for(let i=0;i<entrants.length;i++){
-    const x=i*laneW;
-    ctx.fillStyle = i===highlighted ? 'rgba(251,191,36,.5)' : 'rgba(255,255,255,.12)';
-    ctx.fillRect(x,laneTop,laneW-2,h-laneTop);
-    ctx.fillStyle='rgba(255,255,255,.92)';
-    ctx.font='700 12px Pretendard';
-    const label=entrants[i].name.length>9?entrants[i].name.slice(0,8)+'…':entrants[i].name;
-    ctx.fillText(label,x+8,h-24);
-  }
-
-  ctx.fillStyle='rgba(255,255,255,.36)';
-  pegs.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.rr,0,Math.PI*2); ctx.fill(); });
-
-  for(let i=balls.length-1;i>=0;i--){
-    const b=balls[i];
-    b.vx+=(b.targetX-b.x)*0.0012;
-    b.vy+=gravity;
-    b.vx*=friction; b.vy*=friction;
-    b.x+=b.vx; b.y+=b.vy;
-
-    if(b.x<b.r){b.x=b.r;b.vx*=-bounce;}
-    if(b.x>w-b.r){b.x=w-b.r;b.vx*=-bounce;}
-
-    for(const p of pegs){
-      const dx=b.x-p.x, dy=b.y-p.y;
-      const d=Math.hypot(dx,dy), min=b.r+p.rr;
-      if(d<min){
-        const nx=dx/(d||1), ny=dy/(d||1);
-        const overlap=min-d;
-        b.x+=nx*overlap; b.y+=ny*overlap;
-        const dot=b.vx*nx+b.vy*ny;
-        b.vx=(b.vx-2*dot*nx)*0.8;
-        b.vy=(b.vy-2*dot*ny)*0.8;
-      }
-    }
-
-    if(b.y>laneTop-b.r){ balls.splice(i,1); continue; }
-
-    ctx.beginPath();
-    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-    ctx.fillStyle=b.col;
-    ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,.72)';
-    ctx.stroke();
-  }
-
-  raf=requestAnimationFrame(drawBoard);
 }
 
 // boot
-const saved=localStorage.getItem(STORAGE_NAMES);
-if(saved){ document.getElementById('name-input').value=saved; }
-applyNames();
+const savedNames=localStorage.getItem(STORAGE_NAMES);
+if(savedNames) document.getElementById('names-input').value=savedNames;
+entrants=parseEntrants(document.getElementById('names-input').value||'');
+renderEntrants();
 renderHistory();
-initBoard();
+initMatter();
+window.addEventListener('resize',()=>{
+  const host=document.getElementById('board');
+  render.canvas.width=host.clientWidth;
+  render.canvas.height=host.clientHeight;
+  render.options.width=host.clientWidth;
+  render.options.height=host.clientHeight;
+  buildWorld();
+});
 </script>
 </body>
 </html>
