@@ -134,11 +134,21 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     </div>
 
     <div class="card">
-      <div class="card-title">🧪 TXT 파일 테스트</div>
+      <div class="card-title">🧪 테스트</div>
       <div class="setting-group">
-        <div class="setting-hint" style="margin-bottom:8px">저장된 채팅 TXT 파일을 불러와 도네 내역을 시뮬레이션합니다</div>
-        <input type="file" id="txt-file" accept=".txt" style="display:none" onchange="loadTxtFile(this)">
-        <button class="btn btn-connect" onclick="document.getElementById('txt-file').click()" style="background:var(--accent2)">📂 TXT 파일 불러오기</button>
+        <div class="setting-row">
+          <div class="setting-label">닉네임</div>
+          <input class="setting-input" id="test-nick" type="text" placeholder="테스트 닉네임">
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">금액 (원)</div>
+          <input class="setting-input" id="test-amt" type="number" min="0" step="1000" value="1000">
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">메시지</div>
+          <input class="setting-input" id="test-msg" type="text" placeholder="도네 메시지">
+        </div>
+        <button class="btn btn-connect" onclick="testDonation()" style="background:var(--accent2);margin-top:4px">🧪 테스트 발송</button>
       </div>
     </div>
 
@@ -393,7 +403,16 @@ function copyList() {
 function openRoulette() {
   const list = document.getElementById('roulette-list').value;
   const url  = 'https://lazygyu.github.io/roulette/';
-  window.open(list ? url + '?names=' + encodeURIComponent(list) : url, '_blank');
+  if (list) {
+    navigator.clipboard.writeText(list).then(() => {
+      alert('📋 목록이 클립보드에 복사됐어요!\n룰렛 창이 열리면 이름 입력칸에 붙여넣기(Ctrl+V) 해주세요.');
+      window.open(url, '_blank');
+    }).catch(() => {
+      window.open(url, '_blank');
+    });
+  } else {
+    window.open(url, '_blank');
+  }
 }
 
 function clearList() {
@@ -408,37 +427,17 @@ function clearList() {
   document.getElementById('stat-total-items').textContent = '0';
 }
 
-// ── TXT 파일 테스트 ──
-function loadTxtFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const lines = e.target.result.split(/\r?\n/);
-    // [후원] 또는 [미션] 행만 필터
-    const doneLines = lines.filter(l => /\[(후원|미션)\]/.test(l));
-    let count = 0;
-    doneLines.forEach(line => {
-      // [오후 05:12:11] [후원] 닉네임: 1,000원 / 메시지
-      const m = line.match(/\[(후원|미션)\]\s*(.+?):\s*([\d,]+)원(?:\s*\/\s*(.*))?$/);
-      if (!m) return;
-      const nick = m[2].trim();
-      const amt  = parseInt(m[3].replace(/,/g,''));
-      const msg  = (m[4]||'').trim();
-      // handleDonation 형식으로 직접 호출
-      simulateDonation(nick, amt, msg);
-      count++;
-    });
-    alert(`✅ ${doneLines.length}건 중 ${count}건 시뮬레이션 완료!`);
-    input.value = '';
-  };
-  reader.readAsText(file, 'utf-8');
-}
+// ── 직접 입력 테스트 ──
+function testDonation() {
+  const nick = document.getElementById('test-nick').value.trim() || '테스트유저';
+  const amt  = parseInt(document.getElementById('test-amt').value) || 0;
+  const msg  = document.getElementById('test-msg').value.trim();
+  if (!amt) { alert('금액을 입력해주세요'); return; }
 
-function simulateDonation(nick, amt, msg) {
   const unit  = getUnit();
   const count = Math.floor(amt / unit);
-  if (count < 1) return;
+  if (count < 1) { alert(`단위금액(${unit.toLocaleString()}원)보다 작아요`); return; }
+
   const time  = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const entry = msg || nick;
   for (let i = 0; i < count; i++) rouletteItems.push(entry);
