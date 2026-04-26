@@ -207,17 +207,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 </div>
 
 <script>
-// ── 고정 채널ID ──
 const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
 
-// ── 상태 ──
 let ws = null;
 let connected = false;
 let autoReconnect = false;
 let channelIdCache = null;
 let reconnectTimer = null;
 
-// 룰렛 항목 배열
 let rouletteItems = [];
 let totalDone = 0, totalAmt = 0, totalItems = 0;
 let feedCount = 0;
@@ -227,7 +224,7 @@ function getUnit() { return Math.max(100, parseInt(document.getElementById('inp-
 
 function updatePreview() {
   const u = getUnit();
-  document.getElementById('unit-preview').textContent = `${u.toLocaleString()}원 = 투표권 1개 · 5,000원이면 ${Math.floor(5000/u)}개`;
+  document.getElementById('unit-preview').textContent = `${u.toLocaleString()}원 = 1개 · 5,000원이면 ${Math.floor(5000/u)}개`;
 }
 
 function setUnit(v) {
@@ -238,8 +235,6 @@ function setUnit(v) {
   updatePreview();
 }
 
-
-
 // ── 상태 표시 ──
 function setStatus(on) {
   connected = on;
@@ -248,6 +243,32 @@ function setStatus(on) {
   document.getElementById('btn-start').style.display = on ? 'none' : '';
   document.getElementById('btn-stop').style.display  = on ? ''     : 'none';
   document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-start').textContent = '▶ 시작';
+}
+
+// ── 시작 ──
+async function startConnect() {
+  const btn = document.getElementById('btn-start');
+  btn.disabled = true;
+  btn.textContent = '연결 중...';
+  try {
+    const r = await fetch('/api/live-status');
+    const data = await r.json();
+    let chatChannelId = data?.content?.chatChannelId || CHANNEL_ID;
+    let accessToken   = data?.content?.accessToken   || '';
+    if (!accessToken) {
+      const tr = await fetch(`/api/access-token?channelId=${encodeURIComponent(chatChannelId)}`);
+      const td = await tr.json();
+      accessToken   = td?.content?.accessToken   || '';
+      chatChannelId = td?.content?.chatChannelId || chatChannelId;
+    }
+    channelIdCache = chatChannelId;
+    autoReconnect  = true;
+    connectWS(chatChannelId, accessToken);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '▶ 시작';
+  }
 }
 
 // ── 중단 ──
@@ -258,71 +279,36 @@ function stopConnect() {
   setStatus(false);
 }
 
-async function startConnect() {
-  const btn = document.getElementById('btn-start');
-  btn.disabled = true;
-  btn.textContent = '연결 중...';
-
-  try {
-    // live-status에서 chatChannelId + accessToken 한번에 가져오기
-    const r = await fetch('/api/live-status');
-    const data = await r.json();
-    let chatChannelId = data?.content?.chatChannelId || CHANNEL_ID;
-    let accessToken   = data?.content?.accessToken   || '';
-
-    // accessToken 없으면 별도 요청
-    if (!accessToken) {
-      const tr = await fetch(`/api/access-token?channelId=${encodeURIComponent(chatChannelId)}`);
-      const td = await tr.json();
-      accessToken   = td?.content?.accessToken   || '';
-      chatChannelId = td?.content?.chatChannelId || chatChannelId;
-    }
-
-    channelIdCache = chatChannelId;
-    autoReconnect  = true;
-    connectWS(chatChannelId, accessToken);
-  } catch(e) {
-    btn.disabled = false;
-  }
-}
-
+// ── 웹소켓 연결 ──
 function connectWS(channelId, accessToken) {
   ws = new WebSocket('wss://kr-ss1.chat.naver.com/chat');
-
   ws.onopen = () => {
     ws.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:channelId,bdy:{uid:null,devType:2001,accTkn:accessToken,auth:'READ'},tid:1}));
     setStatus(true);
   };
-
   ws.onmessage = (e) => {
     try {
       const msg = JSON.parse(e.data);
-      // 핑퐁
       if (msg.cmd === 0) ws.send(JSON.stringify({ver:'2',cmd:10000}));
-      // 도네이션 (93102)
       if (msg.cmd === 93102 && msg.bdy) {
         const dons = Array.isArray(msg.bdy) ? msg.bdy : [msg.bdy];
         dons.forEach(d => handleDonation(d));
       }
     } catch(err) {}
   };
-
   ws.onclose = () => {
     setStatus(false);
     if (autoReconnect && channelIdCache) {
       reconnectTimer = setTimeout(async () => {
         try {
-          const r = await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`);
-          const data = await r.json();
-          const accessToken = data?.content?.accessToken || '';
-          connectWS(channelIdCache, accessToken);
-        } catch(e) {
- }
+          const tr = await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`);
+          const td = await tr.json();
+          connectWS(channelIdCache, td?.content?.accessToken || '');
+        } catch(e) {}
       }, 5000);
     }
   };
-
-  ws.onerror = () =>
+  ws.onerror = () => {};
 }
 
 // ── 도네 처리 ──
@@ -334,45 +320,33 @@ function handleDonation(donation) {
     const amt  = Number(extras?.payAmount || 0);
     if (!amt) return;
 
-    const dtype = (extras?.donationType || '').toUpperCase();
-    const isMission = dtype === 'MISSION' || dtype === 'MISSION_PARTICIPATION';
-    if (isMission && !getMissionOn()) return;  // 미션 제외 설정 시
-
-    const msg = extras?.donationText || extras?.message || donation.msg || '';
-    const unit = getUnit();
-    const maxV = getMax();
-    let votes = Math.floor(amt / unit);
-    if (votes < 1) votes = 1;
-    if (maxV > 0) votes = Math.min(votes, maxV);
+    const msgText = (extras?.donationText || extras?.message || donation.msg || '').trim();
+    const unit  = getUnit();
+    const count = Math.floor(amt / unit);
+    if (count < 1) return; // 단위 미만이면 무시
 
     const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const entry = msgText || nick;
 
-    // 누적
-    voteMap[nick] = (voteMap[nick] || 0) + votes;
+    for (let i = 0; i < count; i++) rouletteItems.push(entry);
     totalDone++;
-    totalAmt += amt;
-    totalVotes += votes;
-}원 → 투표권 ${votes}개 (누적 ${voteMap[nick]}개)`, 'ok');
+    totalAmt  += amt;
+    totalItems += count;
 
-    // 피드 추가
-    addFeedItem(nick, amt, votes, isMission, msg, time);
+    addFeedItem(nick, amt, entry, count, time);
 
-    // 통계 업데이트
     document.getElementById('stat-total-done').textContent  = totalDone;
     document.getElementById('stat-total-amt').textContent   = totalAmt.toLocaleString();
-    document.getElementById('stat-total-votes').textContent = totalVotes;
+    document.getElementById('stat-total-items').textContent = totalItems;
 
-    // 룰렛 목록 갱신
     updateRouletteList();
-
   } catch(e) { console.error(e); }
 }
 
-function addFeedItem(nick, amt, entry, count, msg, time) {
+function addFeedItem(nick, amt, entry, count, time) {
   const wrap = document.getElementById('feed-wrap');
   const empty = wrap.querySelector('.feed-empty');
   if (empty) empty.remove();
-
   const d = document.createElement('div');
   d.className = 'feed-item';
   d.innerHTML = `
@@ -389,20 +363,17 @@ function addFeedItem(nick, amt, entry, count, msg, time) {
   document.getElementById('feed-count').textContent = feedCount + '건';
 }
 
-// ── 룰렛 목록 갱신 ──
 function updateRouletteList() {
-  // 같은 항목 집계해서 *N 형식으로
   const countMap = {};
   rouletteItems.forEach(item => { countMap[item] = (countMap[item]||0) + 1; });
   const entries = Object.entries(countMap).map(([item, cnt]) => cnt > 1 ? `${item}*${cnt}` : item);
   document.getElementById('roulette-list').value = entries.join(',');
 }
 
-// ── 액션 버튼 ──
 function copyList() {
-  const ta = document.getElementById('roulette-list');
-  if (!ta.value) { alert('룰렛 목록이 비어있어요'); return; }
-  navigator.clipboard.writeText(ta.value).then(() => {
+  const val = document.getElementById('roulette-list').value;
+  if (!val) { alert('룰렛 목록이 비어있어요'); return; }
+  navigator.clipboard.writeText(val).then(() => {
     const btn = event.target;
     const orig = btn.textContent;
     btn.textContent = '✅ 복사됨!';
@@ -412,17 +383,12 @@ function copyList() {
 
 function openRoulette() {
   const list = document.getElementById('roulette-list').value;
-  const url = 'https://lazygyu.github.io/roulette/';
-  if (list) {
-    // URL 파라미터로 이름 전달 (lazygyu 룰렛이 ?names= 지원)
-    window.open(url + '?names=' + encodeURIComponent(list), '_blank');
-  } else {
-    window.open(url, '_blank');
-  }
+  const url  = 'https://lazygyu.github.io/roulette/';
+  window.open(list ? url + '?names=' + encodeURIComponent(list) : url, '_blank');
 }
 
 function clearList() {
-  if (!confirm('룰렛 목록과 투표권 기록을 모두 초기화할까요?')) return;
+  if (!confirm('룰렛 목록과 기록을 모두 초기화할까요?')) return;
   rouletteItems = [];
   totalDone = 0; totalAmt = 0; totalItems = 0; feedCount = 0;
   document.getElementById('roulette-list').value = '';
@@ -433,16 +399,11 @@ function clearList() {
   document.getElementById('stat-total-items').textContent = '0';
 }
 
-// ── 20초 핑퐁 ──
 setInterval(() => {
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ver:'2',cmd:10000}));
-  }
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000}));
 }, 20000);
 
-// ── 초기화 ──
 updatePreview();
-
 </script>
 </body>
 </html>
