@@ -186,9 +186,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           <div class="stat-num" id="stat-total-done">0</div>
           <div class="stat-label">총 후원 수</div>
         </div>
-        <div class="stat-box">
-          <div class="stat-num" id="stat-total-amt">0</div>
-          <div class="stat-label">총 금액 (원)</div>
+        <div class="stat-box" id="stat-amt-box" onclick="toggleAmt()" style="cursor:pointer;position:relative" title="클릭해서 금액 확인">
+          <div class="stat-num" id="stat-total-amt" style="filter:blur(6px);user-select:none">0</div>
+          <div class="stat-label">총 금액 (원) 👁</div>
         </div>
         <div class="stat-box">
           <div class="stat-num" id="stat-total-items">0</div>
@@ -449,6 +449,13 @@ function testDonation() {
   document.getElementById('stat-total-amt').textContent   = totalAmt.toLocaleString();
   document.getElementById('stat-total-items').textContent = totalItems;
   updateRouletteList();
+}
+
+// ── 총금액 토글 ──
+let amtVisible = false;
+function toggleAmt() {
+  amtVisible = !amtVisible;
+  document.getElementById('stat-total-amt').style.filter = amtVisible ? 'none' : 'blur(6px)';
 }
 
 setInterval(() => {
