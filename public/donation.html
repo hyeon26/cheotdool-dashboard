@@ -97,12 +97,33 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .feed-time{font-size:10px;color:var(--text3);margin-top:2px}
 .feed-empty{text-align:center;padding:40px;color:var(--text3);font-size:13px}
 
+/* 항목 편집 */
+.edit-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2)}
+.edit-item-name{flex:1;font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.edit-item-cnt{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);flex-shrink:0;white-space:nowrap}
+.edit-item-input{flex:1;background:var(--surface);border:1.5px solid var(--accent);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;padding:4px 8px;outline:none;min-width:0}
+.edit-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.edit-btn:hover{opacity:.75}
+.edit-btn-edit{background:var(--accent-light);color:var(--accent)}
+.edit-btn-del{background:#fee2e2;color:#991b1b}
+.edit-btn-ok{background:var(--green-light);color:var(--green)}
+
 /* 룰렛 목록 */
 .roulette-textarea{width:100%;height:180px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Noto Sans KR',monospace,sans-serif;font-size:13px;padding:12px;resize:vertical;outline:none;line-height:1.7;transition:border-color .15s}
 .roulette-textarea:focus{border-color:var(--accent)}
 .roulette-actions{display:flex;gap:8px;margin-top:8px}
 .roulette-actions .btn{margin-top:0;flex:1}
 
+/* 항목 편집 */
+.edit-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2)}
+.edit-item-name{flex:1;font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.edit-item-cnt{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);flex-shrink:0}
+.edit-item-input{flex:1;background:var(--surface);border:1.5px solid var(--accent);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;padding:4px 8px;outline:none}
+.edit-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.edit-btn:hover{opacity:.75}
+.edit-btn-edit{background:var(--accent-light);color:var(--accent)}
+.edit-btn-del{background:#fee2e2;color:#991b1b}
+.edit-btn-ok{background:var(--green-light);color:var(--green)}
 </style>
 </head>
 <body>
@@ -210,11 +231,19 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
     <!-- 룰렛 목록 -->
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div class="card-title" style="margin:0">🎰 룰렛 목록</div>
-        <span style="font-size:11px;color:var(--text3)">lazygyu 룰렛에 붙여넣기용</span>
+        <span style="font-size:11px;color:var(--text3)" id="item-count-label">0종류</span>
       </div>
-      <textarea class="roulette-textarea" id="roulette-list" readonly placeholder="후원이 들어오면 자동으로 추가됩니다&#10;예) 홍길동*3,김철수*1"></textarea>
+      <!-- 항목 편집 리스트 -->
+      <div id="item-edit-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;margin-bottom:12px">
+        <div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>
+      </div>
+      <!-- 원본 텍스트 토글 -->
+      <div style="margin-bottom:8px">
+        <button onclick="toggleRawList()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline">원본 텍스트 보기/숨기기</button>
+      </div>
+      <textarea class="roulette-textarea" id="roulette-list" readonly placeholder="후원이 들어오면 자동으로 추가됩니다" style="display:none;height:80px"></textarea>
       <div class="roulette-actions">
         <button class="btn btn-copy" onclick="copyList()">📋 복사</button>
         <button class="btn btn-open" onclick="openRoulette()">🎰 룰렛 열기</button>
@@ -387,6 +416,57 @@ function updateRouletteList() {
   rouletteItems.forEach(item => { countMap[item] = (countMap[item]||0) + 1; });
   const entries = Object.entries(countMap).map(([item, cnt]) => cnt > 1 ? `${item}*${cnt}` : item);
   document.getElementById('roulette-list').value = entries.join(',');
+  renderEditList(countMap);
+}
+
+function renderEditList(countMap) {
+  const el = document.getElementById('item-edit-list');
+  const entries = Object.entries(countMap);
+  if (entries.length === 0) {
+    el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>';
+    document.getElementById('item-count-label').textContent = '0종류';
+    return;
+  }
+  document.getElementById('item-count-label').textContent = `${entries.length}종류 / 총 ${rouletteItems.length}개`;
+  el.innerHTML = entries.sort((a,b) => b[1]-a[1]).map(([item, cnt], i) => `
+    <div class="edit-item" id="edit-row-${i}">
+      <span class="edit-item-name" id="edit-name-${i}">${item}</span>
+      <span class="edit-item-cnt">${cnt}개</span>
+      <button class="edit-btn edit-btn-edit" onclick="startEdit(${i}, '${item.replace(/'/g,"\'")}', ${cnt})" title="수정">✏️</button>
+      <button class="edit-btn edit-btn-del" onclick="deleteItem('${item.replace(/'/g,"\'")}', ${cnt})" title="삭제">🗑</button>
+    </div>`).join('');
+}
+
+function startEdit(i, oldName, cnt) {
+  const row = document.getElementById('edit-row-'+i);
+  row.innerHTML = `
+    <input class="edit-item-input" id="edit-input-${i}" value="${oldName}" onkeydown="if(event.key==='Enter') confirmEdit(${i},'${oldName.replace(/'/g,"\'")}',${cnt})">
+    <span class="edit-item-cnt">${cnt}개</span>
+    <button class="edit-btn edit-btn-ok" onclick="confirmEdit(${i},'${oldName.replace(/'/g,"\'")}',${cnt})" title="확인">✅</button>
+    <button class="edit-btn edit-btn-del" onclick="updateRouletteList()" title="취소">✖</button>
+  `;
+  document.getElementById('edit-input-'+i).focus();
+}
+
+function confirmEdit(i, oldName, cnt) {
+  const newName = document.getElementById('edit-input-'+i)?.value.trim();
+  if (!newName) return;
+  // rouletteItems에서 oldName을 newName으로 교체
+  rouletteItems = rouletteItems.map(item => item === oldName ? newName : item);
+  updateRouletteList();
+}
+
+function deleteItem(name, cnt) {
+  if (!confirm(\`"\${name}" 항목을 삭제할까요? (\${cnt}개)\`)) return;
+  rouletteItems = rouletteItems.filter(item => item !== name);
+  totalItems -= cnt;
+  document.getElementById('stat-total-items').textContent = totalItems;
+  updateRouletteList();
+}
+
+function toggleRawList() {
+  const ta = document.getElementById('roulette-list');
+  ta.style.display = ta.style.display === 'none' ? '' : 'none';
 }
 
 function copyList() {
