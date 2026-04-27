@@ -1,16 +1,34 @@
+const FIREBASE_PROJECT = 'firstandsecond-b449c';
+const FIREBASE_API_KEY = 'AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw';
+
+async function getNidCookie() {
+  try {
+    const r = await fetch(
+      `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/config/chzzkCookies?key=${FIREBASE_API_KEY}`
+    );
+    const data = await r.json();
+    const aut = data?.fields?.NID_AUT?.stringValue || '';
+    const ses = data?.fields?.NID_SES?.stringValue || '';
+    if(!aut || !ses) return '';
+    return `NID_AUT=${aut}; NID_SES=${ses}`;
+  } catch(e) { return ''; }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
   const API_KEY = process.env.YOUTUBE_API_KEY;
 
+  const nidCookie = await getNidCookie();
+
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Referer': 'https://chzzk.naver.com/',
     'Origin': 'https://chzzk.naver.com',
+    ...(nidCookie ? { 'Cookie': nidCookie } : {}),
   };
 
   try {
-    // 치지직 전체 클립
     const chzzkClips = [];
     let nextUID = null;
     do {
@@ -26,13 +44,11 @@ export default async function handler(req, res) {
       nextUID = data?.content?.page?.next?.clipUID || null;
     } while (nextUID);
 
-    // 유튜브 채널 ID
     const chRes = await fetch(
       `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=_brother-siste&key=${API_KEY}`
     ).then(r => r.json());
     const ytChannelId = chRes?.items?.[0]?.id;
 
-    // 유튜브 쇼츠 목록
     const ytShorts = [];
     let pageToken = null;
     if (ytChannelId) {
@@ -57,26 +73,24 @@ export default async function handler(req, res) {
       } while (pageToken);
     }
 
-    // 유튜브 조회수 가져오기 (50개씩 배치)
     const videoIds = ytShorts.map(v => v.id);
     const viewsMap = {};
     for (let i = 0; i < videoIds.length; i += 50) {
       const batch = videoIds.slice(i, i + 50).join(',');
-      const statsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${batch}&key=${API_KEY}`;
-      const statsData = await fetch(statsUrl).then(r => r.json());
+      const statsData = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${batch}&key=${API_KEY}`
+      ).then(r => r.json());
       (statsData?.items || []).forEach(v => {
         viewsMap[v.id] = parseInt(v.statistics?.viewCount || 0);
       });
     }
 
-    // 유튜브 쇼츠에 조회수 합치기
     const ytWithViews = ytShorts.map(v => ({
       type: 'youtube', id: v.id, title: v.title,
       thumb: v.thumb, duration: null,
       views: viewsMap[v.id] || 0, date: v.date
     }));
 
-    // 날짜순 정렬
     const all = [...chzzkClips, ...ytWithViews].sort((a, b) => new Date(b.date) - new Date(a.date));
     res.status(200).json({ items: all, total: all.length });
   } catch (e) {
