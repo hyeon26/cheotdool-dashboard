@@ -374,6 +374,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="live-dot"></div>
     <span id="live-text">ON AIR</span>
   </a>
+  <button onclick="openModal('cookie-modal')" style="padding:6px 14px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">🍪 쿠키 설정</button>
 </div>
 
 <!-- 탭 -->
@@ -383,10 +384,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <div class="tab" onclick="switchTab('tools',this)">🔗 사이트</div>
   <div class="tab" onclick="switchTab('chat',this)">💬 채팅 수집</div>
   <div class="tab" onclick="switchTab('clips',this)">🎞 클립</div>
-  <a id="naver-login-btn" href="/api/auth/login" style="display:flex;align-items:center;gap:6px;padding:6px 14px;background:#03C75A;color:#fff;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;margin:auto 0 auto 8px">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
-    <span id="naver-login-text">네이버 로그인</span>
-  </a>
 </div>
 
 <div class="page">
@@ -552,6 +549,27 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
 
 </div><!-- /page -->
+
+<!-- 쿠키 설정 모달 -->
+<div class="modal-bg" id="cookie-modal">
+  <div class="modal" style="max-width:480px">
+    <h3>🍪 치지직 쿠키 설정</h3>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.7;background:var(--surface2);padding:12px;border-radius:var(--radius-sm)">
+      치지직에 로그인된 브라우저에서<br>
+      F12 → Application → Cookies → <code>https://chzzk.naver.com</code><br>
+      에서 NID_AUT, NID_SES 값을 복사해주세요
+    </div>
+    <label>NID_AUT</label>
+    <input id="cookie-nid-aut" type="text" placeholder="NID_AUT 값 붙여넣기"/>
+    <label>NID_SES</label>
+    <input id="cookie-nid-ses" type="text" placeholder="NID_SES 값 붙여넣기"/>
+    <div id="cookie-save-status" style="font-size:12px;margin-top:8px;color:var(--text2)"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('cookie-modal')">닫기</button>
+      <button class="btn-save" onclick="saveCookies()">저장</button>
+    </div>
+  </div>
+</div>
 
 <!-- 월 피커 모달 -->
 <div class="modal-bg" id="month-picker-modal">
@@ -1374,44 +1392,14 @@ function handleDonation(donation){
 
 // Vercel API 라우트 (CORS 없이 서버에서 직접 호출)
 async function fetchLiveStatus(){
-  const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
-  // 브라우저에서 직접 치지직 API 호출 (로그인 쿠키 자동 포함)
-  try {
-    const r = await fetch(`https://api.chzzk.naver.com/service/v3/channels/${CHANNEL_ID}/live-detail`, {
-      credentials: 'include',
-    });
-    if(!r.ok) throw new Error(r.status);
-    const detail = await r.json();
-    const chatChannelId = detail?.content?.chatChannelId;
-    const status = detail?.content?.status;
-    const liveTitle = detail?.content?.liveTitle || '';
-    if(!chatChannelId) return { content: { status: 'CLOSED', chatChannelId: CHANNEL_ID, accessToken: '', liveTitle: '' }, needLogin: false };
-    // 채팅 토큰도 직접 가져오기
-    const tokenR = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`, {
-      credentials: 'include',
-    });
-    const tokenData = await tokenR.json();
-    const accessToken = tokenData?.content?.accessToken || '';
-    return { content: { status, chatChannelId, accessToken, liveTitle }, needLogin: false };
-  } catch(e) {
-    // CORS 실패 시 서버 API로 폴백
-    const r = await fetch('/api/live-status');
-    if(!r.ok) throw new Error(r.status);
-    return r.json();
-  }
+  const r = await fetch('/api/live-status');
+  if(!r.ok) throw new Error(r.status);
+  return r.json();
 }
 async function fetchAccessToken(channelId){
-  try {
-    const r = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${encodeURIComponent(channelId)}&chatType=STREAMING`, {
-      credentials: 'include',
-    });
-    if(!r.ok) throw new Error(r.status);
-    return r.json();
-  } catch(e) {
-    const r = await fetch(`/api/access-token?channelId=${encodeURIComponent(channelId)}`);
-    if(!r.ok) throw new Error(r.status);
-    return r.json();
-  }
+  const r = await fetch(`/api/access-token?channelId=${encodeURIComponent(channelId)}`);
+  if(!r.ok) throw new Error(r.status);
+  return r.json();
 }
 
 function chatOnMessage(e){
@@ -1689,29 +1677,6 @@ async function checkLive(){
     if(data?.content?.chatChannelId && !chatChannelIdCache){
       chatChannelIdCache = data.content.chatChannelId;
     }
-    // 로그인 상태 버튼 업데이트
-    const loginBtn = document.getElementById('naver-login-btn');
-    const loginText = document.getElementById('naver-login-text');
-    if(loginBtn && loginText){
-      if(data?.needLogin === false){
-        // 닉네임 쿠키 읽기
-        const nickname = document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('naver_nickname='))?.split('=')[1];
-        const displayName = nickname ? decodeURIComponent(nickname) : '로그인됨';
-        loginBtn.style.background = '#03C75A';
-        loginBtn.style.border = 'none';
-        loginBtn.style.color = '#fff';
-        loginBtn.href = '#';
-        loginBtn.onclick = (e) => { e.preventDefault(); };
-        loginText.textContent = `✓ ${displayName}`;
-      } else {
-        loginBtn.style.background = '#03C75A';
-        loginBtn.style.border = 'none';
-        loginBtn.style.color = '#fff';
-        loginBtn.href = '/api/auth/login';
-        loginBtn.onclick = null;
-        loginText.textContent = '네이버 로그인';
-      }
-    }
     updateLiveBadge(isLive, title);
   }catch(e){}
 }
@@ -1928,7 +1893,31 @@ window.kakaoShareClip = () => {
 
 
 
-// ── 접속 로그 기록 ──
+// ── 쿠키 설정 ──
+window.saveCookies = async() => {
+  const nidAut = document.getElementById('cookie-nid-aut').value.trim();
+  const nidSes = document.getElementById('cookie-nid-ses').value.trim();
+  const status = document.getElementById('cookie-save-status');
+  if(!nidAut || !nidSes){ status.textContent='❌ 두 값 모두 입력해주세요'; status.style.color='var(--red)'; return; }
+  status.textContent='저장 중...'; status.style.color='var(--text2)';
+  try {
+    const r = await fetch('/api/update-cookies', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nidAut, nidSes })
+    });
+    const data = await r.json();
+    if(data.ok){
+      status.textContent='✅ 저장 완료! 1~2분 후 자동 반영됩니다';
+      status.style.color='#10b981';
+      document.getElementById('cookie-nid-aut').value='';
+      document.getElementById('cookie-nid-ses').value='';
+    } else {
+      status.textContent='❌ 저장 실패: ' + (data.error||'');
+      status.style.color='var(--red)';
+    }
+  } catch(e){ status.textContent='❌ 오류: '+e.message; status.style.color='var(--red)'; }
+};
 (function(){
   const page = location.pathname || '/';
   fetch(`/api/log-visit?page=${encodeURIComponent(page)}`).catch(()=>{});
