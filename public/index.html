@@ -43,7 +43,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
 /* 탭 */
-.tabs{display:flex;padding:0 32px;gap:4px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:19}
+.tabs{display:flex;align-items:center;padding:0 32px;gap:4px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:19}
 .tab{padding:13px 20px;font-size:14px;font-weight:600;color:var(--text2);border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;border-radius:8px 8px 0 0}
 .tab:hover{color:var(--text);background:var(--surface2)}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -374,10 +374,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="live-dot"></div>
     <span id="live-text">ON AIR</span>
   </a>
-  <a id="naver-login-btn" href="/api/auth/login" style="display:none;align-items:center;gap:6px;padding:6px 14px;background:#03C75A;color:#fff;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
-    네이버 로그인
-  </a>
 </div>
 
 <!-- 탭 -->
@@ -387,6 +383,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <div class="tab" onclick="switchTab('tools',this)">🔗 사이트</div>
   <div class="tab" onclick="switchTab('chat',this)">💬 채팅 수집</div>
   <div class="tab" onclick="switchTab('clips',this)">🎞 클립</div>
+  <a href="/api/auth/login" style="display:flex;align-items:center;gap:6px;padding:6px 14px;background:#03C75A;color:#fff;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;margin:auto 0 auto 8px">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
+    네이버 로그인
+  </a>
 </div>
 
 <div class="page">
