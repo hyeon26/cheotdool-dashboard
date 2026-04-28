@@ -2,7 +2,7 @@
   "crons": [{ "path": "/api/cache-clips", "schedule": "0 19 * * *" }],
   "redirects": [
     {
-      "source": "/((?!vote$|logo\\.png$|api/).*)",
+      "source": "/((?!vote$|logo\\.png$|donation$|api/).*)",
       "has": [{ "type": "host", "value": "cheotdool.vercel.app" }],
       "destination": "/__blocked__",
       "permanent": false
