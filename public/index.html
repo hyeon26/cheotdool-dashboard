@@ -1381,6 +1381,19 @@ function handleDonation(donation){
     const msg = donation.msg || extras?.donationText || extras?.message || '';
     div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
     log.appendChild(div); log.scrollTop=log.scrollHeight;
+
+    // 도네 전용 피드에도 추가
+    const feed = document.getElementById('done-feed');
+    if(feed){
+      if(feed.querySelector('[data-empty]')) feed.innerHTML='';
+      const fdiv = document.createElement('div');
+      fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
+      fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick||'익명의 후원자'}</span><span style="font-weight:700;color:var(--text)">${amt.toLocaleString()}원</span></div>${msg?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}</div>`;
+      feed.appendChild(fdiv);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    doneLogs.push({ time, nick: nick||'익명의 후원자', amt, type: isMission?'mission':'donation', msg });
     if(isMission){
       if(!nick || nick==='익명의 후원자') missionAnon+=amt;
       else missionMap[nick]=(missionMap[nick]||0)+amt;
@@ -1528,10 +1541,24 @@ window.loadSession=async(sessionId)=>{
         userMap[nick]=(userMap[nick]||0)+1;
       } else {
         const {nick,amt,type,time,message}=item;
-        if(type==='mission'){ if(nick==='익명의 후원자') missionAnon+=amt; else missionMap[nick]=(missionMap[nick]||0)+amt; }
+        const isMission = type==='mission';
+        const icon = isMission?'🎯':'💰';
+        const label = isMission?'미션':'후원';
+        if(isMission){ if(nick==='익명의 후원자') missionAnon+=amt; else missionMap[nick]=(missionMap[nick]||0)+amt; }
         else { if(nick==='익명의 후원자') doneAnon+=amt; else doneMap[nick]=(doneMap[nick]||0)+amt; }
-        div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${type==='mission'?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
-        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${type==='mission'?'🎯':'💰'} ${nick}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${type==='mission'?'미션':'후원'}!</span>${message?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${message}</div>`:''}`;
+        div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
+        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${label}!</span>${message?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${message}</div>`:''}`;
+
+        // done-feed에도 추가
+        const feed=document.getElementById('done-feed');
+        if(feed){
+          if(feed.querySelector('[data-empty]')) feed.innerHTML='';
+          const fdiv=document.createElement('div');
+          fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
+          fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick}</span><span style="font-weight:700;color:var(--text)">${Number(amt).toLocaleString()}원</span></div>${message?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${message}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}</div>`;
+          feed.appendChild(fdiv);
+        }
+        doneLogs.push({ time, nick, amt: Number(amt), type, msg: message||'' });
       }
       log.appendChild(div);
     });
@@ -1549,6 +1576,9 @@ window.loadSession=async(sessionId)=>{
       </div>`).join('');
 
     renderDone(); renderMission();
+    // done-feed 스크롤 맨 아래로
+    const feed=document.getElementById('done-feed');
+    if(feed && !feed.querySelector('[data-empty]')) feed.scrollTop=feed.scrollHeight;
     log.scrollTop=log.scrollHeight;
     alert(`${cSnap.docs.length}개 채팅, ${dSnap.docs.length}개 후원 불러왔어요!`);
   } catch(e){ alert('불러오기 실패: '+e.message); }
