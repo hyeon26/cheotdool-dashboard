@@ -137,7 +137,7 @@
     <div class="summary" id="summary"></div>
     <div class="section-title">스트리머별</div>
     <div class="streamer-grid" id="streamer-grid"></div>
-    <div class="section-title">월별 후원</div>
+    <div class="section-title" id="period-title">월별 후원</div>
     <div class="months-grid" id="months-grid"></div>
   </div>
 </div>
@@ -288,8 +288,7 @@ function renderMonths(data) {
       byYear[y].total += d.payAmount;
       byYear[y].count++;
     });
-    document.querySelector('.section-title:last-of-type').textContent = '연도별 후원';
-    document.getElementById('months-grid').innerHTML = years.map(y => {
+    document.getElementById('period-title').textContent = '연도별 후원';    document.getElementById('months-grid').innerHTML = years.map(y => {
       const info = byYear[String(y)] || { total: 0, count: 0 };
       return `<div class="month-card" onclick="${info.total > 0 ? `changeYear(${y})` : ''}">
         <div class="m-label">${y}년</div>
@@ -299,7 +298,7 @@ function renderMonths(data) {
     }).join('');
     return;
   }
-  document.querySelector('.section-title:last-of-type').textContent = '월별 후원';
+  document.getElementById('period-title').textContent = '월별 후원';
   const byMonth = {};
   data.forEach(d => {
     const m = d.purchaseDate.slice(0, 7);
