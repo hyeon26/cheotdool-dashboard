@@ -572,11 +572,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       F12 → Application → Cookies → <code>https://chzzk.naver.com</code><br>
       에서 NID_AUT, NID_SES 값을 복사해주세요
     </div>
-    <div id="cookie-current" style="font-size:12px;color:var(--text2);margin-bottom:12px;padding:10px;background:var(--surface2);border-radius:var(--radius-sm);display:none">
-      <div style="font-weight:700;margin-bottom:4px;color:var(--text)">현재 저장된 쿠키</div>
-      <div>NID_AUT: <span id="cookie-current-aut" style="font-family:monospace;color:var(--accent)"></span></div>
-      <div>NID_SES: <span id="cookie-current-ses" style="font-family:monospace;color:var(--accent)"></span></div>
-    </div>
     <label>NID_AUT</label>
     <input id="cookie-nid-aut" type="text" placeholder="NID_AUT 값 붙여넣기"/>
     <label>NID_SES</label>
@@ -1914,22 +1909,14 @@ window.kakaoShareClip = () => {
 window.openCookieModal = async() => {
   openModal('cookie-modal');
   document.getElementById('cookie-save-status').textContent = '';
-  // 현재 저장된 쿠키 가져오기
   try {
     const r = await fetch(`https://firestore.googleapis.com/v1/projects/firstandsecond-b449c/databases/(default)/documents/config/chzzkCookies?key=AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw`);
     const data = await r.json();
     const aut = data?.fields?.NID_AUT?.stringValue || '';
     const ses = data?.fields?.NID_SES?.stringValue || '';
-    if(aut || ses){
-      document.getElementById('cookie-current').style.display = '';
-      document.getElementById('cookie-current-aut').textContent = aut ? aut.slice(0,10)+'...' : '없음';
-      document.getElementById('cookie-current-ses').textContent = ses ? ses.slice(0,10)+'...' : '없음';
-    } else {
-      document.getElementById('cookie-current').style.display = 'none';
-    }
-  } catch(e) {
-    document.getElementById('cookie-current').style.display = 'none';
-  }
+    document.getElementById('cookie-nid-aut').value = aut;
+    document.getElementById('cookie-nid-ses').value = ses;
+  } catch(e) {}
 };
 
 window.saveCookies = async() => {
