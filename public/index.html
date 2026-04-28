@@ -1917,7 +1917,9 @@ window.openCookieModal = async() => {
   } catch(e) {
     document.getElementById('cookie-current').style.display = 'none';
   }
-}; = async() => {
+};
+
+window.saveCookies = async() => {
   const nidAut = document.getElementById('cookie-nid-aut').value.trim();
   const nidSes = document.getElementById('cookie-nid-ses').value.trim();
   const status = document.getElementById('cookie-save-status');
