@@ -115,6 +115,8 @@
   .detail-item .di-amount { font-size: 15px; font-weight: 900; color: var(--yellow); flex-shrink: 0; }
 
   .loading { text-align: center; padding: 60px; color: var(--text3); font-size: 14px; }
+  .loading::after { content: ''; display: block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--yellow); border-radius: 50%; margin: 16px auto 0; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -130,7 +132,7 @@
 </header>
 
 <div class="container">
-  <div id="loading" class="loading">불러오는 중...</div>
+  <div id="loading" class="loading">데이터를 불러오는 중입니다</div>
   <div id="content" style="display:none">
     <div class="summary" id="summary"></div>
     <div class="section-title">스트리머별</div>
@@ -221,7 +223,9 @@ async function loadData(year) {
     }
     render();
   } catch(e) {
-    document.getElementById('loading').textContent = '불러오기 실패';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = '';
+    document.getElementById('summary').innerHTML = `<div style="color:var(--red);padding:20px">불러오기 실패: ${e.message}</div>`;
   }
 }
 
