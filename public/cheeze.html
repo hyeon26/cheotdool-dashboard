@@ -185,10 +185,11 @@ document.addEventListener('click', e => {
 function initYearList() {
   const cur = new Date().getFullYear();
   const years = [cur, cur-1, cur-2, cur-3];
-  document.getElementById('year-list').innerHTML = years.map(y => `
-    <div class="year-item ${y === currentYear ? 'active' : ''}" onclick="changeYear(${y})">${y}년</div>
-  `).join('');
-  document.getElementById('year-display').textContent = currentYear + '년';
+  document.getElementById('year-list').innerHTML = `
+    <div class="year-item ${currentYear === 'all' ? 'active' : ''}" onclick="changeYear('all')">전체</div>
+    ${years.map(y => `<div class="year-item ${y === currentYear ? 'active' : ''}" onclick="changeYear(${y})">${y}년</div>`).join('')}
+  `;
+  document.getElementById('year-display').textContent = currentYear === 'all' ? '전체' : currentYear + '년';
 }
 
 function changeYear(year) {
@@ -206,9 +207,18 @@ async function loadData(year) {
   document.getElementById('loading').style.display = '';
   document.getElementById('content').style.display = 'none';
   try {
-    const r = await fetch(`/api/cheese-history?year=${year}`);
-    const json = await r.json();
-    allData = json?.content?.data || [];
+    if(year === 'all') {
+      const cur = new Date().getFullYear();
+      const years = [cur, cur-1, cur-2, cur-3];
+      const results = await Promise.all(years.map(y =>
+        fetch(`/api/cheese-history?year=${y}`).then(r => r.json())
+      ));
+      allData = results.flatMap(json => json?.content?.data || []);
+    } else {
+      const r = await fetch(`/api/cheese-history?year=${year}`);
+      const json = await r.json();
+      allData = json?.content?.data || [];
+    }
     render();
   } catch(e) {
     document.getElementById('loading').textContent = '불러오기 실패';
@@ -264,6 +274,28 @@ function selectStreamer(name) {
 }
 
 function renderMonths(data) {
+  if(currentYear === 'all') {
+    const cur = new Date().getFullYear();
+    const years = [cur, cur-1, cur-2, cur-3];
+    const byYear = {};
+    data.forEach(d => {
+      const y = d.purchaseDate.slice(0, 4);
+      if(!byYear[y]) byYear[y] = { total: 0, count: 0 };
+      byYear[y].total += d.payAmount;
+      byYear[y].count++;
+    });
+    document.querySelector('.section-title:last-of-type').textContent = '연도별 후원';
+    document.getElementById('months-grid').innerHTML = years.map(y => {
+      const info = byYear[String(y)] || { total: 0, count: 0 };
+      return `<div class="month-card" onclick="${info.total > 0 ? `changeYear(${y})` : ''}">
+        <div class="m-label">${y}년</div>
+        <div class="m-amount ${info.total > 0 ? 'has-data' : ''}">${info.total > 0 ? info.total.toLocaleString()+'원' : '-'}</div>
+        <div class="m-count">${info.count > 0 ? info.count+'건' : ''}</div>
+      </div>`;
+    }).join('');
+    return;
+  }
+  document.querySelector('.section-title:last-of-type').textContent = '월별 후원';
   const byMonth = {};
   data.forEach(d => {
     const m = d.purchaseDate.slice(0, 7);
