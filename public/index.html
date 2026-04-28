@@ -1290,6 +1290,7 @@ let chatSessionId=null; // Firebase 세션 ID
 const CHAT_TTL_DAYS=3; // 보관 기간
 let doneMap={}, doneAnon=0;
 let missionMap={}, missionAnon=0;
+let doneLogs=[];
 function chatSetStatus(on){
   chatConnected=on;
   const dot=document.getElementById('chat-status-dot'), text=document.getElementById('chat-status-text');
