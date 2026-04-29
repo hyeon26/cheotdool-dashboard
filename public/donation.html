@@ -35,7 +35,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .status-dot.on{background:var(--green);box-shadow:0 0 0 3px rgba(16,185,129,.2);animation:pulse 1.4s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(16,185,129,.2)}50%{box-shadow:0 0 0 6px rgba(16,185,129,.05)}}
 .status-text{font-size:12px;font-weight:600;color:var(--text2)}
-.wrap{display:grid;grid-template-columns:320px 1fr;gap:20px;padding:24px 28px;max-width:1400px;margin:0 auto}
+.wrap{display:grid;grid-template-columns:280px 1fr;gap:20px;padding:24px 28px;max-width:1400px;margin:0 auto}
 @media(max-width:900px){.wrap{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
 .card-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
@@ -52,7 +52,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .btn:hover{opacity:.85}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-connect{background:var(--accent);color:#fff}
-.btn-test{background:var(--accent2);color:#fff}
 .btn-stop{background:var(--red);color:#fff}
 .btn-copy{background:var(--green);color:#fff}
 .btn-open{background:var(--amber);color:#fff}
@@ -63,7 +62,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .stat-num{font-size:24px;font-weight:900;color:var(--text);line-height:1}
 .stat-num.blurred{filter:blur(8px);user-select:none;cursor:pointer}
 .stat-label{font-size:11px;color:var(--text2);margin-top:4px}
-/* 항목 편집 */
 .edit-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2)}
 .edit-item-name{flex:1;font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .edit-item-cnt{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);flex-shrink:0}
@@ -73,11 +71,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .edit-btn-edit{background:var(--accent-light);color:var(--accent)}
 .edit-btn-del{background:#fee2e2;color:#991b1b}
 .edit-btn-ok{background:var(--green-light);color:var(--green)}
-/* 룰렛 */
 .roulette-textarea{width:100%;height:70px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:monospace;font-size:12px;padding:10px;resize:none;outline:none;line-height:1.6}
 .roulette-actions{display:flex;gap:8px;margin-top:8px}
 .roulette-actions .btn{width:auto;flex:1}
-/* 피드 */
 .feed-wrap{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
 .feed-item{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);animation:slideIn .25s ease}
 @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
@@ -89,9 +85,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .feed-msg{font-size:12px;color:var(--text2);margin-top:4px}
 .feed-time{font-size:10px;color:var(--text3);margin-top:2px}
 .feed-empty{text-align:center;padding:30px;color:var(--text3);font-size:13px}
-/* 접기 */
 .collapsible-trigger{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.collapsible-trigger:hover .card-title{color:var(--text2)}
 .collapsible-body{overflow:hidden;max-height:0;transition:max-height .35s ease}
 .collapsible-body.open{max-height:500px}
 </style>
@@ -110,10 +104,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 </div>
 
 <div class="wrap">
-
   <!-- 왼쪽 -->
   <div style="display:flex;flex-direction:column;gap:16px">
-
     <div class="card">
       <div class="card-title">⚙️ 연결</div>
       <div style="display:flex;gap:8px">
@@ -141,32 +133,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">🧪 테스트</div>
-      <div class="setting-group">
-        <div class="setting-row">
-          <div class="setting-label">닉네임</div>
-          <input class="setting-input" id="test-nick" type="text" placeholder="테스트 닉네임">
-        </div>
-        <div class="setting-row">
-          <div class="setting-label">금액 (원)</div>
-          <input class="setting-input" id="test-amt" type="number" min="0" step="1000" value="1000">
-        </div>
-        <div class="setting-row">
-          <div class="setting-label">메시지</div>
-          <input class="setting-input" id="test-msg" type="text" placeholder="도네 메시지 (없으면 닉네임)">
-        </div>
-        <button class="btn btn-test" onclick="testDonation()">🧪 테스트 발송</button>
-      </div>
-    </div>
-
   </div>
 
   <!-- 오른쪽 -->
   <div class="right-panel">
-
-    <!-- 통계 -->
     <div class="card">
       <div class="stats-row">
         <div class="stat-box">
@@ -184,7 +154,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       </div>
     </div>
 
-    <!-- 룰렛 목록 -->
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div class="card-title" style="margin:0">🎰 룰렛 목록</div>
@@ -200,11 +169,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
         <button class="btn btn-clear" onclick="clearList()">🗑 초기화</button>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- 후원 내역 (하단 고정) -->
+<!-- 후원 내역 -->
 <div style="max-width:1400px;margin:0 auto;padding:0 28px 40px">
   <div class="card">
     <div class="collapsible-trigger" onclick="toggleFeed()">
@@ -224,283 +192,231 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 </div>
 
 <script>
-var CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
-var ws = null;
-var connected = false;
-var autoReconnect = false;
-var channelIdCache = null;
-var reconnectTimer = null;
-var rouletteItems = [];
-var totalDone = 0, totalAmt = 0, totalItems = 0, feedCount = 0;
-var amtVisible = false, feedOpen = false;
+var CHANNEL_ID='48070f8882233efa7aee52519fee8fca';
+var ws=null,connected=false,autoReconnect=false;
+var channelIdCache=null,reconnectTimer=null;
+var rouletteItems=[];
+var totalDone=0,totalAmt=0,totalItems=0,feedCount=0;
+var amtVisible=false,feedOpen=false;
 
-function getUnit() {
-  return Math.max(100, parseInt(document.getElementById('inp-unit').value) || 1000);
+function getUnit(){return Math.max(100,parseInt(document.getElementById('inp-unit').value)||1000);}
+function updatePreview(){
+  var u=getUnit();
+  document.getElementById('unit-preview').textContent=u.toLocaleString()+'원 = 1개 · 5,000원이면 '+Math.floor(5000/u)+'개';
 }
-
-function updatePreview() {
-  var u = getUnit();
-  document.getElementById('unit-preview').textContent = u.toLocaleString() + '원 = 1개 · 5,000원이면 ' + Math.floor(5000/u) + '개';
-}
-
-function setUnit(v) {
-  document.getElementById('inp-unit').value = v;
-  document.querySelectorAll('.preset-btn').forEach(function(b) {
-    b.classList.toggle('active', parseInt(b.textContent.replace(/[^0-9]/g,'')) === v);
+function setUnit(v){
+  document.getElementById('inp-unit').value=v;
+  document.querySelectorAll('.preset-btn').forEach(function(b){
+    b.classList.toggle('active',parseInt(b.textContent.replace(/[^0-9]/g,''))===v);
   });
   updatePreview();
 }
-
-function setStatus(on) {
-  connected = on;
-  document.getElementById('status-dot').className = 'status-dot' + (on ? ' on' : '');
-  document.getElementById('status-text').textContent = on ? '수집 중' : '연결 안됨';
-  document.getElementById('btn-start').style.display = on ? 'none' : '';
-  document.getElementById('btn-stop').style.display  = on ? ''     : 'none';
-  document.getElementById('btn-start').disabled = false;
-  document.getElementById('btn-start').textContent = '▶ 시작';
+function setStatus(on){
+  connected=on;
+  document.getElementById('status-dot').className='status-dot'+(on?' on':'');
+  document.getElementById('status-text').textContent=on?'수집 중':'연결 안됨';
+  document.getElementById('btn-start').style.display=on?'none':'';
+  document.getElementById('btn-stop').style.display=on?'':'none';
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-start').textContent='▶ 시작';
 }
-
-async function startConnect() {
-  var btn = document.getElementById('btn-start');
-  btn.disabled = true;
-  btn.textContent = '연결 중...';
-  try {
-    var r = await fetch('/api/live-status');
-    var data = await r.json();
-    var chatChannelId = (data && data.content && data.content.chatChannelId) ? data.content.chatChannelId : CHANNEL_ID;
-    var accessToken   = (data && data.content && data.content.accessToken)   ? data.content.accessToken   : '';
-    if (!accessToken) {
-      var tr = await fetch('/api/access-token?channelId=' + encodeURIComponent(chatChannelId));
-      var td = await tr.json();
-      accessToken   = (td && td.content && td.content.accessToken)   ? td.content.accessToken   : '';
-      chatChannelId = (td && td.content && td.content.chatChannelId) ? td.content.chatChannelId : chatChannelId;
+async function startConnect(){
+  var btn=document.getElementById('btn-start');
+  btn.disabled=true;btn.textContent='연결 중...';
+  try{
+    var r=await fetch('/api/live-status');
+    var data=await r.json();
+    var chatChannelId=(data&&data.content&&data.content.chatChannelId)?data.content.chatChannelId:CHANNEL_ID;
+    var accessToken=(data&&data.content&&data.content.accessToken)?data.content.accessToken:'';
+    if(!accessToken){
+      var tr=await fetch('/api/access-token?channelId='+encodeURIComponent(chatChannelId));
+      var td=await tr.json();
+      accessToken=(td&&td.content&&td.content.accessToken)?td.content.accessToken:'';
+      chatChannelId=(td&&td.content&&td.content.chatChannelId)?td.content.chatChannelId:chatChannelId;
     }
-    channelIdCache = chatChannelId;
-    autoReconnect  = true;
-    connectWS(chatChannelId, accessToken);
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = '▶ 시작';
-  }
+    channelIdCache=chatChannelId;autoReconnect=true;
+    connectWS(chatChannelId,accessToken);
+  }catch(e){btn.disabled=false;btn.textContent='▶ 시작';}
 }
-
-function stopConnect() {
-  autoReconnect = false;
-  if (reconnectTimer) clearTimeout(reconnectTimer);
-  if (ws) ws.close();
+function stopConnect(){
+  autoReconnect=false;
+  if(reconnectTimer)clearTimeout(reconnectTimer);
+  if(ws)ws.close();
   setStatus(false);
 }
-
-function connectWS(channelId, accessToken) {
-  ws = new WebSocket('wss://kr-ss1.chat.naver.com/chat');
-  ws.onopen = function() {
+function connectWS(channelId,accessToken){
+  ws=new WebSocket('wss://kr-ss1.chat.naver.com/chat');
+  ws.onopen=function(){
     ws.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:channelId,bdy:{uid:null,devType:2001,accTkn:accessToken,auth:'READ'},tid:1}));
     setStatus(true);
   };
-  ws.onmessage = function(e) {
-    try {
-      var msg = JSON.parse(e.data);
-      if (msg.cmd === 0) ws.send(JSON.stringify({ver:'2',cmd:10000}));
-      if (msg.cmd === 93102 && msg.bdy) {
-        var dons = Array.isArray(msg.bdy) ? msg.bdy : [msg.bdy];
-        dons.forEach(function(d) { handleDonation(d); });
+  ws.onmessage=function(e){
+    try{
+      var msg=JSON.parse(e.data);
+      if(msg.cmd===0)ws.send(JSON.stringify({ver:'2',cmd:10000}));
+      if(msg.cmd===93102&&msg.bdy){
+        var dons=Array.isArray(msg.bdy)?msg.bdy:[msg.bdy];
+        dons.forEach(function(d){handleDonation(d);});
       }
-    } catch(err) {}
+    }catch(err){}
   };
-  ws.onclose = function() {
+  ws.onclose=function(){
     setStatus(false);
-    if (autoReconnect && channelIdCache) {
-      reconnectTimer = setTimeout(async function() {
-        try {
-          var tr = await fetch('/api/access-token?channelId=' + encodeURIComponent(channelIdCache));
-          var td = await tr.json();
-          var tok = (td && td.content && td.content.accessToken) ? td.content.accessToken : '';
-          connectWS(channelIdCache, tok);
-        } catch(ex) {}
-      }, 5000);
+    if(autoReconnect&&channelIdCache){
+      reconnectTimer=setTimeout(async function(){
+        try{
+          var tr=await fetch('/api/access-token?channelId='+encodeURIComponent(channelIdCache));
+          var td=await tr.json();
+          var tok=(td&&td.content&&td.content.accessToken)?td.content.accessToken:'';
+          connectWS(channelIdCache,tok);
+        }catch(ex){}
+      },5000);
     }
   };
-  ws.onerror = function() {};
+  ws.onerror=function(){};
 }
-
-function handleDonation(donation) {
-  try {
-    var profile = typeof donation.profile === 'string' ? JSON.parse(donation.profile) : donation.profile;
-    var extras  = typeof donation.extras  === 'string' ? JSON.parse(donation.extras)  : donation.extras;
-    var nick = (profile && profile.nickname) ? profile.nickname : '익명의 후원자';
-    var amt  = Number((extras && extras.payAmount) ? extras.payAmount : 0);
-    if (!amt) return;
-    var msgText = '';
-    if (extras && extras.donationText) msgText = extras.donationText;
-    else if (extras && extras.message)  msgText = extras.message;
-    else if (donation.msg)              msgText = donation.msg;
-    msgText = msgText.trim();
-    var unit  = getUnit();
-    var count = Math.floor(amt / unit);
-    if (count < 1) return;
-    var time  = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    var entry = msgText || nick;
-    for (var i = 0; i < count; i++) rouletteItems.push(entry);
-    totalDone++; totalAmt += amt; totalItems += count;
-    addFeedItem(nick, amt, entry, count, time);
-    updateStats();
-    updateRouletteList();
-  } catch(e) { console.error(e); }
+function handleDonation(donation){
+  try{
+    var profile=typeof donation.profile==='string'?JSON.parse(donation.profile):donation.profile;
+    var extras=typeof donation.extras==='string'?JSON.parse(donation.extras):donation.extras;
+    var nick=(profile&&profile.nickname)?profile.nickname:'익명의 후원자';
+    var amt=Number((extras&&extras.payAmount)?extras.payAmount:0);
+    if(!amt)return;
+    var msgText='';
+    if(extras&&extras.donationText)msgText=extras.donationText;
+    else if(extras&&extras.message)msgText=extras.message;
+    else if(donation.msg)msgText=donation.msg;
+    msgText=msgText.trim();
+    var unit=getUnit(),count=Math.floor(amt/unit);
+    if(count<1)return;
+    var time=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var entry=msgText||nick;
+    for(var i=0;i<count;i++)rouletteItems.push(entry);
+    totalDone++;totalAmt+=amt;totalItems+=count;
+    addFeedItem(nick,amt,entry,count,time);
+    updateStats();updateRouletteList();
+  }catch(e){}
 }
-
-function testDonation() {
-  var nick  = document.getElementById('test-nick').value.trim() || '테스트유저';
-  var amt   = parseInt(document.getElementById('test-amt').value) || 0;
-  var msg   = document.getElementById('test-msg').value.trim();
-  if (!amt) { alert('금액을 입력해주세요'); return; }
-  var unit  = getUnit();
-  var count = Math.floor(amt / unit);
-  if (count < 1) { alert('단위금액(' + unit.toLocaleString() + '원)보다 작아요'); return; }
-  var time  = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  var entry = msg || nick;
-  for (var i = 0; i < count; i++) rouletteItems.push(entry);
-  totalDone++; totalAmt += amt; totalItems += count;
-  addFeedItem(nick, amt, entry, count, time);
-  updateStats();
-  updateRouletteList();
-}
-
-function addFeedItem(nick, amt, entry, count, time) {
-  var wrap = document.getElementById('feed-wrap');
-  var empty = wrap.querySelector('.feed-empty');
-  if (empty) empty.remove();
-  var d = document.createElement('div');
-  d.className = 'feed-item';
-  d.innerHTML = '<div class="feed-row">'
-    + '<span class="feed-nick">💰 ' + nick + '</span>'
-    + '<span class="feed-cnt">+' + count + '개</span>'
-    + '<span class="feed-amt" onclick="this.classList.toggle(\'show\')" title="클릭해서 확인">' + amt.toLocaleString() + '원</span>'
-    + '</div>'
-    + '<div class="feed-msg">🎰 ' + entry + (count > 1 ? ' × ' + count : '') + '</div>'
-    + '<div class="feed-time">' + time + '</div>';
-  wrap.insertBefore(d, wrap.firstChild);
+function addFeedItem(nick,amt,entry,count,time){
+  var wrap=document.getElementById('feed-wrap');
+  var empty=wrap.querySelector('.feed-empty');
+  if(empty)empty.remove();
+  var d=document.createElement('div');
+  d.className='feed-item';
+  d.innerHTML='<div class="feed-row">'
+    +'<span class="feed-nick">💰 '+nick+'</span>'
+    +'<span class="feed-cnt">+'+count+'개</span>'
+    +'<span class="feed-amt" onclick="this.classList.toggle(\'show\')" title="클릭해서 확인">'+amt.toLocaleString()+'원</span>'
+    +'</div>'
+    +'<div class="feed-msg">🎰 '+entry+(count>1?' × '+count:'')+'</div>'
+    +'<div class="feed-time">'+time+'</div>';
+  wrap.insertBefore(d,wrap.firstChild);
   feedCount++;
-  document.getElementById('feed-count').textContent = feedCount + '건';
+  document.getElementById('feed-count').textContent=feedCount+'건';
 }
-
-function toggleFeed() {
-  feedOpen = !feedOpen;
-  document.getElementById('feed-body').classList.toggle('open', feedOpen);
-  document.getElementById('feed-arrow').textContent = feedOpen ? '▲ 접기' : '▼ 펼치기';
+function toggleFeed(){
+  feedOpen=!feedOpen;
+  document.getElementById('feed-body').classList.toggle('open',feedOpen);
+  document.getElementById('feed-arrow').textContent=feedOpen?'▲ 접기':'▼ 펼치기';
 }
-
-function updateStats() {
-  document.getElementById('stat-total-done').textContent  = totalDone;
-  document.getElementById('stat-total-amt').textContent   = totalAmt.toLocaleString();
-  document.getElementById('stat-total-items').textContent = totalItems;
+function updateStats(){
+  document.getElementById('stat-total-done').textContent=totalDone;
+  document.getElementById('stat-total-amt').textContent=totalAmt.toLocaleString();
+  document.getElementById('stat-total-items').textContent=totalItems;
 }
-
-function toggleAmt() {
-  amtVisible = !amtVisible;
-  document.getElementById('stat-total-amt').classList.toggle('blurred', !amtVisible);
+function toggleAmt(){
+  amtVisible=!amtVisible;
+  document.getElementById('stat-total-amt').classList.toggle('blurred',!amtVisible);
 }
-
-function updateRouletteList() {
-  var countMap = {};
-  rouletteItems.forEach(function(item) { countMap[item] = (countMap[item]||0) + 1; });
-  var entries = Object.keys(countMap).map(function(k) { return countMap[k] > 1 ? k+'*'+countMap[k] : k; });
-  document.getElementById('roulette-list').value = entries.join(',');
+function updateRouletteList(){
+  var countMap={};
+  rouletteItems.forEach(function(item){countMap[item]=(countMap[item]||0)+1;});
+  var entries=Object.keys(countMap).map(function(k){return countMap[k]>1?k+'*'+countMap[k]:k;});
+  document.getElementById('roulette-list').value=entries.join(',');
   renderEditList(countMap);
 }
-
-function renderEditList(countMap) {
-  var el = document.getElementById('item-edit-list');
-  var entries = Object.keys(countMap).map(function(k){ return [k, countMap[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
-  if (entries.length === 0) {
-    el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>';
-    document.getElementById('item-count-label').textContent = '0종류';
+function renderEditList(countMap){
+  var el=document.getElementById('item-edit-list');
+  var entries=Object.keys(countMap).map(function(k){return[k,countMap[k]];}).sort(function(a,b){return b[1]-a[1];});
+  if(entries.length===0){
+    el.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>';
+    document.getElementById('item-count-label').textContent='0종류';
     return;
   }
-  document.getElementById('item-count-label').textContent = entries.length + '종류 / 총 ' + rouletteItems.length + '개';
-  el.innerHTML = entries.map(function(e, i) {
-    var item = e[0], cnt = e[1];
-    var safe  = item.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    var safeJ = item.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  document.getElementById('item-count-label').textContent=entries.length+'종류 / 총 '+rouletteItems.length+'개';
+  el.innerHTML=entries.map(function(e,i){
+    var item=e[0],cnt=e[1];
+    var safe=item.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    var safeJ=item.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return '<div class="edit-item" id="edit-row-'+i+'">'
-      + '<span class="edit-item-name" title="'+safe+'">'+safe+'</span>'
-      + '<span class="edit-item-cnt">'+cnt+'개</span>'
-      + '<button class="edit-btn edit-btn-edit" onclick="startEdit('+i+',\''+safeJ+'\','+cnt+')" title="수정">✏️</button>'
-      + '<button class="edit-btn edit-btn-del" onclick="deleteItem(\''+safeJ+'\','+cnt+')" title="삭제">🗑</button>'
-      + '</div>';
+      +'<span class="edit-item-name" title="'+safe+'">'+safe+'</span>'
+      +'<span class="edit-item-cnt">'+cnt+'개</span>'
+      +'<button class="edit-btn edit-btn-edit" onclick="startEdit('+i+',\''+safeJ+'\','+cnt+')" title="수정">✏️</button>'
+      +'<button class="edit-btn edit-btn-del" onclick="deleteItem(\''+safeJ+'\','+cnt+')" title="삭제">🗑</button>'
+      +'</div>';
   }).join('');
 }
-
-function startEdit(i, oldName, cnt) {
-  var row  = document.getElementById('edit-row-'+i);
-  var safe = oldName.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-  var safeJ= oldName.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  row.innerHTML = '<input class="edit-item-input" id="edit-input-'+i+'" value="'+safe+'">'
-    + '<span class="edit-item-cnt">'+cnt+'개</span>'
-    + '<button class="edit-btn edit-btn-ok" onclick="confirmEdit('+i+',\''+safeJ+'\','+cnt+')" title="확인">✅</button>'
-    + '<button class="edit-btn edit-btn-del" onclick="updateRouletteList()" title="취소">✖</button>';
-  var inp = document.getElementById('edit-input-'+i);
-  inp.focus(); inp.select();
-  inp.onkeydown = function(ev) {
-    if (ev.key === 'Enter')  confirmEdit(i, oldName, cnt);
-    if (ev.key === 'Escape') updateRouletteList();
+function startEdit(i,oldName,cnt){
+  var row=document.getElementById('edit-row-'+i);
+  var safe=oldName.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  var safeJ=oldName.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  row.innerHTML='<input class="edit-item-input" id="edit-input-'+i+'" value="'+safe+'">'
+    +'<span class="edit-item-cnt">'+cnt+'개</span>'
+    +'<button class="edit-btn edit-btn-ok" onclick="confirmEdit('+i+',\''+safeJ+'\','+cnt+')" title="확인">✅</button>'
+    +'<button class="edit-btn edit-btn-del" onclick="updateRouletteList()" title="취소">✖</button>';
+  var inp=document.getElementById('edit-input-'+i);
+  inp.focus();inp.select();
+  inp.onkeydown=function(ev){
+    if(ev.key==='Enter')confirmEdit(i,oldName,cnt);
+    if(ev.key==='Escape')updateRouletteList();
   };
 }
-
-function confirmEdit(i, oldName, cnt) {
-  var inp = document.getElementById('edit-input-'+i);
-  if (!inp) return;
-  var newName = inp.value.trim();
-  if (!newName) return;
-  rouletteItems = rouletteItems.map(function(item){ return item === oldName ? newName : item; });
+function confirmEdit(i,oldName,cnt){
+  var inp=document.getElementById('edit-input-'+i);
+  if(!inp)return;
+  var newName=inp.value.trim();
+  if(!newName)return;
+  rouletteItems=rouletteItems.map(function(item){return item===oldName?newName:item;});
   updateRouletteList();
 }
-
-function deleteItem(name, cnt) {
-  if (!confirm('"' + name + '" 항목을 삭제할까요? (' + cnt + '개)')) return;
-  rouletteItems = rouletteItems.filter(function(item){ return item !== name; });
-  totalItems -= cnt;
-  document.getElementById('stat-total-items').textContent = totalItems;
+function deleteItem(name,cnt){
+  if(!confirm('"'+name+'" 항목을 삭제할까요? ('+cnt+'개)'))return;
+  rouletteItems=rouletteItems.filter(function(item){return item!==name;});
+  totalItems-=cnt;
+  document.getElementById('stat-total-items').textContent=totalItems;
   updateRouletteList();
 }
-
-
-
-function copyList() {
-  var val = document.getElementById('roulette-list').value;
-  if (!val) { alert('룰렛 목록이 비어있어요'); return; }
-  navigator.clipboard.writeText(val).then(function() { alert('📋 복사됐어요!'); });
+function copyList(){
+  var val=document.getElementById('roulette-list').value;
+  if(!val){alert('룰렛 목록이 비어있어요');return;}
+  navigator.clipboard.writeText(val).then(function(){alert('📋 복사됐어요!');});
 }
-
-function openRoulette() {
-  var list = document.getElementById('roulette-list').value;
-  var url  = 'https://lazygyu.github.io/roulette/';
-  if (list) {
-    navigator.clipboard.writeText(list).then(function() {
+function openRoulette(){
+  var list=document.getElementById('roulette-list').value;
+  var url='https://lazygyu.github.io/roulette/';
+  if(list){
+    navigator.clipboard.writeText(list).then(function(){
       alert('📋 목록이 복사됐어요!\n룰렛 창이 열리면 이름 입력칸에 붙여넣기(Ctrl+V) 해주세요.');
-      window.open(url, '_blank');
-    }).catch(function() { window.open(url, '_blank'); });
-  } else {
-    window.open(url, '_blank');
+      window.open(url,'_blank');
+    }).catch(function(){window.open(url,'_blank');});
+  }else{
+    window.open(url,'_blank');
   }
 }
-
-function clearList() {
-  if (!confirm('룰렛 목록과 기록을 모두 초기화할까요?')) return;
-  rouletteItems = [];
-  totalDone = 0; totalAmt = 0; totalItems = 0; feedCount = 0;
-  document.getElementById('roulette-list').value = '';
-  document.getElementById('feed-wrap').innerHTML = '<div class="feed-empty">후원을 기다리는 중...</div>';
-  document.getElementById('feed-count').textContent = '0건';
-  document.getElementById('item-edit-list').innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>';
-  document.getElementById('item-count-label').textContent = '0종류';
+function clearList(){
+  if(!confirm('룰렛 목록과 기록을 모두 초기화할까요?'))return;
+  rouletteItems=[];
+  totalDone=0;totalAmt=0;totalItems=0;feedCount=0;
+  document.getElementById('roulette-list').value='';
+  document.getElementById('feed-wrap').innerHTML='<div class="feed-empty">후원을 기다리는 중...</div>';
+  document.getElementById('feed-count').textContent='0건';
+  document.getElementById('item-edit-list').innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>';
+  document.getElementById('item-count-label').textContent='0종류';
   updateStats();
 }
-
-setInterval(function() {
-  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000}));
-}, 20000);
-
+setInterval(function(){
+  if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({ver:'2',cmd:10000}));
+},20000);
 updatePreview();
 </script>
 </body>
