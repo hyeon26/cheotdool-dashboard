@@ -99,6 +99,8 @@ const db = getFirestore(app);
 const stopWords = new Set(['그리고','그래서','근데','오늘','진짜','너무','그냥','이거','저거','아니','ㅋㅋ','ㅎㅎ','ㅠㅠ','합니다','있어요','없어요','입니다','하는','하면','해서','같은','저는','나는','우리','여기','그거','이제','지금']);
 let sessions = [];
 let currentChats = [];
+function isBotChat(chat){return String(chat.nick || '').trim() === '뚜봇';}
+function stripEmoticons(text){return String(text || '').replace(/\{[^}]*\}/g,' ');}
 
 const $ = id => document.getElementById(id);
 function setStatus(text, type='loading'){
@@ -178,7 +180,7 @@ function getBucketInfo(item, bucketMinutes=5){
   return { key:'--:--', label:'--:--' };
 }
 function getExcitementScore(text){
-  const msg = String(text || '');
+  const msg = stripEmoticons(text);
   let score = 0;
   if(/[ㅋㅎ]{2,}/.test(msg)) score += 2;
   if(/[!?]{2,}/.test(msg)) score += 1;
@@ -193,7 +195,7 @@ function getWords(chats){
     counts.set(token, (counts.get(token)||0)+amount);
   }
   chats.forEach(chat => {
-    const text = String(chat.msg || '').replace(/https?:\/\/\S+/g,' ');
+    const text = stripEmoticons(chat.msg).replace(/https?:\/\/\S+/g,' ');
     const symbols = text.match(/[?!]/g) || [];
     symbols.forEach(symbol => addToken(symbol));
     const reactions = text.match(/[ㅋㅎㅠㅜ]{1,}/g) || [];
@@ -296,6 +298,7 @@ function renderTimeline(buckets){
     bar.style.height = `${Math.max(8, Math.round((bucket.score/max)*100))}%`;
     bar.dataset.tip = `${bucket.label} · 점수 ${bucket.score} · 채팅 ${bucket.chats} · 참여 ${bucket.userCount} · 후원 ${bucket.donations.toLocaleString()}원 · 미션 ${bucket.missions.toLocaleString()}원`;
     bindChartTooltip(bar);
+    bar.onclick = function(){ renderTimeBucketChats(bucket); };
     timeline.appendChild(bar);
   });
   return { peak, minuteCount: buckets.length * 5 };
@@ -336,29 +339,36 @@ function renderKeywords(words){
   });
 }
 function keywordMatches(chat, keyword){
-  const msg = String(chat.msg || '');
+  const msg = stripEmoticons(chat.msg);
   if(keyword === '?' || keyword === '!') return msg.includes(keyword);
   if(/^ㅋ+$|^ㅎ+$|^ㅠ+$|^ㅜ+$/.test(keyword)) return msg.includes(keyword[0]);
   return msg.includes(keyword);
 }
-function renderKeywordMatches(keyword){
-  const matches = currentChats.filter(chat => keywordMatches(chat, keyword));
+function renderChatMatches(title, matches, emptyText){
   const card = $('keyword-log-card');
   const log = $('keyword-log');
   card.style.display = '';
-  $('keyword-log-title').textContent = `💬 "${keyword}" 포함 채팅`;
+  $('keyword-log-title').textContent = title;
   $('keyword-log-count').textContent = `${matches.length.toLocaleString()}개`;
   log.innerHTML = '';
-  if(!matches.length){ addText(log, 'div', 'empty', '해당 키워드가 들어간 채팅이 없어요'); return; }
-  matches.slice(0,120).forEach(chat => {
+  if(!matches.length){ addText(log, 'div', 'empty', emptyText); return; }
+  matches.slice(0,160).forEach(chat => {
     const row = document.createElement('div'); row.className = 'keyword-chat';
     addText(row, 'div', 'keyword-chat-meta', `[${chat.time || '--:--'}] ${chat.nick || '익명'}`);
     addText(row, 'div', 'keyword-chat-msg', chat.msg || '');
     log.appendChild(row);
   });
-  if(matches.length > 120){
-    addText(log, 'div', 'muted', `상위 120개만 표시 중 · 전체 ${matches.length.toLocaleString()}개`);
+  if(matches.length > 160){
+    addText(log, 'div', 'muted', `상위 160개만 표시 중 · 전체 ${matches.length.toLocaleString()}개`);
   }
+}
+function renderKeywordMatches(keyword){
+  const matches = currentChats.filter(chat => keywordMatches(chat, keyword));
+  renderChatMatches(`💬 "${keyword}" 포함 채팅`, matches, '해당 키워드가 들어간 채팅이 없어요');
+}
+function renderTimeBucketChats(bucket){
+  const matches = currentChats.filter(chat => getBucketInfo(chat).key === bucket.key);
+  renderChatMatches(`⏱ ${bucket.label} 시간대 전체 채팅`, matches, '해당 시간대 채팅이 없어요');
 }
 async function analyzeSelected(){
   const sessionId = $('session-select').value;
@@ -370,7 +380,7 @@ async function analyzeSelected(){
       getDocs(query(collection(db,`chatSessions/${sessionId}/chats`), orderBy('createdAt','asc'))),
       getDocs(query(collection(db,`chatSessions/${sessionId}/donations`), orderBy('createdAt','asc')))
     ]);
-    const chats = chatSnap.docs.map(doc => doc.data());
+    const chats = chatSnap.docs.map(doc => doc.data()).filter(chat => !isBotChat(chat));
     currentChats = chats;
     const donations = donationSnap.docs.map(doc => doc.data());
     const userCounts = new Map();
