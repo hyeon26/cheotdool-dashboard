@@ -29,7 +29,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 select,input{padding:8px 11px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;outline:none}
 select{min-width:260px}.btn{padding:8px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:800;font-family:inherit;transition:opacity .15s}.btn:hover{opacity:.85}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--accent);color:#fff}.btn-secondary{background:var(--surface2);color:var(--text);border:1.5px solid var(--border2)}
 .grid{display:grid;grid-template-columns:repeat(5,minmax(135px,1fr));gap:10px;margin-bottom:10px;flex-shrink:0}.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;min-height:0}.stat-label{font-size:10px;color:var(--text3);font-weight:900;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}.stat-value{font-size:22px;font-weight:900;color:var(--text);line-height:1}.stat-sub{font-size:11px;color:var(--text2);margin-top:5px;word-break:break-word}
-#report{min-height:0;overflow:auto;padding-right:4px}.main{display:grid;grid-template-columns:1fr;gap:10px;width:100%}.stack{display:flex;flex-direction:column;gap:10px;min-height:0}.section-title{font-size:13px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.muted{font-size:12px;color:var(--text3);font-weight:600}.chart{height:220px;display:flex;align-items:flex-end;gap:4px;border-radius:var(--radius-sm);background:var(--surface2);padding:34px 12px 12px;overflow-x:auto;position:relative}.bar{min-width:20px;flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));position:relative}.bar.hot{background:linear-gradient(180deg,#fbbf24,var(--amber))}.bar:hover{filter:brightness(1.08)}.chart-tooltip{position:fixed;display:none;pointer-events:none;white-space:nowrap;background:var(--text);color:var(--surface);font-size:11px;font-weight:700;padding:6px 9px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:9999}.list{display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto}.reaction-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid var(--border)}.reaction-row{align-items:flex-start}.rank{width:24px;text-align:right;font-size:11px;color:var(--text3);font-weight:900}.name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.count{font-size:12px;font-weight:900;color:var(--accent);flex-shrink:0}.row-sub{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.4}.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:800}.empty,.loading{padding:36px 16px;text-align:center;color:var(--text2);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius)}.keywords{display:flex;gap:7px;flex-wrap:wrap;max-height:96px;overflow-y:auto}.keyword{padding:6px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:800}.keyword b{color:var(--accent);margin-left:4px}.notice{font-size:12px;color:var(--text2);background:var(--accent-light);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:10px;line-height:1.5;flex-shrink:0}
+#report{min-height:0;overflow:auto;padding-right:4px}.main{display:grid;grid-template-columns:1fr;gap:10px;width:100%}.stack{display:flex;flex-direction:column;gap:10px;min-height:0}.section-title{font-size:13px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.muted{font-size:12px;color:var(--text3);font-weight:600}.chart{height:220px;display:flex;align-items:flex-end;gap:4px;border-radius:var(--radius-sm);background:var(--surface2);padding:34px 12px 12px;overflow-x:auto;position:relative;cursor:grab;user-select:none}.chart.dragging{cursor:grabbing;scroll-behavior:auto}.bar{min-width:20px;flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));position:relative}.bar.hot{background:linear-gradient(180deg,#fbbf24,var(--amber))}.bar:hover{filter:brightness(1.08)}.chart-tooltip{position:fixed;display:none;pointer-events:none;white-space:nowrap;background:var(--text);color:var(--surface);font-size:11px;font-weight:700;padding:6px 9px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:9999}.list{display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto}.reaction-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid var(--border)}.reaction-row{align-items:flex-start}.rank{width:24px;text-align:right;font-size:11px;color:var(--text3);font-weight:900}.name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.count{font-size:12px;font-weight:900;color:var(--accent);flex-shrink:0}.row-sub{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.4}.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:800}.empty,.loading{padding:36px 16px;text-align:center;color:var(--text2);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius)}.keywords{display:flex;gap:7px;flex-wrap:wrap;max-height:96px;overflow-y:auto}.keyword{padding:6px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:800;cursor:pointer}.keyword:hover,.keyword.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}.keyword b{color:var(--accent);margin-left:4px}.keyword-log{display:flex;flex-direction:column;gap:7px;max-height:260px;overflow-y:auto}.keyword-chat{padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:12px;line-height:1.55}.keyword-chat-meta{font-size:11px;color:var(--text3);margin-bottom:2px}.keyword-chat-msg{color:var(--text2);word-break:break-word}.notice{font-size:12px;color:var(--text2);background:var(--accent-light);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:10px;line-height:1.5;flex-shrink:0}
 @media(max-width:1100px){body{overflow:auto;height:auto;min-height:100vh}.grid{grid-template-columns:repeat(2,1fr)}.header{flex-direction:column}.controls{justify-content:flex-start}select{min-width:min(100%,320px)}#report{overflow:visible}.reaction-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){body{padding:18px 14px}.grid{grid-template-columns:1fr}.reaction-list{grid-template-columns:1fr}.controls{width:100%}.controls>*{width:100%}}
 </style>
@@ -72,8 +72,12 @@ select{min-width:260px}.btn{padding:8px 14px;border-radius:var(--radius-sm);bord
         <div class="reaction-list" id="reaction-rank"></div>
       </div>
       <div class="card">
-        <div class="section-title">🔥 많이 나온 단어 <span class="muted">한 글자·기호 포함</span></div>
+        <div class="section-title">🔥 많이 나온 단어 <span class="muted">한 글자·기호 포함 · 클릭하면 채팅 표시</span></div>
         <div class="keywords" id="keywords"></div>
+      </div>
+      <div class="card" id="keyword-log-card" style="display:none">
+        <div class="section-title"><span id="keyword-log-title">키워드 채팅</span><span class="muted" id="keyword-log-count"></span></div>
+        <div class="keyword-log" id="keyword-log"></div>
       </div>
     </div>
   </div>
@@ -94,6 +98,7 @@ const app = initializeApp({
 const db = getFirestore(app);
 const stopWords = new Set(['그리고','그래서','근데','오늘','진짜','너무','그냥','이거','저거','아니','ㅋㅋ','ㅎㅎ','ㅠㅠ','합니다','있어요','없어요','입니다','하는','하면','해서','같은','저는','나는','우리','여기','그거','이제','지금']);
 let sessions = [];
+let currentChats = [];
 
 const $ = id => document.getElementById(id);
 function setStatus(text, type='loading'){
@@ -250,9 +255,38 @@ function bindChartTooltip(bar){
   bar.onmousemove = move;
   bar.onmouseleave = function(){ tooltip.style.display='none'; };
 }
+function bindTimelineDrag(timeline){
+  if(timeline.dataset.dragBound) return;
+  timeline.dataset.dragBound = '1';
+  let dragging=false,startX=0,startScroll=0,moved=false;
+  timeline.addEventListener('mousedown', function(ev){
+    if(ev.button!==0) return;
+    dragging=true;moved=false;startX=ev.clientX;startScroll=timeline.scrollLeft;
+    timeline.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', function(ev){
+    if(!dragging) return;
+    const delta=ev.clientX-startX;
+    if(Math.abs(delta)>3) moved=true;
+    timeline.scrollLeft=startScroll-delta;
+    if(moved){
+      ev.preventDefault();
+      const tooltip=$('chart-tooltip');
+      if(tooltip) tooltip.style.display='none';
+    }
+  });
+  window.addEventListener('mouseup', function(){
+    dragging=false;
+    timeline.classList.remove('dragging');
+  });
+  timeline.addEventListener('click', function(ev){
+    if(moved){ ev.preventDefault(); ev.stopPropagation(); moved=false; }
+  }, true);
+}
 function renderTimeline(buckets){
   const timeline = $('timeline');
   timeline.innerHTML = '';
+  bindTimelineDrag(timeline);
   if(!buckets.length){ addText(timeline, 'div', 'muted', '채팅 기록이 없어요'); return {peak:null, minuteCount:0}; }
   const max = Math.max(1, ...buckets.map(bucket => bucket.score));
   const peak = [...buckets].sort((a,b)=>b.score-a.score)[0];
@@ -269,7 +303,7 @@ function renderTimeline(buckets){
 function renderReactionRank(buckets){
   const el = $('reaction-rank');
   el.innerHTML = '';
-  const top = [...buckets].sort((a,b)=>b.score-a.score).slice(0,8);
+  const top = [...buckets].sort((a,b)=>b.score-a.score).slice(0,10);
   if(!top.length){ addText(el, 'div', 'empty', '분석할 구간이 없어요'); return; }
   top.forEach((bucket, index) => {
     const row = document.createElement('div'); row.className = 'row reaction-row';
@@ -284,15 +318,47 @@ function renderReactionRank(buckets){
 function renderKeywords(words){
   const el = $('keywords');
   el.innerHTML = '';
+  $('keyword-log-card').style.display = 'none';
   if(!words.length){ addText(el, 'div', 'muted', '추출할 단어가 없어요'); return; }
   words.forEach(([word, count]) => {
-    const pill = document.createElement('span');
+    const pill = document.createElement('button');
     pill.className = 'keyword';
+    pill.type = 'button';
     pill.append(document.createTextNode(word));
     const bold = document.createElement('b'); bold.textContent = count;
     pill.appendChild(bold);
+    pill.onclick = function(){
+      el.querySelectorAll('.keyword').forEach(item => item.classList.remove('active'));
+      pill.classList.add('active');
+      renderKeywordMatches(word);
+    };
     el.appendChild(pill);
   });
+}
+function keywordMatches(chat, keyword){
+  const msg = String(chat.msg || '');
+  if(keyword === '?' || keyword === '!') return msg.includes(keyword);
+  if(/^ㅋ+$|^ㅎ+$|^ㅠ+$|^ㅜ+$/.test(keyword)) return msg.includes(keyword[0]);
+  return msg.includes(keyword);
+}
+function renderKeywordMatches(keyword){
+  const matches = currentChats.filter(chat => keywordMatches(chat, keyword));
+  const card = $('keyword-log-card');
+  const log = $('keyword-log');
+  card.style.display = '';
+  $('keyword-log-title').textContent = `💬 "${keyword}" 포함 채팅`;
+  $('keyword-log-count').textContent = `${matches.length.toLocaleString()}개`;
+  log.innerHTML = '';
+  if(!matches.length){ addText(log, 'div', 'empty', '해당 키워드가 들어간 채팅이 없어요'); return; }
+  matches.slice(0,120).forEach(chat => {
+    const row = document.createElement('div'); row.className = 'keyword-chat';
+    addText(row, 'div', 'keyword-chat-meta', `[${chat.time || '--:--'}] ${chat.nick || '익명'}`);
+    addText(row, 'div', 'keyword-chat-msg', chat.msg || '');
+    log.appendChild(row);
+  });
+  if(matches.length > 120){
+    addText(log, 'div', 'muted', `상위 120개만 표시 중 · 전체 ${matches.length.toLocaleString()}개`);
+  }
 }
 async function analyzeSelected(){
   const sessionId = $('session-select').value;
@@ -305,6 +371,7 @@ async function analyzeSelected(){
       getDocs(query(collection(db,`chatSessions/${sessionId}/donations`), orderBy('createdAt','asc')))
     ]);
     const chats = chatSnap.docs.map(doc => doc.data());
+    currentChats = chats;
     const donations = donationSnap.docs.map(doc => doc.data());
     const userCounts = new Map();
     chats.forEach(chat => userCounts.set(chat.nick || '익명', (userCounts.get(chat.nick || '익명')||0)+1));
