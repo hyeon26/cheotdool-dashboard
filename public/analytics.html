@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>채팅 분석 - 첫째와둘째</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f7ff;--surface:#fff;--surface2:#f0effe;
+  --text:#1a1033;--text2:#7b6fa0;--text3:#a99fcc;
+  --accent:#5B4AE8;--accent2:#7c6ef0;--accent-light:#ede9fe;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;
+  --border:rgba(91,74,232,.1);--border2:rgba(91,74,232,.2);
+  --shadow:0 2px 12px rgba(91,74,232,.08);--radius:14px;--radius-sm:8px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0f0d1a;--surface:#1a1730;--surface2:#221f38;
+  --text:#ede9fe;--text2:#9d8fcc;--text3:#5c4f88;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --shadow:0 2px 12px rgba(0,0,0,.3);--accent-light:#1e1a38;
+}}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 32px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:22px}
+.back{font-size:13px;color:var(--accent);text-decoration:none;font-weight:700}.back:hover{text-decoration:underline}
+.title{font-size:24px;font-weight:900;letter-spacing:-.5px;margin-top:8px}.subtitle{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.6}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+select,input{padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;outline:none}
+select{min-width:260px}.btn{padding:9px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:800;font-family:inherit;transition:opacity .15s}.btn:hover{opacity:.85}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--accent);color:#fff}.btn-secondary{background:var(--surface2);color:var(--text);border:1.5px solid var(--border2)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;margin-bottom:16px}.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.stat-label{font-size:11px;color:var(--text3);font-weight:900;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}.stat-value{font-size:26px;font-weight:900;color:var(--text);line-height:1}.stat-sub{font-size:12px;color:var(--text2);margin-top:6px;word-break:break-word}
+.main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr);gap:16px}.section-title{font-size:13px;font-weight:900;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.muted{font-size:12px;color:var(--text3);font-weight:600}.chart{height:220px;display:flex;align-items:flex-end;gap:4px;border-radius:var(--radius-sm);background:var(--surface2);padding:14px;overflow-x:auto}.bar{min-width:18px;flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));position:relative}.bar:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:100%;transform:translateX(-50%);white-space:nowrap;background:var(--text);color:var(--surface);font-size:11px;padding:4px 7px;border-radius:6px;margin-bottom:6px;z-index:3}.list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto}.row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;background:var(--surface2);border:1px solid var(--border)}.rank{width:24px;text-align:right;font-size:11px;color:var(--text3);font-weight:900}.name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.count{font-size:12px;font-weight:900;color:var(--accent);flex-shrink:0}.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:800}.empty,.loading{padding:48px 16px;text-align:center;color:var(--text2);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius)}.keywords{display:flex;gap:8px;flex-wrap:wrap}.keyword{padding:7px 11px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:800}.keyword b{color:var(--accent);margin-left:4px}.chat-samples{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}.sample{padding:10px 12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:12px;line-height:1.55}.sample-meta{color:var(--text3);font-size:11px;margin-bottom:3px}.sample-msg{color:var(--text2);word-break:break-word}.notice{font-size:12px;color:var(--text2);background:var(--accent-light);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:16px;line-height:1.6}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}.main{grid-template-columns:1fr}.header{flex-direction:column}.controls{justify-content:flex-start}select{min-width:min(100%,320px)}}
+@media(max-width:560px){body{padding:20px 16px}.grid{grid-template-columns:1fr}.controls{width:100%}.controls>*{width:100%}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <a href="/schedule" class="back">← 대시보드</a>
+    <div class="title">📊 채팅 분석</div>
+    <div class="subtitle">대시보드의 채팅 수집 기록을 불러와 참여자, 키워드, 시간대별 채팅량, 후원 흐름을 분석합니다.</div>
+  </div>
+  <div class="controls">
+    <select id="session-select"><option value="">기록 불러오는 중...</option></select>
+    <button class="btn btn-secondary" id="refresh-btn">새로고침</button>
+    <button class="btn btn-primary" id="analyze-btn">분석하기</button>
+  </div>
+</div>
+
+<div class="notice">분석 대상은 Firebase에 저장된 <b>최근 채팅 세션</b>입니다. 먼저 대시보드의 “채팅 수집 시작”으로 기록을 만든 뒤 이 페이지에서 분석할 수 있어요.</div>
+<div id="status" class="loading">채팅 기록 목록을 불러오는 중...</div>
+
+<div id="report" style="display:none">
+  <div class="grid">
+    <div class="card"><div class="stat-label">총 채팅</div><div class="stat-value" id="stat-chats">0</div><div class="stat-sub" id="stat-session">-</div></div>
+    <div class="card"><div class="stat-label">참여자</div><div class="stat-value" id="stat-users">0</div><div class="stat-sub" id="stat-top-user">-</div></div>
+    <div class="card"><div class="stat-label">분당 평균</div><div class="stat-value" id="stat-cpm">0</div><div class="stat-sub" id="stat-peak">-</div></div>
+    <div class="card"><div class="stat-label">후원/미션</div><div class="stat-value" id="stat-donation">0원</div><div class="stat-sub" id="stat-donation-count">0건</div></div>
+  </div>
+
+  <div class="main">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="section-title">⏱ 시간대별 채팅량 <span class="muted" id="timeline-label"></span></div>
+        <div class="chart" id="timeline"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">🔥 많이 나온 단어 <span class="muted">한 글자/일반 조사 제외</span></div>
+        <div class="keywords" id="keywords"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">💬 긴 채팅 샘플 <span class="muted">최대 10개</span></div>
+        <div class="chat-samples" id="samples"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="section-title">🏆 채팅 참여 순위 <span class="muted" id="user-rank-label"></span></div>
+        <div class="list" id="user-rank"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">💰 후원 순위 <span class="muted" id="donation-rank-label"></span></div>
+        <div class="list" id="donation-rank"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, getDocs, limit } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw",
+  authDomain:"firstandsecond-b449c.firebaseapp.com",
+  projectId:"firstandsecond-b449c",
+  storageBucket:"firstandsecond-b449c.firebasestorage.app",
+  messagingSenderId:"794631097887",
+  appId:"1:794631097887:web:e03fe5f49915f4c741cf2a"
+});
+const db = getFirestore(app);
+const stopWords = new Set(['그리고','그래서','근데','오늘','진짜','너무','그냥','이거','저거','아니','ㅋㅋ','ㅎㅎ','ㅠㅠ','합니다','있어요','없어요','입니다','하는','하면','해서','같은','저는','나는','우리','여기','그거','이제','지금']);
+let sessions = [];
+
+const $ = id => document.getElementById(id);
+function setStatus(text, type='loading'){
+  const el = $('status');
+  el.className = type;
+  el.textContent = text;
+  el.style.display = '';
+  $('report').style.display = 'none';
+}
+function formatDate(value){
+  if(!value) return '-';
+  const d = value.toDate ? value.toDate() : new Date(value);
+  if(Number.isNaN(d.getTime())) return '-';
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function getMillis(value){
+  if(!value) return 0;
+  if(value.toMillis) return value.toMillis();
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+}
+function addText(parent, tag, className, text){
+  const el = document.createElement(tag);
+  if(className) el.className = className;
+  el.textContent = text;
+  parent.appendChild(el);
+  return el;
+}
+async function loadSessions(){
+  setStatus('채팅 기록 목록을 불러오는 중...');
+  const select = $('session-select');
+  select.innerHTML = '<option value="">기록 불러오는 중...</option>';
+  try{
+    const snap = await getDocs(query(collection(db,'chatSessions'), orderBy('startedAt','desc'), limit(50)));
+    sessions = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    select.innerHTML = '';
+    if(!sessions.length){
+      select.innerHTML = '<option value="">저장된 채팅 기록 없음</option>';
+      setStatus('저장된 채팅 기록이 없어요. 먼저 대시보드에서 채팅 수집을 시작해 주세요.', 'empty');
+      return;
+    }
+    sessions.forEach((session, index) => {
+      const option = document.createElement('option');
+      option.value = session.id;
+      option.textContent = `${formatDate(session.startedAt)} · ${session.liveTitle || '제목 없는 방송'}`;
+      select.appendChild(option);
+      if(index === 0) option.selected = true;
+    });
+    $('status').style.display = 'none';
+    await analyzeSelected();
+  }catch(e){
+    setStatus('기록 목록을 불러오지 못했어요: '+e.message, 'empty');
+  }
+}
+function parseMinuteKey(chat){
+  const ms = getMillis(chat.createdAt);
+  if(ms){
+    const d = new Date(ms);
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  return String(chat.time || '').slice(0,5) || '--:--';
+}
+function getWords(chats){
+  const counts = new Map();
+  chats.forEach(chat => {
+    String(chat.msg || '')
+      .replace(/https?:\/\/\S+/g,' ')
+      .replace(/[~!@#$%^&*()_+=[\]{};':"\\|,.<>/?·…“”‘’]/g,' ')
+      .split(/\s+/)
+      .map(word => word.trim())
+      .filter(word => word.length > 1 && !stopWords.has(word) && !/^ㅋ+$|^ㅎ+$|^ㅠ+$/.test(word))
+      .forEach(word => counts.set(word, (counts.get(word)||0)+1));
+  });
+  return [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,30);
+}
+function renderRank(id, entries, emptyText, valueFormatter){
+  const el = $(id);
+  el.innerHTML = '';
+  if(!entries.length){ addText(el, 'div', 'empty', emptyText); return; }
+  entries.slice(0,20).forEach(([name, count], index) => {
+    const row = document.createElement('div'); row.className = 'row';
+    addText(row, 'div', 'rank', String(index+1));
+    addText(row, 'div', 'name', name || '익명');
+    addText(row, 'div', 'count', valueFormatter ? valueFormatter(count) : count.toLocaleString());
+    el.appendChild(row);
+  });
+}
+function renderTimeline(chats){
+  const counts = new Map();
+  chats.forEach(chat => {
+    const key = parseMinuteKey(chat);
+    counts.set(key, (counts.get(key)||0)+1);
+  });
+  const entries = [...counts.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+  const timeline = $('timeline');
+  timeline.innerHTML = '';
+  if(!entries.length){ addText(timeline, 'div', 'muted', '채팅 기록이 없어요'); return {peak:null}; }
+  const max = Math.max(...entries.map(([,count]) => count));
+  entries.forEach(([minute, count]) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = `${Math.max(8, Math.round((count/max)*100))}%`;
+    bar.dataset.tip = `${minute} · ${count}개`;
+    timeline.appendChild(bar);
+  });
+  return { peak: entries.sort((a,b)=>b[1]-a[1])[0], minuteCount: counts.size };
+}
+function renderKeywords(words){
+  const el = $('keywords');
+  el.innerHTML = '';
+  if(!words.length){ addText(el, 'div', 'muted', '추출할 단어가 없어요'); return; }
+  words.forEach(([word, count]) => {
+    const pill = document.createElement('span');
+    pill.className = 'keyword';
+    pill.append(document.createTextNode(word));
+    const bold = document.createElement('b'); bold.textContent = count;
+    pill.appendChild(bold);
+    el.appendChild(pill);
+  });
+}
+function renderSamples(chats){
+  const el = $('samples');
+  el.innerHTML = '';
+  const samples = chats.filter(chat => String(chat.msg||'').length >= 20).sort((a,b)=>String(b.msg||'').length-String(a.msg||'').length).slice(0,10);
+  if(!samples.length){ addText(el, 'div', 'muted', '긴 채팅 샘플이 없어요'); return; }
+  samples.forEach(chat => {
+    const sample = document.createElement('div'); sample.className = 'sample';
+    addText(sample, 'div', 'sample-meta', `[${chat.time || '--:--'}] ${chat.nick || '익명'}`);
+    addText(sample, 'div', 'sample-msg', chat.msg || '');
+    el.appendChild(sample);
+  });
+}
+async function analyzeSelected(){
+  const sessionId = $('session-select').value;
+  if(!sessionId) return;
+  const session = sessions.find(item => item.id === sessionId) || {};
+  setStatus('선택한 기록을 분석하는 중...');
+  try{
+    const [chatSnap, donationSnap] = await Promise.all([
+      getDocs(query(collection(db,`chatSessions/${sessionId}/chats`), orderBy('createdAt','asc'))),
+      getDocs(query(collection(db,`chatSessions/${sessionId}/donations`), orderBy('createdAt','asc')))
+    ]);
+    const chats = chatSnap.docs.map(doc => doc.data());
+    const donations = donationSnap.docs.map(doc => doc.data());
+    const userCounts = new Map();
+    chats.forEach(chat => userCounts.set(chat.nick || '익명', (userCounts.get(chat.nick || '익명')||0)+1));
+    const userEntries = [...userCounts.entries()].sort((a,b)=>b[1]-a[1]);
+    const donationMap = new Map();
+    donations.forEach(item => donationMap.set(item.nick || '익명의 후원자', (donationMap.get(item.nick || '익명의 후원자')||0)+Number(item.amt||0)));
+    const donationEntries = [...donationMap.entries()].sort((a,b)=>b[1]-a[1]);
+    const totalDonation = donations.reduce((sum, item) => sum + Number(item.amt||0), 0);
+    const timelineInfo = renderTimeline(chats);
+    const minutes = Math.max(1, timelineInfo.minuteCount || 1);
+
+    $('stat-chats').textContent = chats.length.toLocaleString();
+    $('stat-session').textContent = session.liveTitle || '제목 없는 방송';
+    $('stat-users').textContent = userEntries.length.toLocaleString();
+    $('stat-top-user').textContent = userEntries[0] ? `1위 ${userEntries[0][0]} · ${userEntries[0][1].toLocaleString()}개` : '-';
+    $('stat-cpm').textContent = (chats.length / minutes).toFixed(1);
+    $('stat-peak').textContent = timelineInfo.peak ? `피크 ${timelineInfo.peak[0]} · ${timelineInfo.peak[1].toLocaleString()}개` : '-';
+    $('stat-donation').textContent = totalDonation.toLocaleString()+'원';
+    $('stat-donation-count').textContent = `${donations.length.toLocaleString()}건 · ${donationEntries.length.toLocaleString()}명`;
+    $('timeline-label').textContent = `${minutes.toLocaleString()}분 구간`;
+    $('user-rank-label').textContent = `${userEntries.length.toLocaleString()}명`;
+    $('donation-rank-label').textContent = `${donationEntries.length.toLocaleString()}명`;
+
+    renderKeywords(getWords(chats));
+    renderSamples(chats);
+    renderRank('user-rank', userEntries, '참여자 기록이 없어요');
+    renderRank('donation-rank', donationEntries, '후원 기록이 없어요', value => value.toLocaleString()+'원');
+    $('status').style.display = 'none';
+    $('report').style.display = '';
+  }catch(e){
+    setStatus('분석 중 오류가 발생했어요: '+e.message, 'empty');
+  }
+}
+
+$('refresh-btn').onclick = loadSessions;
+$('analyze-btn').onclick = analyzeSelected;
+$('session-select').onchange = analyzeSelected;
+loadSessions();
+</script>
+</body>
+</html>
