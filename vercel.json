@@ -1,23 +1,30 @@
-{
-  "crons": [{ "path": "/api/cache-clips", "schedule": "0 19 * * *" }],
-  "redirects": [
-    {
-      "source": "/((?!vote$|logo\\.png$|donation$|api/).*)",
-      "has": [{ "type": "host", "value": "cheotdool.vercel.app" }],
-      "destination": "/__blocked__",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
-    { "source": "/schedule", "destination": "/index.html" },
-    { "source": "/content", "destination": "/index.html" },
-    { "source": "/tools", "destination": "/index.html" },
-    { "source": "/chat", "destination": "/index.html" },
-    { "source": "/clips", "destination": "/index.html" },
-    { "source": "/vote", "destination": "/vote.html" },
-    { "source": "/logs", "destination": "/logs.html" },
-    { "source": "/donation", "destination": "/donation.html" },
-    { "source": "/roulette", "destination": "/roulette.html" },
-    { "source": "/cheeze", "destination": "/cheeze.html" }
-  ]
-}
+diff --git a/vercel.json b/vercel.json
+index 675839d71db67e8ab8e3f809f32f1f0a42e00b80..92c2fdb6b02268857d49ff8d9bc75280660a5b17 100644
+--- a/vercel.json
++++ b/vercel.json
+@@ -1,23 +1,24 @@
+ {
+   "crons": [{ "path": "/api/cache-clips", "schedule": "0 19 * * *" }],
+   "redirects": [
+     {
+-      "source": "/((?!vote$|logo\\.png$|donation$|api/).*)",
++      "source": "/((?!vote$|logo\\.png$|donation$|analytics$|api/).*)",
+       "has": [{ "type": "host", "value": "cheotdool.vercel.app" }],
+       "destination": "/__blocked__",
+       "permanent": false
+     }
+   ],
+   "rewrites": [
+     { "source": "/schedule", "destination": "/index.html" },
+     { "source": "/content", "destination": "/index.html" },
+     { "source": "/tools", "destination": "/index.html" },
+     { "source": "/chat", "destination": "/index.html" },
+     { "source": "/clips", "destination": "/index.html" },
+     { "source": "/vote", "destination": "/vote.html" },
+     { "source": "/logs", "destination": "/logs.html" },
++    { "source": "/analytics", "destination": "/analytics.html" },
+     { "source": "/donation", "destination": "/donation.html" },
+     { "source": "/roulette", "destination": "/roulette.html" },
+     { "source": "/cheeze", "destination": "/cheeze.html" }
+   ]
+ }
