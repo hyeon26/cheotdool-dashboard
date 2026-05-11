@@ -21,17 +21,17 @@
   --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
   --shadow:0 2px 12px rgba(0,0,0,.3);--accent-light:#1e1a38;
 }}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 32px}
-.header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:22px}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;padding:18px 24px;display:flex;flex-direction:column}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;flex-shrink:0}
 .back{font-size:13px;color:var(--accent);text-decoration:none;font-weight:700}.back:hover{text-decoration:underline}
-.title{font-size:24px;font-weight:900;letter-spacing:-.5px;margin-top:8px}.subtitle{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.6}
+.title{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-top:6px}.subtitle{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5}
 .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-select,input{padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;outline:none}
-select{min-width:260px}.btn{padding:9px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:800;font-family:inherit;transition:opacity .15s}.btn:hover{opacity:.85}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--accent);color:#fff}.btn-secondary{background:var(--surface2);color:var(--text);border:1.5px solid var(--border2)}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;margin-bottom:16px}.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.stat-label{font-size:11px;color:var(--text3);font-weight:900;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}.stat-value{font-size:26px;font-weight:900;color:var(--text);line-height:1}.stat-sub{font-size:12px;color:var(--text2);margin-top:6px;word-break:break-word}
-.main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr);gap:16px}.section-title{font-size:13px;font-weight:900;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.muted{font-size:12px;color:var(--text3);font-weight:600}.chart{height:220px;display:flex;align-items:flex-end;gap:4px;border-radius:var(--radius-sm);background:var(--surface2);padding:14px;overflow-x:auto}.bar{min-width:18px;flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));position:relative}.bar:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:100%;transform:translateX(-50%);white-space:nowrap;background:var(--text);color:var(--surface);font-size:11px;padding:4px 7px;border-radius:6px;margin-bottom:6px;z-index:3}.list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto}.row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;background:var(--surface2);border:1px solid var(--border)}.rank{width:24px;text-align:right;font-size:11px;color:var(--text3);font-weight:900}.name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.count{font-size:12px;font-weight:900;color:var(--accent);flex-shrink:0}.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:800}.empty,.loading{padding:48px 16px;text-align:center;color:var(--text2);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius)}.keywords{display:flex;gap:8px;flex-wrap:wrap}.keyword{padding:7px 11px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:800}.keyword b{color:var(--accent);margin-left:4px}.chat-samples{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}.sample{padding:10px 12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:12px;line-height:1.55}.sample-meta{color:var(--text3);font-size:11px;margin-bottom:3px}.sample-msg{color:var(--text2);word-break:break-word}.notice{font-size:12px;color:var(--text2);background:var(--accent-light);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:16px;line-height:1.6}
-@media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}.main{grid-template-columns:1fr}.header{flex-direction:column}.controls{justify-content:flex-start}select{min-width:min(100%,320px)}}
-@media(max-width:560px){body{padding:20px 16px}.grid{grid-template-columns:1fr}.controls{width:100%}.controls>*{width:100%}}
+select,input{padding:8px 11px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;outline:none}
+select{min-width:260px}.btn{padding:8px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:800;font-family:inherit;transition:opacity .15s}.btn:hover{opacity:.85}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--accent);color:#fff}.btn-secondary{background:var(--surface2);color:var(--text);border:1.5px solid var(--border2)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(135px,1fr));gap:10px;margin-bottom:10px;flex-shrink:0}.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;min-height:0}.stat-label{font-size:10px;color:var(--text3);font-weight:900;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}.stat-value{font-size:22px;font-weight:900;color:var(--text);line-height:1}.stat-sub{font-size:11px;color:var(--text2);margin-top:5px;word-break:break-word}
+#report{min-height:0;overflow:auto;padding-right:4px}.main{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(320px,.7fr);gap:10px}.stack{display:flex;flex-direction:column;gap:10px;min-height:0}.section-title{font-size:13px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.muted{font-size:12px;color:var(--text3);font-weight:600}.chart{height:190px;display:flex;align-items:flex-end;gap:4px;border-radius:var(--radius-sm);background:var(--surface2);padding:12px;overflow-x:auto}.bar{min-width:20px;flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));position:relative}.bar.hot{background:linear-gradient(180deg,#fbbf24,var(--amber))}.bar:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:100%;transform:translateX(-50%);white-space:nowrap;background:var(--text);color:var(--surface);font-size:11px;padding:4px 7px;border-radius:6px;margin-bottom:6px;z-index:3}.list{display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto}.reaction-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid var(--border)}.reaction-row{align-items:flex-start}.rank{width:24px;text-align:right;font-size:11px;color:var(--text3);font-weight:900}.name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.count{font-size:12px;font-weight:900;color:var(--accent);flex-shrink:0}.row-sub{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.4}.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:800}.empty,.loading{padding:36px 16px;text-align:center;color:var(--text2);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius)}.keywords{display:flex;gap:7px;flex-wrap:wrap;max-height:96px;overflow-y:auto}.keyword{padding:6px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:12px;font-weight:800}.keyword b{color:var(--accent);margin-left:4px}.notice{font-size:12px;color:var(--text2);background:var(--accent-light);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:10px;line-height:1.5;flex-shrink:0}
+@media(max-width:1100px){body{overflow:auto;height:auto;min-height:100vh}.grid{grid-template-columns:repeat(2,1fr)}.main{grid-template-columns:1fr}.header{flex-direction:column}.controls{justify-content:flex-start}select{min-width:min(100%,320px)}#report{overflow:visible}.reaction-list{grid-template-columns:1fr}}
+@media(max-width:560px){body{padding:18px 14px}.grid{grid-template-columns:1fr}.controls{width:100%}.controls>*{width:100%}}
 </style>
 </head>
 <body>
@@ -39,7 +39,7 @@ select{min-width:260px}.btn{padding:9px 16px;border-radius:var(--radius-sm);bord
   <div>
     <a href="/schedule" class="back">← 대시보드</a>
     <div class="title">📊 채팅 분석</div>
-    <div class="subtitle">대시보드의 채팅 수집 기록을 불러와 참여자, 키워드, 시간대별 채팅량, 후원 흐름을 분석합니다.</div>
+    <div class="subtitle">대시보드의 채팅 수집 기록을 불러와 시간대별 반응, 참여자, 키워드, 후원 흐름을 분석합니다.</div>
   </div>
   <div class="controls">
     <select id="session-select"><option value="">기록 불러오는 중...</option></select>
@@ -60,21 +60,21 @@ select{min-width:260px}.btn{padding:9px 16px;border-radius:var(--radius-sm);bord
   </div>
 
   <div class="main">
-    <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="stack">
       <div class="card">
-        <div class="section-title">⏱ 시간대별 채팅량 <span class="muted" id="timeline-label"></span></div>
+        <div class="section-title">⏱ 시간대별 반응 점수 <span class="muted" id="timeline-label"></span></div>
         <div class="chart" id="timeline"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">⚡ 반응 좋은 구간 <span class="muted">채팅·참여자·후원 가중치</span></div>
+        <div class="reaction-list" id="reaction-rank"></div>
       </div>
       <div class="card">
         <div class="section-title">🔥 많이 나온 단어 <span class="muted">한 글자/일반 조사 제외</span></div>
         <div class="keywords" id="keywords"></div>
       </div>
-      <div class="card">
-        <div class="section-title">💬 긴 채팅 샘플 <span class="muted">최대 10개</span></div>
-        <div class="chat-samples" id="samples"></div>
-      </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="stack">
       <div class="card">
         <div class="section-title">🏆 채팅 참여 순위 <span class="muted" id="user-rank-label"></span></div>
         <div class="list" id="user-rank"></div>
@@ -164,6 +164,31 @@ function parseMinuteKey(chat){
   }
   return String(chat.time || '').slice(0,5) || '--:--';
 }
+function getBucketInfo(item, bucketMinutes=5){
+  const ms = getMillis(item.createdAt);
+  if(ms){
+    const d = new Date(ms);
+    const bucket = Math.floor(d.getMinutes()/bucketMinutes)*bucketMinutes;
+    d.setMinutes(bucket,0,0);
+    return { key: String(d.getTime()), label: `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` };
+  }
+  const raw = String(item.time || '').slice(0,5);
+  const parts = raw.split(':').map(Number);
+  if(parts.length === 2 && !parts.some(Number.isNaN)){
+    const bucket = Math.floor(parts[1]/bucketMinutes)*bucketMinutes;
+    return { key: `${String(parts[0]).padStart(2,'0')}:${String(bucket).padStart(2,'0')}`, label: `${String(parts[0]).padStart(2,'0')}:${String(bucket).padStart(2,'0')}` };
+  }
+  return { key:'--:--', label:'--:--' };
+}
+function getExcitementScore(text){
+  const msg = String(text || '');
+  let score = 0;
+  if(/[ㅋㅎ]{2,}/.test(msg)) score += 2;
+  if(/[!?]{2,}/.test(msg)) score += 1;
+  if(/ㅠ{2,}|ㅜ{2,}/.test(msg)) score += 1;
+  if(/ㄷㄷ|레전드|미쳤|웃겨|대박|와우|ㅋㅋㅋ|오/.test(msg)) score += 2;
+  return score;
+}
 function getWords(chats){
   const counts = new Map();
   chats.forEach(chat => {
@@ -175,13 +200,13 @@ function getWords(chats){
       .filter(word => word.length > 1 && !stopWords.has(word) && !/^ㅋ+$|^ㅎ+$|^ㅠ+$/.test(word))
       .forEach(word => counts.set(word, (counts.get(word)||0)+1));
   });
-  return [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,30);
+  return [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,24);
 }
 function renderRank(id, entries, emptyText, valueFormatter){
   const el = $(id);
   el.innerHTML = '';
   if(!entries.length){ addText(el, 'div', 'empty', emptyText); return; }
-  entries.slice(0,20).forEach(([name, count], index) => {
+  entries.slice(0,12).forEach(([name, count], index) => {
     const row = document.createElement('div'); row.className = 'row';
     addText(row, 'div', 'rank', String(index+1));
     addText(row, 'div', 'name', name || '익명');
@@ -189,25 +214,62 @@ function renderRank(id, entries, emptyText, valueFormatter){
     el.appendChild(row);
   });
 }
-function renderTimeline(chats){
-  const counts = new Map();
+function buildReactionBuckets(chats, donations){
+  const buckets = new Map();
+  function ensure(info){
+    if(!buckets.has(info.key)) buckets.set(info.key,{...info,chats:0,users:new Set(),donations:0,donationCount:0,excitement:0,score:0});
+    return buckets.get(info.key);
+  }
   chats.forEach(chat => {
-    const key = parseMinuteKey(chat);
-    counts.set(key, (counts.get(key)||0)+1);
+    const bucket = ensure(getBucketInfo(chat));
+    bucket.chats++;
+    bucket.users.add(chat.nick || '익명');
+    bucket.excitement += getExcitementScore(chat.msg);
   });
-  const entries = [...counts.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+  donations.forEach(item => {
+    const bucket = ensure(getBucketInfo(item));
+    bucket.donations += Number(item.amt || 0);
+    bucket.donationCount++;
+  });
+  const entries = [...buckets.values()].map(bucket => ({
+    ...bucket,
+    userCount: bucket.users.size,
+    score: bucket.chats + bucket.users.size*2 + bucket.excitement + bucket.donationCount*8 + Math.min(30, Math.floor(bucket.donations/1000))
+  })).sort((a,b)=>{
+    const ak = Number(a.key), bk = Number(b.key);
+    return Number.isNaN(ak) || Number.isNaN(bk) ? a.key.localeCompare(b.key) : ak-bk;
+  });
+  return entries;
+}
+function renderTimeline(buckets){
   const timeline = $('timeline');
   timeline.innerHTML = '';
-  if(!entries.length){ addText(timeline, 'div', 'muted', '채팅 기록이 없어요'); return {peak:null}; }
-  const max = Math.max(...entries.map(([,count]) => count));
-  entries.forEach(([minute, count]) => {
+  if(!buckets.length){ addText(timeline, 'div', 'muted', '채팅 기록이 없어요'); return {peak:null, minuteCount:0}; }
+  const max = Math.max(1, ...buckets.map(bucket => bucket.score));
+  const peak = [...buckets].sort((a,b)=>b.score-a.score)[0];
+  buckets.forEach(bucket => {
     const bar = document.createElement('div');
-    bar.className = 'bar';
-    bar.style.height = `${Math.max(8, Math.round((count/max)*100))}%`;
-    bar.dataset.tip = `${minute} · ${count}개`;
+    bar.className = 'bar' + (bucket === peak ? ' hot' : '');
+    bar.style.height = `${Math.max(8, Math.round((bucket.score/max)*100))}%`;
+    bar.dataset.tip = `${bucket.label} · 점수 ${bucket.score} · 채팅 ${bucket.chats} · 참여 ${bucket.userCount}`;
     timeline.appendChild(bar);
   });
-  return { peak: entries.sort((a,b)=>b[1]-a[1])[0], minuteCount: counts.size };
+  return { peak, minuteCount: buckets.length * 5 };
+}
+function renderReactionRank(buckets){
+  const el = $('reaction-rank');
+  el.innerHTML = '';
+  const top = [...buckets].sort((a,b)=>b.score-a.score).slice(0,8);
+  if(!top.length){ addText(el, 'div', 'empty', '분석할 구간이 없어요'); return; }
+  top.forEach((bucket, index) => {
+    const row = document.createElement('div'); row.className = 'row reaction-row';
+    addText(row, 'div', 'rank', String(index+1));
+    const body = document.createElement('div'); body.style.flex='1'; body.style.minWidth='0';
+    addText(body, 'div', 'name', `${bucket.label} · ${bucket.score}점`);
+    addText(body, 'div', 'row-sub', `채팅 ${bucket.chats}개 · 참여 ${bucket.userCount}명 · 리액션 ${bucket.excitement} · 후원 ${bucket.donations.toLocaleString()}원`);
+    row.appendChild(body);
+    el.appendChild(row);
+  });
 }
 function renderKeywords(words){
   const el = $('keywords');
@@ -220,18 +282,6 @@ function renderKeywords(words){
     const bold = document.createElement('b'); bold.textContent = count;
     pill.appendChild(bold);
     el.appendChild(pill);
-  });
-}
-function renderSamples(chats){
-  const el = $('samples');
-  el.innerHTML = '';
-  const samples = chats.filter(chat => String(chat.msg||'').length >= 20).sort((a,b)=>String(b.msg||'').length-String(a.msg||'').length).slice(0,10);
-  if(!samples.length){ addText(el, 'div', 'muted', '긴 채팅 샘플이 없어요'); return; }
-  samples.forEach(chat => {
-    const sample = document.createElement('div'); sample.className = 'sample';
-    addText(sample, 'div', 'sample-meta', `[${chat.time || '--:--'}] ${chat.nick || '익명'}`);
-    addText(sample, 'div', 'sample-msg', chat.msg || '');
-    el.appendChild(sample);
   });
 }
 async function analyzeSelected(){
@@ -253,7 +303,8 @@ async function analyzeSelected(){
     donations.forEach(item => donationMap.set(item.nick || '익명의 후원자', (donationMap.get(item.nick || '익명의 후원자')||0)+Number(item.amt||0)));
     const donationEntries = [...donationMap.entries()].sort((a,b)=>b[1]-a[1]);
     const totalDonation = donations.reduce((sum, item) => sum + Number(item.amt||0), 0);
-    const timelineInfo = renderTimeline(chats);
+    const reactionBuckets = buildReactionBuckets(chats, donations);
+    const timelineInfo = renderTimeline(reactionBuckets);
     const minutes = Math.max(1, timelineInfo.minuteCount || 1);
 
     $('stat-chats').textContent = chats.length.toLocaleString();
@@ -261,15 +312,15 @@ async function analyzeSelected(){
     $('stat-users').textContent = userEntries.length.toLocaleString();
     $('stat-top-user').textContent = userEntries[0] ? `1위 ${userEntries[0][0]} · ${userEntries[0][1].toLocaleString()}개` : '-';
     $('stat-cpm').textContent = (chats.length / minutes).toFixed(1);
-    $('stat-peak').textContent = timelineInfo.peak ? `피크 ${timelineInfo.peak[0]} · ${timelineInfo.peak[1].toLocaleString()}개` : '-';
+    $('stat-peak').textContent = timelineInfo.peak ? `피크 ${timelineInfo.peak.label} · ${timelineInfo.peak.score.toLocaleString()}점` : '-';
     $('stat-donation').textContent = totalDonation.toLocaleString()+'원';
     $('stat-donation-count').textContent = `${donations.length.toLocaleString()}건 · ${donationEntries.length.toLocaleString()}명`;
-    $('timeline-label').textContent = `${minutes.toLocaleString()}분 구간`;
+    $('timeline-label').textContent = `5분 단위 · ${reactionBuckets.length.toLocaleString()}구간`;
     $('user-rank-label').textContent = `${userEntries.length.toLocaleString()}명`;
     $('donation-rank-label').textContent = `${donationEntries.length.toLocaleString()}명`;
 
+    renderReactionRank(reactionBuckets);
     renderKeywords(getWords(chats));
-    renderSamples(chats);
     renderRank('user-rank', userEntries, '참여자 기록이 없어요');
     renderRank('donation-rank', donationEntries, '후원 기록이 없어요', value => value.toLocaleString()+'원');
     $('status').style.display = 'none';
