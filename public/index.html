@@ -1411,9 +1411,11 @@ function handleDonation(donation){
     const missionId = extras?.missionDonationId || extras?.donationId || extras?.missionId || '';
     const isMission = dtype.toUpperCase()==='MISSION' || dtype.toUpperCase()==='MISSION_PARTICIPATION' || !!extras?.missionDonationId || !!extras?.missionId;
     const missionStatus = getMissionStatusInfo(extras);
+    const isRejectedMission = isMission && missionStatus.status === 'REJECTED';
+    const shouldCountMission = isMission && !missionStatus.pending && !isRejectedMission;
     if(!rawAmt && isMission && missionId && missionRecords[missionId]?.rawAmt) rawAmt = missionRecords[missionId].rawAmt;
-    if(!rawAmt && !(isMission && missionId && !missionStatus.pending)) return;
-    const countedAmt = isMission ? (missionStatus.pending ? 0 : rawAmt) : rawAmt;
+    if(!rawAmt && !(isMission && missionId && !missionStatus.pending && !isRejectedMission)) return;
+    const countedAmt = isMission ? (shouldCountMission ? rawAmt : 0) : rawAmt;
     const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     const log=document.getElementById('chat-log'), div=document.createElement('div');
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
@@ -1421,8 +1423,8 @@ function handleDonation(donation){
     const label = isMission ? `미션 ${missionStatus.label}` : '후원';
     const msg = donation.msg || extras?.missionText || extras?.donationText || extras?.message || '';
     const amountText = isMission && !missionStatus.success ? `${rawAmt.toLocaleString()}원` : `${countedAmt.toLocaleString()}원`;
-    const shouldShowInDonationFeed = !isMission || !missionStatus.pending;
-    const shouldShowInChatLog = !isMission || !missionStatus.pending;
+    const shouldShowInDonationFeed = !isMission || shouldCountMission;
+    const shouldShowInChatLog = !isMission || missionStatus.status === 'PENDING' || shouldCountMission;
     div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText} ${label}!</span>${isMission&&!missionStatus.success?`<span style="color:var(--text3);font-size:11px"> · 합산 제외</span>`:''}${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
     if(shouldShowInChatLog){
       log.appendChild(div);
