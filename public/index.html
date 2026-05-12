@@ -1413,7 +1413,7 @@ function handleDonation(donation){
     const isMission = dtype.toUpperCase()==='MISSION' || dtype.toUpperCase()==='MISSION_PARTICIPATION' || !!extras?.missionDonationId || !!extras?.missionId;
     const missionStatus = getMissionStatusInfo(extras);
     if(isMission && missionId){
-      const dedupeKey = `${missionId}_${missionStatus.status}_${missionStatus.success}_${rawAmt}_${extras?.type||''}`;
+      const dedupeKey = `${missionId}_${missionStatus.status}_${missionStatus.success}_${rawAmt}`;
       const nowTs = Date.now();
       const prevTs = recentMissionEventMap[dedupeKey] || 0;
       if(nowTs - prevTs < 2500) return;
