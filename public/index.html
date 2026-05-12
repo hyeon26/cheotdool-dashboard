@@ -1376,9 +1376,9 @@ function renderDone(){
   const explicitSuccess = extras?.success === true;
   const explicitFail = extras?.success === false;
   const success = (explicitSuccess || statusIsSuccess) && !explicitFail && !statusIsPending;
-  const failed = explicitFail || statusIsFailed;
+  const failed = (explicitFail && !statusIsPending) || statusIsFailed;
   const pending = statusIsPending || (!success && !failed);
-  const label = success ? '성공' : failed ? '실패' : '대기';
+  const label = pending ? '제시' : success ? '성공' : failed ? '실패' : '대기';
   return { status, success, failed, pending, label };
 }
 function addMissionAmount(nick, delta){
@@ -1401,6 +1401,19 @@ function parseDonationAmount(value){
   }
   return 0;
 }
+
+function pickMissionAmount(extras, missionStatus){
+  const fallback = parseDonationAmount(extras?.payAmount ?? extras?.totalPayAmount ?? 0);
+  const resolvedKeys = missionStatus?.failed
+    ? ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount','payAmount','totalPayAmount']
+    : ['payAmount','totalPayAmount','realPayAmount'];
+  for(const key of resolvedKeys){
+    const v = parseDonationAmount(extras?.[key]);
+    if(v > 0) return v;
+  }
+  return fallback;
+}
+
 function handleDonation(donation){
   try {
     const profile = typeof donation.profile==='string' ? JSON.parse(donation.profile) : donation.profile;
@@ -1408,12 +1421,12 @@ function handleDonation(donation){
     if(!extras || typeof extras!=='object') return;
     console.log('도네 extras 전체:', JSON.stringify(extras));
     const nick = profile?.nickname || extras?.nickname || '';
-    let rawAmt = parseDonationAmount(extras?.payAmount ?? extras?.totalPayAmount ?? 0);
     // donationType: CHAT=일반후원, MISSION=미션
     const dtype = extras?.donationType||'';
     const missionId = extras?.missionDonationId || extras?.donationId || extras?.missionId || '';
     const isMission = dtype.toUpperCase()==='MISSION' || dtype.toUpperCase()==='MISSION_PARTICIPATION' || !!extras?.missionDonationId || !!extras?.missionId;
     const missionStatus = getMissionStatusInfo(extras);
+    let rawAmt = isMission ? pickMissionAmount(extras, missionStatus) : parseDonationAmount(extras?.payAmount ?? extras?.totalPayAmount ?? 0);
     if(isMission && missionId){
       const dedupeKey = `${missionId}_${missionStatus.status}_${missionStatus.success}_${rawAmt}`;
       const nowTs = Date.now();
