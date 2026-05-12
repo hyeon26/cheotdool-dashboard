@@ -1373,8 +1373,10 @@ function renderDone(){
   const statusIsFailed = failStatuses.includes(status);
   const statusIsPending = pendingStatuses.includes(status);
 
-  const success = statusIsSuccess || (extras?.success === true && !statusIsPending);
-  const failed = statusIsFailed || (extras?.success === false && !statusIsPending && !statusIsSuccess);
+  const explicitSuccess = extras?.success === true;
+  const explicitFail = extras?.success === false;
+  const success = (explicitSuccess || statusIsSuccess) && !explicitFail && !statusIsPending;
+  const failed = explicitFail || statusIsFailed;
   const pending = statusIsPending || (!success && !failed);
   const label = success ? '성공' : failed ? '실패' : '대기';
   return { status, success, failed, pending, label };
@@ -1406,7 +1408,7 @@ function handleDonation(donation){
     if(!extras || typeof extras!=='object') return;
     console.log('도네 extras 전체:', JSON.stringify(extras));
     const nick = profile?.nickname || extras?.nickname || '';
-    let rawAmt = parseDonationAmount(extras?.totalPayAmount ?? extras?.payAmount ?? 0);
+    let rawAmt = parseDonationAmount(extras?.payAmount ?? extras?.totalPayAmount ?? 0);
     // donationType: CHAT=일반후원, MISSION=미션
     const dtype = extras?.donationType||'';
     const missionId = extras?.missionDonationId || extras?.donationId || extras?.missionId || '';
@@ -1446,7 +1448,7 @@ function handleDonation(donation){
       if(feed.querySelector('[data-empty]')) feed.innerHTML='';
       const fdiv = document.createElement('div');
       fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
-      fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick||'익명의 후원자'}</span><span style="font-weight:700;color:var(--text)">${amountText}</span></div>${msg?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}</div>`;
+      fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick||'익명의 후원자'}</span><span style="font-weight:700;color:var(--text)">${amountText}</span></div>${msg?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}</div>`;      feed.appendChild(fdiv);
       feed.appendChild(fdiv);
       feed.scrollTop = feed.scrollHeight;
     }
