@@ -1404,9 +1404,17 @@ function parseDonationAmount(value){
 
 function pickMissionAmount(extras, missionStatus){
   const fallback = parseDonationAmount(extras?.payAmount ?? extras?.totalPayAmount ?? 0);
-  const resolvedKeys = missionStatus?.failed
-    ? ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount','payAmount','totalPayAmount']
-    : ['payAmount','totalPayAmount','realPayAmount'];
+  if(missionStatus?.failed){
+    const settlementKeys = ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount'];
+    for(const key of settlementKeys){
+      const v = parseDonationAmount(extras?.[key]);
+      if(v > 0) return v;
+    }
+    const target = parseDonationAmount(extras?.totalPayAmount ?? extras?.payAmount ?? 0);
+    if(target <= 0) return 0;
+    return target <= 10000 ? 1000 : Math.floor(target * 0.1);
+  }
+  const resolvedKeys = ['payAmount','totalPayAmount','realPayAmount'];
   for(const key of resolvedKeys){
     const v = parseDonationAmount(extras?.[key]);
     if(v > 0) return v;
