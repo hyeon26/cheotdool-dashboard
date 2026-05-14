@@ -15,6 +15,7 @@
   --border2:rgba(255,255,255,.14);
   --accent:#2ecc71;
   --accent2:#27ae60;
+  --accent-light:#1a6e3e;
   --text:#f0effe;
   --text2:#888888;
   --text3:#4a4a4a;
@@ -25,7 +26,7 @@
   --shadow:0 4px 24px rgba(0,0,0,.4);
 }
 body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.wrap{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr;gap:20px;padding:0 26px 40px;max-width:1100px;margin:0 auto;transform:scale(.95);transform-origin:top center}
+.wrap{position:relative;z-index:1;display:grid;grid-template-columns:320px 1fr;gap:20px;padding:0 26px 40px;max-width:1200px;margin:0 auto}
 @media(max-width:900px){.wrap{grid-template-columns:1fr;padding:0 14px 30px}}
 .header{text-align:center;margin-bottom:28px;position:relative;padding:36px 26px 0;max-width:1100px;margin-inline:auto}
 .header-badge{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(255,255,255,.06);font-size:16px;font-weight:800;color:#ccc;letter-spacing:.4px;margin-bottom:14px}
@@ -38,7 +39,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .status-text{font-size:14px;font-weight:700;color:var(--text2)}
 .card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
-.card-title{font-size:14px;font-weight:800;color:var(--text3);letter-spacing:.4px;margin-bottom:14px}
+.card-title{font-size:16px;font-weight:900;color:#bdbdbd;letter-spacing:.2px;margin-bottom:14px}
 .setting-group,.setting-row{display:flex;flex-direction:column;gap:8px}.setting-group{gap:14px}
 .setting-label{font-size:13px;font-weight:700;color:var(--text2)}
 .setting-input,.roulette-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none}
@@ -47,7 +48,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
 .preset-btns{display:flex;gap:6px;flex-wrap:wrap}
 .preset-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer}
 .preset-btn:hover,.preset-btn.active{background:#1a6e3e;border-color:var(--accent);color:var(--accent)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:10px;border:none;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:opacity .15s;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;border:none;font-family:inherit;font-size:14px;font-weight:900;cursor:pointer;transition:opacity .15s;width:100%}
 .btn:hover{opacity:.85}.btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-connect,.btn-copy{background:var(--accent);color:#fff}.btn-stop{background:var(--red);color:#fff}.btn-open{background:var(--amber);color:#fff}
 .btn-clear{background:#2a2a2a;color:#888;border:1.5px solid rgba(255,255,255,.1)}
@@ -55,7 +56,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
 .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .stat-box{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center}
 .stat-num{font-size:24px;font-weight:900;color:var(--text);line-height:1}.stat-num.blurred{filter:blur(8px);user-select:none;cursor:pointer}
-.stat-label{font-size:11px;color:var(--text2);margin-top:4px}
+.stat-label{font-size:12px;color:var(--text2);margin-top:6px}
 .edit-item,.feed-item{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface2)}
 .edit-item-name{flex:1;font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .edit-item-cnt,.feed-cnt{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:#1a6e3e;color:var(--accent);flex-shrink:0}
@@ -65,6 +66,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
 .feed-msg{font-size:12px;color:var(--text2);margin-top:4px}.feed-time,.feed-empty{font-size:11px;color:var(--text3)}
 .collapsible-trigger{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
 .collapsible-body{overflow:hidden;max-height:0;transition:max-height .35s ease}.collapsible-body.open{max-height:500px}
+.helper{font-size:12px;color:var(--text2);line-height:1.5}
 </style>
 </head>
 <body>
@@ -72,7 +74,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
 <div class="header">
   <div class="header-badge"><img class="brand-logo" src="/logo.png" alt="첫째와둘째 로고"/>첫째와둘째</div>
   <h1>💸 후원 룰렛</h1>
-  <p>실시간 후원을 룰렛 항목으로 자동 집계합니다</p>
+  <p>후원이 들어오면 자동으로 룰렛 항목이 쌓입니다 · 복사해서 바로 사용하세요</p>
   <div style="display:flex;justify-content:center;margin-top:10px">
     <div class="status-area">
       <div class="status-dot" id="status-dot"></div>
@@ -85,7 +87,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
   <!-- 왼쪽 -->
   <div style="display:flex;flex-direction:column;gap:16px">
     <div class="card">
-      <div class="card-title">⚙️ 연결</div>
+      <div class="card-title">1) 수집 시작</div>
+      <div class="helper" style="margin-bottom:10px">시작 버튼을 누르면 채팅 후원을 실시간으로 감지합니다.</div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-connect" id="btn-start" onclick="startConnect()">▶ 시작</button>
         <button class="btn btn-stop" id="btn-stop" onclick="stopConnect()" style="display:none">⏹ 중단</button>
@@ -93,7 +96,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
     </div>
 
     <div class="card">
-      <div class="card-title">🎟 단위 금액</div>
+      <div class="card-title">2) 단위 금액 설정</div>
+      <div class="helper" style="margin-bottom:10px">예: 1,000원으로 두면 5,000원 후원 시 5개가 추가됩니다.</div>
       <div class="setting-group">
         <div class="setting-row">
           <div class="setting-label">단위 금액 (원)</div>
@@ -134,12 +138,13 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
 
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="card-title" style="margin:0">🎰 룰렛 목록</div>
+        <div class="card-title" style="margin:0">3) 룰렛 목록 확인/편집</div>
         <span style="font-size:11px;color:var(--text3)" id="item-count-label">0종류</span>
       </div>
       <div id="item-edit-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;margin-bottom:12px">
         <div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>
       </div>
+      <div class="helper" style="margin-bottom:8px">항목명*개수 형식으로 자동 정리됩니다. (예: 치킨*3)</div>
       <textarea class="roulette-textarea" id="roulette-list" readonly></textarea>
       <div class="roulette-actions">
         <button class="btn btn-copy" onclick="copyList()">📋 복사</button>
@@ -155,7 +160,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);
   <div class="card">
     <div class="collapsible-trigger" onclick="toggleFeed()">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:13px;font-weight:700;color:var(--text)">💰 후원 내역</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text)">실시간 후원 내역</div>
         <span style="font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-light);padding:2px 10px;border-radius:20px" id="feed-count">0건</span>
       </div>
       <span id="feed-arrow" style="font-size:12px;font-weight:600;color:var(--text2)">▼ 펼치기</span>
