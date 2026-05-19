@@ -1381,6 +1381,24 @@ function getDonationAmount(extras, donation){
   }
   return 0;
 }
+function getMissionOfferAmountFromHistory(item, fallbackAmount=0){
+  const extras = parseMaybeJson(item?.extras) || {};
+  const candidates = [
+    item?.rawAmt,
+    item?.missionOfferAmount,
+    item?.missionTargetAmount,
+    item?.targetAmount,
+    extras?.payAmount,
+    extras?.totalPayAmount,
+    extras?.missionOfferAmount,
+    extras?.missionTargetAmount,
+    extras?.targetAmount,
+    item?.payAmount,
+    item?.totalPayAmount,
+    fallbackAmount
+  ].map(toDonationAmount).filter(amount=>amount>0);
+  return candidates.length ? Math.max(...candidates) : 0;
+}
 function addDonationTotal(nick, amt, isMission){
   const safeNick = nick || '익명의 후원자';
   const amount = toDonationAmount(amt);
@@ -1883,7 +1901,7 @@ window.loadSession=async(sessionId)=>{
         const label = isMission?getMissionHistoryLabel(item):'후원';
         const normalizedMessage = String(message || '').trim();
         const missionTitle = String(item.missionTitle || '').trim();
-        const missionOfferAmount = isMission ? (toDonationAmount(item.rawAmt) || amt) : 0;
+        const missionOfferAmount = isMission ? getMissionOfferAmountFromHistory(item, amt) : 0;
         const missionBadge = isMission && label !== '미션' ? `<span style="font-size:10px;font-weight:800;color:#fff;background:${label.includes('성공')?'#10b981':label.includes('실패')?'#ef4444':'#64748b'};border-radius:999px;padding:2px 6px;margin-left:4px;white-space:nowrap">${label.replace('미션 ','')}</span>` : '';
         addDonationTotal(nick, amt, isMission);
         div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
