@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
+  const CHANNEL_ID = 'dc7fb0d085cfbbe90e11836e3b85b784';
 
   const nidCookie = [
     process.env.CHZZK_NID_AUT ? `NID_AUT=${process.env.CHZZK_NID_AUT}` : '',
