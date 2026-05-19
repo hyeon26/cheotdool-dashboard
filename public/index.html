@@ -1490,6 +1490,13 @@ function getMissionSettlementEntries(record, fallbackNick, fallbackAmount, missi
     amount: missionStatus?.failed ? getFailedMissionAmount(item.amount) : item.amount
   })).filter(item=>item.amount>0);
 }
+function getMissionDisplayMeta(record, fallbackMsg=''){
+  const title = String(record?.msg || fallbackMsg || '').trim();
+  const baseAmount = toDonationAmount(record?.baseAmount);
+  const rawAmount = toDonationAmount(record?.rawAmt);
+  const rootAmount = baseAmount || rawAmount;
+  return { title, rootAmount };
+}
 function pickMissionAmount(extras, donation, missionStatus, fallbackTarget=0, missionRecord=null){
   if(missionStatus?.failed){
     const settled = getAmountFromKeys(extras, ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount'])
@@ -1609,12 +1616,20 @@ function handleDonation(donation){
     const log=document.getElementById('chat-log'), div=document.createElement('div');
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
     const icon = isMission ? '🎯' : '💰';
+    const missionMeta = isMission ? getMissionDisplayMeta(previousMissionRecord, msg) : { title:'', rootAmount:0 };
     const label = isMission ? (isMissionAddition && missionStatus.pending ? '미션 추가' : `미션 ${missionStatus.label}`) : '후원';
     const displayAmt = isMissionAddition && missionStatus.pending ? eventAmt : rawAmt;
     const amountText = isMission && !missionStatus.success ? `${displayAmt.toLocaleString()}원` : `${countedAmt.toLocaleString()}원`;
+    const missionAdditionHint = isMissionAddition && missionStatus.pending
+      ? missionMeta.title
+        ? ` (원 미션: ${missionMeta.title})`
+        : missionMeta.rootAmount>0
+          ? ` (원 미션 ${missionMeta.rootAmount.toLocaleString()}원)`
+          : ''
+      : '';
     const shouldShowInDonationFeed = !isMission || shouldCountMission;
     const shouldShowInChatLog = !isMission || missionStatus.pending || isMissionAddition || shouldCountMission;
-    div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText} ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+    div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText}${missionAdditionHint} ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
     if(isMission && missionStatus.pending && !isMissionAddition){
       chatAddMissionProposal(time, nick||'익명의 후원자', rawAmt, msg);
     } else if(shouldShowInChatLog){
@@ -1630,7 +1645,7 @@ function handleDonation(donation){
         const fdiv = document.createElement('div');
         const entryAmountText = `${toDonationAmount(entry.amount).toLocaleString()}원`;
         fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
-        fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${entry.nick||'익명의 후원자'}${isMission?getMissionOutcomeBadge(missionStatus):''}</span><span style="font-weight:700;color:var(--text)">${entryAmountText}</span></div>${msg?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}${isMission && settlementEntries.length>1?' · 개별 정산':''}</div>`;
+        fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${entry.nick||'익명의 후원자'}${isMission?getMissionOutcomeBadge(missionStatus):''}</span><span style="font-weight:700;color:var(--text)">${entryAmountText}</span></div>${msg?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}${isMission && missionMeta.title?` · ${missionMeta.title}`:''}</div>`;
         feed.appendChild(fdiv);
       });
       feed.scrollTop = feed.scrollHeight;
@@ -1638,7 +1653,7 @@ function handleDonation(donation){
 
     if(shouldShowInDonationFeed){
       settlementEntries.forEach(entry=>{
-        doneLogs.push({ time, nick: entry.nick||'익명의 후원자', amt: toDonationAmount(entry.amount), rawAmt: toDonationAmount(entry.rawAmount || entry.amount), type: isMission?'mission':'donation', msg, missionStatus: missionStatus.status, missionSuccess: missionStatus.success, missionDonationId: missionId, missionContributionKey: entry.key });
+        doneLogs.push({ time, nick: entry.nick||'익명의 후원자', amt: toDonationAmount(entry.amount), rawAmt: toDonationAmount(entry.rawAmount || entry.amount), type: isMission?'mission':'donation', msg, missionTitle: missionMeta.title, missionStatus: missionStatus.status, missionSuccess: missionStatus.success, missionDonationId: missionId, missionContributionKey: entry.key });
       });
     }
     if(isMission){
@@ -1672,7 +1687,7 @@ function handleDonation(donation){
         const payload = {
           time,
           nick: entry.nick||'익명의 후원자', amt: toDonationAmount(entry.amount), rawAmt: toDonationAmount(entry.rawAmount || entry.amount), type: isMission?'mission':'donation',
-          message: msg, donationType: dtype, missionDonationId: missionId, missionEventId, missionContributionKey: entry.key,
+          message: msg, missionTitle: missionMeta.title, donationType: dtype, missionDonationId: missionId, missionEventId, missionContributionKey: entry.key,
           missionStatus: missionStatus.status, missionSuccess: missionStatus.success,
           missionFailed: missionStatus.failed, missionStatusLabel: missionStatus.label,
           extras,
@@ -1866,6 +1881,7 @@ window.loadSession=async(sessionId)=>{
         const isMission = type==='mission';
         const icon = isMission?'🎯':'💰';
         const label = isMission?getMissionHistoryLabel(item):'후원';
+        const missionTitle = String(item.missionTitle || message || '').trim();
         const missionBadge = isMission && label !== '미션' ? `<span style="font-size:10px;font-weight:800;color:#fff;background:${label.includes('성공')?'#10b981':label.includes('실패')?'#ef4444':'#64748b'};border-radius:999px;padding:2px 6px;margin-left:4px;white-space:nowrap">${label.replace('미션 ','')}</span>` : '';
         addDonationTotal(nick, amt, isMission);
         div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
@@ -1877,10 +1893,10 @@ window.loadSession=async(sessionId)=>{
           if(feed.querySelector('[data-empty]')) feed.innerHTML='';
           const fdiv=document.createElement('div');
           fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
-          fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick}${missionBadge}</span><span style="font-weight:700;color:var(--text)">${Number(amt).toLocaleString()}원</span></div>${message?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${message}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}</div>`;
+          fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick}${missionBadge}</span><span style="font-weight:700;color:var(--text)">${Number(amt).toLocaleString()}원</span></div>${message?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${message}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}${isMission && missionTitle?` · ${missionTitle}`:''}</div>`;
           feed.appendChild(fdiv);
         }
-        doneLogs.push({ time, nick, amt: Number(amt), type, msg: message||'', missionStatus: item.missionStatus, missionSuccess: item.missionSuccess, missionFailed: item.missionFailed, missionStatusLabel: item.missionStatusLabel });
+        doneLogs.push({ time, nick, amt: Number(amt), type, msg: message||'', missionTitle, missionStatus: item.missionStatus, missionSuccess: item.missionSuccess, missionFailed: item.missionFailed, missionStatusLabel: item.missionStatusLabel });
       }
       log.appendChild(div);
     });
