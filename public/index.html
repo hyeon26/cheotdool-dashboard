@@ -1293,6 +1293,7 @@ let missionMap={}, missionAnon=0, missionRecords={};
 let doneLogs=[];
 let recentMissionEventMap={};
 let recentMissionSettlement=null;
+let recentMissionAdditionChatMap={};
 function chatSetStatus(on){
   chatConnected=on;
   const dot=document.getElementById('chat-status-dot'), text=document.getElementById('chat-status-text');
@@ -1694,6 +1695,19 @@ function handleDonation(donation){
     let missionStatus = getMissionStatusInfo(extras, donation);
     const msg = donation.msg || extras?.missionText || extras?.donationText || extras?.message || '';
     const incomingAmount = getDonationAmount(extras, donation);
+    const settlementAmount = isMission ? getMissionSettlementAmount(extras, donation) : 0;
+    let missionAdditionLogged = false;
+    if(isMissionAddition && incomingAmount && !settlementAmount){
+      const additionChatKey = `${baseMissionId || ''}_${missionEventId || ''}_${nick || ''}_${incomingAmount}`;
+      const nowTs = Date.now();
+      const prevTs = recentMissionAdditionChatMap[additionChatKey] || 0;
+      if(!prevTs || nowTs - prevTs > 2500){
+        recentMissionAdditionChatMap[additionChatKey] = nowTs;
+        Object.keys(recentMissionAdditionChatMap).forEach(k=>{ if(nowTs - recentMissionAdditionChatMap[k] > 15000) delete recentMissionAdditionChatMap[k]; });
+        chatAddMissionAddition(new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}), nick||'익명의 후원자', incomingAmount, msg, msg);
+        missionAdditionLogged = true;
+      }
+    }
     let missionRecordKey = isMission ? resolveMissionRecordKey(missionId, missionEventId, nick, msg) : '';
     if(isMissionAddition && (!missionRecordKey || !missionRecords[missionRecordKey])){
       missionRecordKey = resolveMissionAdditionRecordKey(nick, incomingAmount) || missionRecordKey;
@@ -1703,8 +1717,6 @@ function handleDonation(donation){
     }
     const previousMissionRecord = isMission ? missionRecords[missionRecordKey] : null;
     const previousMissionTarget = isMission ? toDonationAmount(previousMissionRecord?.rawAmt) : 0;
-    const settlementAmount = isMission ? getMissionSettlementAmount(extras, donation) : 0;
-    let missionAdditionLogged = false;
     const contributionKey = isMissionAddition ? getMissionContributionKey(previousMissionRecord, missionEventId, nick, incomingAmount) : '';
     const settlementContributionKey = contributionKey || (isMissionAddition ? `participant_${nick||'익명의 후원자'}_${incomingAmount}` : '');
     const contributionTarget = isMissionAddition ? getMissionContributionTarget(previousMissionRecord, missionEventId, nick, incomingAmount) : 0;
@@ -1737,7 +1749,7 @@ function handleDonation(donation){
     }
     const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     const missionMeta = isMission ? getMissionDisplayMeta(previousMissionRecord, msg) : { title:'', rootAmount:0 };
-    if(isMissionAddition && missionStatus.pending && !settlementAmount && incomingAmount){
+    if(isMissionAddition && missionStatus.pending && !settlementAmount && incomingAmount && !missionAdditionLogged){
       chatAddMissionAddition(time, nick||'익명의 후원자', incomingAmount, msg, missionMeta.title || msg);
       missionAdditionLogged = true;
     }
@@ -2199,7 +2211,7 @@ window.chatClear=()=>{
   ['chat-count','stat-total','stat-users'].forEach(id=>document.getElementById(id).textContent='0');
   document.getElementById('stat-top').innerHTML='';
   doneMap={}; doneAnon=0; renderDone();
-  missionMap={}; missionAnon=0; missionRecords={}; recentMissionEventMap={}; recentMissionSettlement=null; renderMission();
+  missionMap={}; missionAnon=0; missionRecords={}; recentMissionEventMap={}; recentMissionSettlement=null; recentMissionAdditionChatMap={}; renderMission();
 };
 window.chatDownload=()=>{
   if(!chatLogs.length){ alert('수집된 채팅이 없어요.'); return; }
