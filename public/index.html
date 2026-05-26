@@ -1697,7 +1697,7 @@ function handleDonation(donation){
     const incomingAmount = getDonationAmount(extras, donation);
     const settlementAmount = isMission ? getMissionSettlementAmount(extras, donation) : 0;
     let missionAdditionLogged = false;
-    if(isMissionAddition && incomingAmount && !settlementAmount){
+    if(isMissionAddition && incomingAmount && !settlementAmount && (baseMissionId || missionEventId)){
       const additionChatKey = `${baseMissionId || ''}_${missionEventId || ''}_${nick || ''}_${incomingAmount}`;
       const nowTs = Date.now();
       const prevTs = recentMissionAdditionChatMap[additionChatKey] || 0;
