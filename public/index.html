@@ -1704,6 +1704,7 @@ function handleDonation(donation){
     const previousMissionRecord = isMission ? missionRecords[missionRecordKey] : null;
     const previousMissionTarget = isMission ? toDonationAmount(previousMissionRecord?.rawAmt) : 0;
     const settlementAmount = isMission ? getMissionSettlementAmount(extras, donation) : 0;
+    let missionAdditionLogged = false;
     const contributionKey = isMissionAddition ? getMissionContributionKey(previousMissionRecord, missionEventId, nick, incomingAmount) : '';
     const settlementContributionKey = contributionKey || (isMissionAddition ? `participant_${nick||'익명의 후원자'}_${incomingAmount}` : '');
     const contributionTarget = isMissionAddition ? getMissionContributionTarget(previousMissionRecord, missionEventId, nick, incomingAmount) : 0;
@@ -1734,6 +1735,12 @@ function handleDonation(donation){
       recentMissionEventMap[dedupeKey] = nowTs;
       Object.keys(recentMissionEventMap).forEach(k=>{ if(nowTs - recentMissionEventMap[k] > 15000) delete recentMissionEventMap[k]; });
     }
+    const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const missionMeta = isMission ? getMissionDisplayMeta(previousMissionRecord, msg) : { title:'', rootAmount:0 };
+    if(isMissionAddition && missionStatus.pending && !settlementAmount && incomingAmount){
+      chatAddMissionAddition(time, nick||'익명의 후원자', incomingAmount, msg, missionMeta.title || msg);
+      missionAdditionLogged = true;
+    }
     const isRejectedMission = isMission && missionStatus.status === 'REJECTED';
     const shouldCountMission = isMission && !missionStatus.pending && !isRejectedMission;
     if(isMissionAddition && shouldCountMission && settlementContributionKey && previousMissionRecord?.settledContributions?.[settlementContributionKey]) return;
@@ -1750,11 +1757,9 @@ function handleDonation(donation){
         ? [{ key: settlementContributionKey || missionEventId || 'single', nick: nick||'익명의 후원자', amount: rawAmt, rawAmount: contributionTarget || getDonationAmount(extras, donation) || rawAmt }]
         : getMissionSettlementEntries(previousMissionRecord, nick||'익명의 후원자', rawAmt, missionStatus)
       : [{ key:'single', nick: nick||'익명의 후원자', amount: countedAmt, rawAmount: rawAmt }];
-    const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     const log=document.getElementById('chat-log'), div=document.createElement('div');
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
     const icon = isMission ? '🎯' : '💰';
-    const missionMeta = isMission ? getMissionDisplayMeta(previousMissionRecord, msg) : { title:'', rootAmount:0 };
     const label = isMission ? (isMissionAddition && missionStatus.pending ? '미션 추가' : `미션 ${missionStatus.label}`) : '후원';
     const displayAmt = isMissionAddition && missionStatus.pending ? eventAmt : rawAmt;
     const amountText = isMission && !missionStatus.success ? `${displayAmt.toLocaleString()}원` : `${countedAmt.toLocaleString()}원`;
@@ -1770,7 +1775,7 @@ function handleDonation(donation){
     div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText}${missionAdditionHint} ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
     if(isMission && missionStatus.proposal && !isMissionAddition){
       chatAddMissionProposal(time, nick||'익명의 후원자', rawAmt, msg);
-    } else if(isMission && isMissionAddition && missionStatus.pending && !shouldCountMission && (missionId || missionEventId)){
+    } else if(isMission && isMissionAddition && missionStatus.pending && !shouldCountMission && !missionAdditionLogged && (missionId || missionEventId)){
       chatAddMissionAddition(time, nick||'익명의 후원자', eventAmt, msg, missionMeta.title || msg);
     } else if(shouldShowInChatLog){
       log.appendChild(div);
