@@ -1292,6 +1292,7 @@ let doneMap={}, doneAnon=0;
 let missionMap={}, missionAnon=0, missionRecords={};
 let doneLogs=[];
 let recentMissionEventMap={};
+let recentMissionSettlement=null;
 function chatSetStatus(on){
   chatConnected=on;
   const dot=document.getElementById('chat-status-dot'), text=document.getElementById('chat-status-text');
@@ -1334,6 +1335,16 @@ function chatAddMissionProposal(time,nick,amount,msg){
   const log=document.getElementById('chat-log'), div=document.createElement('div');
   div.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
   div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원 미션 제시!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+  log.appendChild(div); log.scrollTop=log.scrollHeight;
+}
+function chatAddMissionAddition(time,nick,amount,msg,missionTitle=''){
+  const safeNick = nick || '익명의 후원자';
+  const hint = missionTitle ? ` (미션: ${missionTitle})` : '';
+  const text = `🎯 미션 추가 · ${toDonationAmount(amount).toLocaleString()}원${hint}${msg ? ` · ${msg}` : ''}`;
+  saveChatRecord(time, safeNick, text, { chatType:'mission_addition', missionLabel:'미션 추가', amount: toDonationAmount(amount), missionTitle });
+  const log=document.getElementById('chat-log'), div=document.createElement('div');
+  div.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
+  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원${hint} 미션 추가!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
   log.appendChild(div); log.scrollTop=log.scrollHeight;
 }
 
@@ -1687,14 +1698,21 @@ function handleDonation(donation){
     if(isMissionAddition && (!missionRecordKey || !missionRecords[missionRecordKey])){
       missionRecordKey = resolveMissionAdditionRecordKey(nick, incomingAmount) || missionRecordKey;
     }
+    if(isMissionAddition && (!missionRecordKey || !missionRecords[missionRecordKey]) && recentMissionSettlement && Date.now() - recentMissionSettlement.at < 30000){
+      missionRecordKey = recentMissionSettlement.key || missionRecordKey;
+    }
     const previousMissionRecord = isMission ? missionRecords[missionRecordKey] : null;
     const previousMissionTarget = isMission ? toDonationAmount(previousMissionRecord?.rawAmt) : 0;
     const settlementAmount = isMission ? getMissionSettlementAmount(extras, donation) : 0;
     const contributionKey = isMissionAddition ? getMissionContributionKey(previousMissionRecord, missionEventId, nick, incomingAmount) : '';
+    const settlementContributionKey = contributionKey || (isMissionAddition ? `participant_${nick||'익명의 후원자'}_${incomingAmount}` : '');
     const contributionTarget = isMissionAddition ? getMissionContributionTarget(previousMissionRecord, missionEventId, nick, incomingAmount) : 0;
     if(isMissionAddition && missionStatus.proposal && !missionStatus.status && previousMissionRecord?.status){
       const recordStatus = getMissionStatusInfo({ status: previousMissionRecord.status, success: previousMissionRecord.success });
       if(!recordStatus.pending) missionStatus = recordStatus;
+    }
+    if(isMissionAddition && missionStatus.proposal && !missionStatus.status && recentMissionSettlement && Date.now() - recentMissionSettlement.at < 30000){
+      missionStatus = { ...recentMissionSettlement.status };
     }
     if(isMission && missionStatus.pending && settlementAmount){
       const targetAmount = contributionTarget || incomingAmount || previousMissionTarget;
@@ -1718,7 +1736,7 @@ function handleDonation(donation){
     }
     const isRejectedMission = isMission && missionStatus.status === 'REJECTED';
     const shouldCountMission = isMission && !missionStatus.pending && !isRejectedMission;
-    if(isMissionAddition && shouldCountMission && contributionKey && previousMissionRecord?.settledContributions?.[contributionKey]) return;
+    if(isMissionAddition && shouldCountMission && settlementContributionKey && previousMissionRecord?.settledContributions?.[settlementContributionKey]) return;
     if(isMission && missionStatus.pending && rawAmt){
       rawAmt = rememberMissionTargetAmount(missionRecordKey, nick, rawAmt, isMissionAddition, missionEventId, { missionId, baseMissionId, msg });
     }
@@ -1729,7 +1747,7 @@ function handleDonation(donation){
     const countedAmt = isMission ? (shouldCountMission ? rawAmt : 0) : rawAmt;
     const settlementEntries = isMission && shouldCountMission
       ? isMissionAddition
-        ? [{ key: contributionKey || missionEventId || 'single', nick: nick||'익명의 후원자', amount: rawAmt, rawAmount: contributionTarget || getDonationAmount(extras, donation) || rawAmt }]
+        ? [{ key: settlementContributionKey || missionEventId || 'single', nick: nick||'익명의 후원자', amount: rawAmt, rawAmount: contributionTarget || getDonationAmount(extras, donation) || rawAmt }]
         : getMissionSettlementEntries(previousMissionRecord, nick||'익명의 후원자', rawAmt, missionStatus)
       : [{ key:'single', nick: nick||'익명의 후원자', amount: countedAmt, rawAmount: rawAmt }];
     const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -1737,10 +1755,10 @@ function handleDonation(donation){
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
     const icon = isMission ? '🎯' : '💰';
     const missionMeta = isMission ? getMissionDisplayMeta(previousMissionRecord, msg) : { title:'', rootAmount:0 };
-    const label = isMission ? (isMissionAddition && missionStatus.proposal ? '미션 추가' : `미션 ${missionStatus.label}`) : '후원';
-    const displayAmt = isMissionAddition && missionStatus.proposal ? eventAmt : rawAmt;
+    const label = isMission ? (isMissionAddition && missionStatus.pending ? '미션 추가' : `미션 ${missionStatus.label}`) : '후원';
+    const displayAmt = isMissionAddition && missionStatus.pending ? eventAmt : rawAmt;
     const amountText = isMission && !missionStatus.success ? `${displayAmt.toLocaleString()}원` : `${countedAmt.toLocaleString()}원`;
-    const missionAdditionHint = isMissionAddition && missionStatus.proposal
+    const missionAdditionHint = isMissionAddition && missionStatus.pending
       ? missionMeta.title
         ? ` (미션: ${missionMeta.title})`
         : missionMeta.rootAmount>0
@@ -1752,6 +1770,8 @@ function handleDonation(donation){
     div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText}${missionAdditionHint} ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
     if(isMission && missionStatus.proposal && !isMissionAddition){
       chatAddMissionProposal(time, nick||'익명의 후원자', rawAmt, msg);
+    } else if(isMission && isMissionAddition && missionStatus.pending && !shouldCountMission && (missionId || missionEventId)){
+      chatAddMissionAddition(time, nick||'익명의 후원자', eventAmt, msg, missionMeta.title || msg);
     } else if(shouldShowInChatLog){
       log.appendChild(div);
       log.scrollTop=log.scrollHeight;
@@ -1779,10 +1799,12 @@ function handleDonation(donation){
     if(isMission){
       const key = missionRecordKey || `${time}_${nick}_${rawAmt}_${msg}`;
       const prev = missionRecords[key] || { countedAmt: 0, rawAmt: 0, nick: nick||'익명의 후원자', additions: {} };
-      const delta = countedAmt - toDonationAmount(prev.countedAmt);
+      const previousCountedAmt = toDonationAmount(prev.countedAmt);
+      const nextCountedAmt = isMissionAddition && shouldCountMission ? previousCountedAmt + countedAmt : countedAmt;
+      const delta = nextCountedAmt - previousCountedAmt;
       missionRecords[key] = {
         ...prev,
-        countedAmt,
+        countedAmt: nextCountedAmt,
         rawAmt: Math.max(toDonationAmount(prev.rawAmt), rawAmt),
         nick: prev.nick||nick||'익명의 후원자',
         msg: msg || prev.msg || '',
@@ -1796,10 +1818,13 @@ function handleDonation(donation){
         failed: missionStatus.failed,
         updatedAt: Date.now()
       };
-      if(shouldCountMission && delta){
+      if(shouldCountMission && (isMissionAddition || delta)){
         settlementEntries.forEach(entry=>addMissionAmount(entry.nick, entry.amount));
       } else {
         addMissionAmount(missionRecords[key].nick, delta);
+      }
+      if(shouldCountMission && !isMissionAddition){
+        recentMissionSettlement = { key, status: { ...missionStatus }, at: Date.now() };
       }
       renderMission();
     } else {
@@ -2020,8 +2045,10 @@ window.loadSession=async(sessionId)=>{
       if(item._type==='chat'){
         const {time,nick,msg}=item;
         const isMissionProposal = item.chatType === 'mission_proposal';
-        div.style.cssText=`padding:${isMissionProposal?'3px':'2px'} 0;border-bottom:0.5px solid var(--border);${isMissionProposal?'background:rgba(245,158,11,.08)':''}`;
-        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:${isMissionProposal?'#f59e0b':'var(--accent)'};font-weight:${isMissionProposal?'700':'600'}">${isMissionProposal?'🎯 ':''}${nick}</span><span style="color:var(--text2)">: ${msg}</span>`;
+        const isMissionAddition = item.chatType === 'mission_addition';
+        const isMissionLog = isMissionProposal || isMissionAddition;
+        div.style.cssText=`padding:${isMissionLog?'3px':'2px'} 0;border-bottom:0.5px solid var(--border);${isMissionLog?'background:rgba(245,158,11,.08)':''}`;
+        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:${isMissionLog?'#f59e0b':'var(--accent)'};font-weight:${isMissionLog?'700':'600'}">${isMissionLog?'🎯 ':''}${nick}</span><span style="color:var(--text2)">: ${msg}</span>`;
         chatLogs.push({time,nick,msg});
         userMap[nick]=(userMap[nick]||0)+1;
       } else {
@@ -2167,7 +2194,7 @@ window.chatClear=()=>{
   ['chat-count','stat-total','stat-users'].forEach(id=>document.getElementById(id).textContent='0');
   document.getElementById('stat-top').innerHTML='';
   doneMap={}; doneAnon=0; renderDone();
-  missionMap={}; missionAnon=0; missionRecords={}; recentMissionEventMap={}; renderMission();
+  missionMap={}; missionAnon=0; missionRecords={}; recentMissionEventMap={}; recentMissionSettlement=null; renderMission();
 };
 window.chatDownload=()=>{
   if(!chatLogs.length){ alert('수집된 채팅이 없어요.'); return; }
