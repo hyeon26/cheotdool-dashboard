@@ -1461,6 +1461,10 @@ function getAmountFromKeys(source, keys){
   }
   return 0;
 }
+function getMissionSettlementAmount(extras, donation){
+  return getAmountFromKeys(extras, ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount'])
+    || getAmountFromKeys(donation, ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount']);
+}
 function firstTextValue(...values){
   for(const value of values){
     const text = String(value || '').trim();
@@ -1470,6 +1474,8 @@ function firstTextValue(...values){
 }
 function getBaseMissionId(extras, donation){
   return firstTextValue(
+    extras?.relatedMissionDonationId,
+    donation?.relatedMissionDonationId,
     extras?.missionDonationId,
     extras?.missionId,
     extras?.missionDonationNo,
@@ -1483,7 +1489,13 @@ function getBaseMissionId(extras, donation){
   );
 }
 function getMissionEventId(extras, donation){
+  const type = getPayloadType(extras, donation);
+  const dtype = String(extras?.donationType || donation?.donationType || '').toUpperCase();
+  const participationMissionId = (dtype==='MISSION_PARTICIPATION' || type==='DONATION_MISSION_PARTICIPATION')
+    ? firstTextValue(extras?.missionDonationId, donation?.missionDonationId)
+    : '';
   return firstTextValue(
+    participationMissionId,
     extras?.donationId,
     extras?.payId,
     extras?.historyId,
@@ -1546,6 +1558,21 @@ function getMissionSettlementEntries(record, fallbackNick, fallbackAmount, missi
     amount: missionStatus?.failed ? getFailedMissionAmount(item.amount) : item.amount
   })).filter(item=>item.amount>0);
 }
+function getMissionContributionKey(record, eventId, nick, amount){
+  if(eventId && record?.additions?.[eventId]) return eventId;
+  const targetNick = String(nick || '').trim();
+  const targetAmount = toDonationAmount(amount);
+  const match = Object.entries(record?.additions || {}).find(([,value])=>
+    String((typeof value==='object' && value.nick) || '').trim() === targetNick &&
+    toDonationAmount(typeof value==='object' ? value.amount : value) === targetAmount
+  );
+  return match ? match[0] : '';
+}
+function getMissionContributionTarget(record, eventId, nick, fallbackAmount=0){
+  const additionKey = getMissionContributionKey(record, eventId, nick, fallbackAmount);
+  const addition = additionKey ? record?.additions?.[additionKey] : null;
+  return toDonationAmount(typeof addition==='object' ? addition.amount : addition) || toDonationAmount(fallbackAmount);
+}
 function getMissionDisplayMeta(record, fallbackMsg=''){
   const title = String(record?.msg || fallbackMsg || '').trim();
   const baseAmount = toDonationAmount(record?.baseAmount);
@@ -1555,8 +1582,7 @@ function getMissionDisplayMeta(record, fallbackMsg=''){
 }
 function pickMissionAmount(extras, donation, missionStatus, fallbackTarget=0, missionRecord=null){
   if(missionStatus?.failed){
-    const settled = getAmountFromKeys(extras, ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount'])
-      || getAmountFromKeys(donation, ['settlementPayAmount','missionSettlementAmount','realPayAmount','rewardPayAmount','missionFailPayAmount']);
+    const settled = getMissionSettlementAmount(extras, donation);
     if(settled>0) return settled;
     const recordedFailureAmount = getFailedMissionRecordAmount(missionRecord, fallbackTarget);
     if(recordedFailureAmount>0) return recordedFailureAmount;
@@ -1609,6 +1635,18 @@ function resolveMissionRecordKey(preferredKey, missionEventId, nick, msg){
   if(sameMessage.length===1) return sameMessage[0][0];
   return preferredKey || messageKey;
 }
+function resolveMissionAdditionRecordKey(nick, amount){
+  const targetNick = String(nick || '').trim();
+  const targetAmount = toDonationAmount(amount);
+  if(!targetNick || !targetAmount) return '';
+  const matches = Object.entries(missionRecords).filter(([,record])=>
+    Object.values(record?.additions || {}).some(value=>
+      String((typeof value==='object' && value.nick) || '').trim() === targetNick &&
+      toDonationAmount(typeof value==='object' ? value.amount : value) === targetAmount
+    )
+  );
+  return matches.length===1 ? matches[0][0] : '';
+}
 function safeDocId(value){ return String(value || '').replace(/[\/#?]/g, '_'); }
 function renderDone(){
   const total=doneAnon+Object.values(doneMap).reduce((s,v)=>s+toDonationAmount(v),0);
@@ -1642,12 +1680,33 @@ function handleDonation(donation){
     const missionId = baseMissionId || missionEventId;
     const isMissionAddition = isMissionAdditionType(dtype, extras, donation);
     const isMission = dtypeUpper==='MISSION' || dtypeUpper==='MISSION_PARTICIPATION' || isMissionProgressEvent(extras, donation) || !!extras?.missionDonationId || !!extras?.missionId || !!donation?.missionDonationId || !!donation?.missionId;
-    const missionStatus = getMissionStatusInfo(extras, donation);
+    let missionStatus = getMissionStatusInfo(extras, donation);
     const msg = donation.msg || extras?.missionText || extras?.donationText || extras?.message || '';
-    const missionRecordKey = isMission ? resolveMissionRecordKey(missionId, missionEventId, nick, msg) : '';
+    const incomingAmount = getDonationAmount(extras, donation);
+    let missionRecordKey = isMission ? resolveMissionRecordKey(missionId, missionEventId, nick, msg) : '';
+    if(isMissionAddition && (!missionRecordKey || !missionRecords[missionRecordKey])){
+      missionRecordKey = resolveMissionAdditionRecordKey(nick, incomingAmount) || missionRecordKey;
+    }
     const previousMissionRecord = isMission ? missionRecords[missionRecordKey] : null;
     const previousMissionTarget = isMission ? toDonationAmount(previousMissionRecord?.rawAmt) : 0;
+    const settlementAmount = isMission ? getMissionSettlementAmount(extras, donation) : 0;
+    const contributionKey = isMissionAddition ? getMissionContributionKey(previousMissionRecord, missionEventId, nick, incomingAmount) : '';
+    const contributionTarget = isMissionAddition ? getMissionContributionTarget(previousMissionRecord, missionEventId, nick, incomingAmount) : 0;
+    if(isMissionAddition && missionStatus.proposal && !missionStatus.status && previousMissionRecord?.status){
+      const recordStatus = getMissionStatusInfo({ status: previousMissionRecord.status, success: previousMissionRecord.success });
+      if(!recordStatus.pending) missionStatus = recordStatus;
+    }
+    if(isMission && missionStatus.pending && settlementAmount){
+      const targetAmount = contributionTarget || incomingAmount || previousMissionTarget;
+      const failed = targetAmount>0 && settlementAmount < targetAmount;
+      missionStatus = { ...missionStatus, pending: false, proposal: false, success: !failed, failed, label: failed ? '실패' : '성공' };
+    }
     let rawAmt = isMission ? pickMissionAmount(extras, donation, missionStatus, previousMissionTarget, previousMissionRecord) : getDonationAmount(extras, donation);
+    if(isMissionAddition && !missionStatus.pending && contributionTarget){
+      rawAmt = settlementAmount || (missionStatus.failed ? getFailedMissionAmount(contributionTarget) : contributionTarget);
+    } else if(isMissionAddition && settlementAmount && !missionStatus.pending) {
+      rawAmt = settlementAmount;
+    }
     const eventAmt = rawAmt;
     if(isMission && missionId){
       const dedupeKey = missionEventId ? `${missionId}_${missionEventId}` : `${missionId}_${missionStatus.status}_${missionStatus.success}_${rawAmt}_${nick}`;
@@ -1659,6 +1718,7 @@ function handleDonation(donation){
     }
     const isRejectedMission = isMission && missionStatus.status === 'REJECTED';
     const shouldCountMission = isMission && !missionStatus.pending && !isRejectedMission;
+    if(isMissionAddition && shouldCountMission && contributionKey && previousMissionRecord?.settledContributions?.[contributionKey]) return;
     if(isMission && missionStatus.pending && rawAmt){
       rawAmt = rememberMissionTargetAmount(missionRecordKey, nick, rawAmt, isMissionAddition, missionEventId, { missionId, baseMissionId, msg });
     }
@@ -1668,17 +1728,19 @@ function handleDonation(donation){
     if(!rawAmt && !(isMission && missionId && !missionStatus.pending && !isRejectedMission)) return;
     const countedAmt = isMission ? (shouldCountMission ? rawAmt : 0) : rawAmt;
     const settlementEntries = isMission && shouldCountMission
-      ? getMissionSettlementEntries(previousMissionRecord, nick||'익명의 후원자', rawAmt, missionStatus)
+      ? isMissionAddition
+        ? [{ key: contributionKey || missionEventId || 'single', nick: nick||'익명의 후원자', amount: rawAmt, rawAmount: contributionTarget || getDonationAmount(extras, donation) || rawAmt }]
+        : getMissionSettlementEntries(previousMissionRecord, nick||'익명의 후원자', rawAmt, missionStatus)
       : [{ key:'single', nick: nick||'익명의 후원자', amount: countedAmt, rawAmount: rawAmt }];
     const time = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     const log=document.getElementById('chat-log'), div=document.createElement('div');
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
     const icon = isMission ? '🎯' : '💰';
     const missionMeta = isMission ? getMissionDisplayMeta(previousMissionRecord, msg) : { title:'', rootAmount:0 };
-    const label = isMission ? (isMissionAddition && missionStatus.pending ? '미션 추가' : `미션 ${missionStatus.label}`) : '후원';
-    const displayAmt = isMissionAddition && missionStatus.pending ? eventAmt : rawAmt;
+    const label = isMission ? (isMissionAddition && missionStatus.proposal ? '미션 추가' : `미션 ${missionStatus.label}`) : '후원';
+    const displayAmt = isMissionAddition && missionStatus.proposal ? eventAmt : rawAmt;
     const amountText = isMission && !missionStatus.success ? `${displayAmt.toLocaleString()}원` : `${countedAmt.toLocaleString()}원`;
-    const missionAdditionHint = isMissionAddition && missionStatus.pending
+    const missionAdditionHint = isMissionAddition && missionStatus.proposal
       ? missionMeta.title
         ? ` (미션: ${missionMeta.title})`
         : missionMeta.rootAmount>0
@@ -1725,8 +1787,13 @@ function handleDonation(donation){
         nick: prev.nick||nick||'익명의 후원자',
         msg: msg || prev.msg || '',
         eventIds: { ...(prev.eventIds || {}), ...(missionId ? { [missionId]: true } : {}), ...(missionEventId ? { [missionEventId]: true } : {}) },
+        settledContributions: {
+          ...(prev.settledContributions || {}),
+          ...(shouldCountMission ? Object.fromEntries(settlementEntries.map(entry=>[entry.key, true])) : {})
+        },
         status: missionStatus.status,
         success: missionStatus.success,
+        failed: missionStatus.failed,
         updatedAt: Date.now()
       };
       if(shouldCountMission && delta){
