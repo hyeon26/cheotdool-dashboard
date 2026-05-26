@@ -1789,6 +1789,15 @@ function handleDonation(donation){
       chatAddMissionProposal(time, nick||'익명의 후원자', rawAmt, msg);
     } else if(isMission && isMissionAddition && missionStatus.pending && !shouldCountMission && !missionAdditionLogged && (missionId || missionEventId)){
       chatAddMissionAddition(time, nick||'익명의 후원자', eventAmt, msg, missionMeta.title || msg);
+    } else if(isMission && shouldCountMission){
+      settlementEntries.forEach(entry=>{
+        const sdiv=document.createElement('div');
+        const entryAmountText = `${toDonationAmount(entry.amount).toLocaleString()}원`;
+        sdiv.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
+        sdiv.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${entry.nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${entryAmountText} 미션 ${missionStatus.label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+        log.appendChild(sdiv);
+      });
+      log.scrollTop=log.scrollHeight;
     } else if(shouldShowInChatLog){
       log.appendChild(div);
       log.scrollTop=log.scrollHeight;
