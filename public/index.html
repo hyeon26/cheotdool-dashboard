@@ -1425,18 +1425,20 @@ function getMissionStatusInfo(extras, donation={}){
   const status = String(getMissionStatusValue(extras, donation) || '').toUpperCase();
   const successStatuses = ['SUCCESS','SUCCEEDED','SUCCESSFUL','COMPLETED','COMPLETE','DONE'];
   const failStatuses = ['FAIL','FAILED','CANCELED','CANCELLED','EXPIRED','REJECTED'];
-  const pendingStatuses = ['PENDING','WAITING','IN_PROGRESS','ONGOING','OPEN','APPROVED','ACCEPTED','STARTED','RUNNING'];
+  const proposalStatuses = ['PENDING','WAITING','OPEN'];
+  const pendingStatuses = [...proposalStatuses,'IN_PROGRESS','ONGOING','APPROVED','ACCEPTED','STARTED','RUNNING'];
   const statusIsSuccess = successStatuses.includes(status);
   const statusIsFailed = failStatuses.includes(status);
   const statusIsPending = pendingStatuses.includes(status);
+  const proposal = proposalStatuses.includes(status) || (!status && !statusIsSuccess && !statusIsFailed);
   const successValue = getMissionSuccessValue(extras, donation);
   const explicitSuccess = successValue === true || successValue === 'true' || successValue === 'Y' || successValue === 1 || successValue === '1';
   const explicitFail = successValue === false || successValue === 'false' || successValue === 'N' || successValue === 0 || successValue === '0';
   const success = (explicitSuccess || statusIsSuccess) && !explicitFail && !statusIsPending;
   const failed = (explicitFail && !statusIsPending) || statusIsFailed;
   const pending = statusIsPending || (!success && !failed);
-  const label = pending ? '제시' : success ? '성공' : failed ? '실패' : '대기';
-  return { status, success, failed, pending, label };
+  const label = proposal ? '제시' : pending ? '진행' : success ? '성공' : failed ? '실패' : '대기';
+  return { status, success, failed, pending, proposal, label };
 }
 function getMissionHistoryLabel(item={}){
   if(item.missionStatusLabel) return `미션 ${item.missionStatusLabel}`;
@@ -1684,9 +1686,9 @@ function handleDonation(donation){
           : ''
       : '';
     const shouldShowInDonationFeed = !isMission || shouldCountMission;
-    const shouldShowInChatLog = !isMission || missionStatus.pending || isMissionAddition || shouldCountMission;
+    const shouldShowInChatLog = !isMission || missionStatus.proposal || isMissionAddition || shouldCountMission;
     div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText}${missionAdditionHint} ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
-    if(isMission && missionStatus.pending && !isMissionAddition){
+    if(isMission && missionStatus.proposal && !isMissionAddition){
       chatAddMissionProposal(time, nick||'익명의 후원자', rawAmt, msg);
     } else if(shouldShowInChatLog){
       log.appendChild(div);
