@@ -1294,6 +1294,7 @@ let doneLogs=[];
 let recentMissionEventMap={};
 let recentMissionSettlement=null;
 let recentMissionAdditionChatMap={};
+let missionContributionRecords={};
 function chatSetStatus(on){
   chatConnected=on;
   const dot=document.getElementById('chat-status-dot'), text=document.getElementById('chat-status-text');
@@ -1589,6 +1590,41 @@ function getMissionSettlementEntries(record, fallbackNick, fallbackAmount, missi
     amount: missionStatus?.failed ? getFailedMissionAmount(item.amount) : item.amount
   })).filter(item=>item.amount>0);
 }
+function rememberMissionContribution(missionKey, contributionKey, nick, amount, isAddition, msg=''){
+  if(!missionKey) return;
+  const normalizedAmount = toDonationAmount(amount);
+  if(!normalizedAmount) return;
+  const record = missionContributionRecords[missionKey] || { base: null, additions: {}, msg: '' };
+  if(isAddition){
+    const key = contributionKey || `${nick||'익명의 후원자'}_${normalizedAmount}`;
+    if(!record.additions[key]) record.additions[key] = { key, nick: nick||'익명의 후원자', amount: normalizedAmount };
+  } else {
+    record.base = { key:'base', nick: nick||'익명의 후원자', amount: normalizedAmount };
+  }
+  record.msg = msg || record.msg || '';
+  record.updatedAt = Date.now();
+  missionContributionRecords[missionKey] = record;
+}
+function getMissionSettlementRecord(missionKey, record){
+  const tracked = missionContributionRecords[missionKey];
+  if(!tracked) return record;
+  const additions = { ...(record?.additions || {}) };
+  Object.entries(tracked.additions || {}).forEach(([key,value])=>{
+    if(!additions[key]) additions[key] = value;
+  });
+  const additionsTotal = Object.values(additions).reduce((sum,value)=>sum + toDonationAmount(typeof value==='object' ? value.amount : value), 0);
+  const baseAmount = toDonationAmount(record?.baseAmount) || toDonationAmount(tracked.base?.amount);
+  const rawAmt = Math.max(toDonationAmount(record?.rawAmt), baseAmount + additionsTotal);
+  return {
+    ...(record || {}),
+    additions,
+    baseAmount,
+    baseNick: record?.baseNick || tracked.base?.nick || record?.nick,
+    nick: record?.nick || tracked.base?.nick,
+    msg: record?.msg || tracked.msg || '',
+    rawAmt
+  };
+}
 function getMissionContributionKey(record, eventId, nick, amount){
   if(eventId && record?.additions?.[eventId]) return eventId;
   const targetNick = String(nick || '').trim();
@@ -1777,16 +1813,20 @@ function handleDonation(donation){
     if(isMissionAddition && shouldCountMission && settlementContributionKey && previousMissionRecord?.settledContributions?.[settlementContributionKey]) return;
     if(isMission && missionStatus.pending && rawAmt){
       rawAmt = rememberMissionTargetAmount(missionRecordKey, nick, rawAmt, isMissionAddition, missionEventId, { missionId, baseMissionId, msg });
+      rememberMissionContribution(missionRecordKey || missionId, missionEventId, nick, eventAmt || rawAmt, isMissionAddition, msg);
     }
     if(!rawAmt && isMission && previousMissionTarget){
       rawAmt = pickMissionAmount(extras, donation, missionStatus, previousMissionTarget, previousMissionRecord);
     }
     if(!rawAmt && !(isMission && missionId && !missionStatus.pending && !isRejectedMission)) return;
     const countedAmt = isMission ? (shouldCountMission ? rawAmt : 0) : rawAmt;
+    const settlementRecord = isMission && shouldCountMission && !isMissionAddition
+      ? getMissionSettlementRecord(missionRecordKey || missionId, previousMissionRecord)
+      : previousMissionRecord;
     const settlementEntries = isMission && shouldCountMission
       ? isMissionAddition
         ? [{ key: settlementContributionKey || missionEventId || 'single', nick: nick||'익명의 후원자', amount: rawAmt, rawAmount: contributionTarget || getDonationAmount(extras, donation) || rawAmt }]
-        : getMissionSettlementEntries(previousMissionRecord, nick||'익명의 후원자', rawAmt, missionStatus)
+        : getMissionSettlementEntries(settlementRecord, nick||'익명의 후원자', rawAmt, missionStatus)
       : [{ key:'single', nick: nick||'익명의 후원자', amount: countedAmt, rawAmount: rawAmt }];
     const log=document.getElementById('chat-log'), div=document.createElement('div');
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
@@ -1838,7 +1878,7 @@ function handleDonation(donation){
     }
     if(isMission){
       const key = missionRecordKey || `${time}_${nick}_${rawAmt}_${msg}`;
-      const prev = missionRecords[key] || { countedAmt: 0, rawAmt: 0, nick: nick||'익명의 후원자', additions: {} };
+      const prev = (shouldCountMission && !isMissionAddition ? settlementRecord : missionRecords[key]) || { countedAmt: 0, rawAmt: 0, nick: nick||'익명의 후원자', additions: {} };
       const previousCountedAmt = toDonationAmount(prev.countedAmt);
       const nextCountedAmt = isMissionAddition && shouldCountMission ? previousCountedAmt + countedAmt : countedAmt;
       const delta = nextCountedAmt - previousCountedAmt;
@@ -2235,7 +2275,7 @@ window.chatClear=()=>{
   ['chat-count','stat-total','stat-users'].forEach(id=>document.getElementById(id).textContent='0');
   document.getElementById('stat-top').innerHTML='';
   doneMap={}; doneAnon=0; renderDone();
-  missionMap={}; missionAnon=0; missionRecords={}; recentMissionEventMap={}; recentMissionSettlement=null; recentMissionAdditionChatMap={}; renderMission();
+  missionMap={}; missionAnon=0; missionRecords={}; missionContributionRecords={}; recentMissionEventMap={}; recentMissionSettlement=null; recentMissionAdditionChatMap={}; renderMission();
 };
 window.chatDownload=()=>{
   if(!chatLogs.length){ alert('수집된 채팅이 없어요.'); return; }
