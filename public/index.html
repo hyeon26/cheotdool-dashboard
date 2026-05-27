@@ -1348,6 +1348,25 @@ function chatAddMissionAddition(time,nick,amount,msg,missionTitle=''){
   div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원${hint} 미션 추가!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
   log.appendChild(div); log.scrollTop=log.scrollHeight;
 }
+function chatAddMissionSettlement(time,nick,amount,msg,missionStatus,missionTitle=''){
+  const safeNick = nick || '익명의 후원자';
+  const statusLabel = missionStatus?.label || '정산';
+  const hint = missionTitle ? ` (미션: ${missionTitle})` : '';
+  const text = `🎯 미션 ${statusLabel} · ${toDonationAmount(amount).toLocaleString()}원${hint}${msg ? ` · ${msg}` : ''}`;
+  saveChatRecord(time, safeNick, text, {
+    chatType:'mission_settlement',
+    missionLabel:`미션 ${statusLabel}`,
+    amount: toDonationAmount(amount),
+    missionTitle,
+    missionStatus: missionStatus?.status || '',
+    missionSuccess: !!missionStatus?.success,
+    missionFailed: !!missionStatus?.failed
+  });
+  const log=document.getElementById('chat-log'), div=document.createElement('div');
+  div.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
+  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원 미션 ${statusLabel}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+  log.appendChild(div); log.scrollTop=log.scrollHeight;
+}
 
 window.saveStreamYoutube=async()=>{
   if(!currentStreamId) return;
@@ -1791,13 +1810,8 @@ function handleDonation(donation){
       chatAddMissionAddition(time, nick||'익명의 후원자', eventAmt, msg, missionMeta.title || msg);
     } else if(isMission && shouldCountMission){
       settlementEntries.forEach(entry=>{
-        const sdiv=document.createElement('div');
-        const entryAmountText = `${toDonationAmount(entry.amount).toLocaleString()}원`;
-        sdiv.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
-        sdiv.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${entry.nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${entryAmountText} 미션 ${missionStatus.label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
-        log.appendChild(sdiv);
+        chatAddMissionSettlement(time, entry.nick||'익명의 후원자', entry.amount, msg, missionStatus, missionMeta.title || msg);
       });
-      log.scrollTop=log.scrollHeight;
     } else if(shouldShowInChatLog){
       log.appendChild(div);
       log.scrollTop=log.scrollHeight;
@@ -2072,10 +2086,11 @@ window.loadSession=async(sessionId)=>{
         const {time,nick,msg}=item;
         const isMissionProposal = item.chatType === 'mission_proposal';
         const isMissionAddition = item.chatType === 'mission_addition';
-        const isMissionLog = isMissionProposal || isMissionAddition;
+        const isMissionSettlement = item.chatType === 'mission_settlement';
+        const isMissionLog = isMissionProposal || isMissionAddition || isMissionSettlement;
         div.style.cssText=`padding:${isMissionLog?'3px':'2px'} 0;border-bottom:0.5px solid var(--border);${isMissionLog?'background:rgba(245,158,11,.08)':''}`;
         div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:${isMissionLog?'#f59e0b':'var(--accent)'};font-weight:${isMissionLog?'700':'600'}">${isMissionLog?'🎯 ':''}${nick}</span><span style="color:var(--text2)">: ${msg}</span>`;
-        chatLogs.push({time,nick,msg});
+        chatLogs.push({time,nick,msg,chatType:item.chatType,missionLabel:item.missionLabel,amount:item.amount,missionTitle:item.missionTitle});
         userMap[nick]=(userMap[nick]||0)+1;
       } else {
         const {nick,type,time,message}=item;
