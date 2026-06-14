@@ -8,108 +8,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#111111;
-  --surface:#1c1c1c;
-  --surface2:#252525;
-  --border:rgba(255,255,255,.08);
-  --accent:#2ecc71;
-  --accent2:#27ae60;
-  --text:#f0effe;
-  --text2:#888888;
-  --text3:#4a4a4a;
-  --radius:14px;
-  --shadow:0 4px 24px rgba(0,0,0,.4);
-}
+:root{--bg:#111111;--surface:#1c1c1c;--surface2:#252525;--border:rgba(255,255,255,.08);--accent:#2ecc71;--accent2:#27ae60;--text:#f0effe;--text2:#888888;--text3:#4a4a4a;--radius:14px;--shadow:0 4px 24px rgba(0,0,0,.4)}
 body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background:none;pointer-events:none;z-index:0}
 .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:36px 26px 80px;transform:scale(.95);transform-origin:top center}
-.header{text-align:center;margin-bottom:40px;position:relative;padding-top:56px}
+.header{text-align:center;margin-bottom:40px;position:relative;padding-top:104px}
 .header-badge{position:absolute;top:0;left:0;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(255,255,255,.06);font-size:16px;font-weight:800;color:#ccc;letter-spacing:.4px}
+.header-manual-raffle{position:absolute;top:52px;left:0}
+.btn-header-raffle{font-size:14px;padding:8px 14px;border-radius:999px;box-shadow:0 2px 12px rgba(245,158,11,.28)}
 .brand-logo{width:26px;height:26px;border-radius:7px;object-fit:cover;display:block}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.header h1{font-size:44px;font-weight:900;letter-spacing:-.7px;margin-bottom:10px}
-.header p{font-size:22px;color:#888}
-.ws-dot{width:14px;height:14px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
-.ws-dot.on{background:#2ecc71;box-shadow:0 0 10px #2ecc71;animation:blink 1.4s infinite}
-.ws-dot.err{background:#ef4444}
-.btn{padding:12px 22px;border-radius:10px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;transition:opacity .15s,transform .1s;letter-spacing:.2px}
-.btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(46,204,113,.3)}
-.btn-danger{background:#ef4444;color:#fff}
-.btn-ghost{background:#2a2a2a;color:#888;border:1px solid rgba(255,255,255,.1)}
-.card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:28px;margin-bottom:24px;box-shadow:var(--shadow)}
-.card-title{font-size:20px;font-weight:800;color:#4a4a4a;letter-spacing:.4px;margin-bottom:18px}
-.vote-title-input{width:100%;padding:10px 0;background:transparent;border:none;border-bottom:2px solid #2ecc71;color:#fff;font-size:32px;font-weight:900;font-family:'Pretendard',sans-serif;outline:none;letter-spacing:-.5px;transition:border-color .2s;display:block;margin-bottom:24px}
-.vote-title-input:focus{border-color:#2ecc71}
-.vote-title-input::placeholder{color:#2a2a2a}
-.option-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.option-num{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.option-input{flex:1;padding:14px 16px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:22px;font-family:inherit;outline:none;transition:border-color .15s;font-weight:700}
-.option-input:focus{border-color:rgba(255,255,255,.3)}
-.option-input::placeholder{color:#4a4a4a}
-.btn-remove-opt{width:34px;height:34px;border-radius:50%;background:transparent;border:1px solid rgba(255,255,255,.1);color:#555;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.btn-remove-opt:hover{background:#ef4444;border-color:#ef4444;color:#fff}
-.vote-item{margin-bottom:18px;cursor:pointer;min-height:72px}
-.vote-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;min-height:32px;gap:12px}
-.vote-item-name{font-size:22px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;min-width:0;word-break:break-word}
-.vote-badge{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.vote-count{font-size:19px;font-weight:800;color:#888;min-width:120px;text-align:right;flex-shrink:0}
-.vote-bar-wrap{height:14px;background:#2a2a2a;border-radius:20px;overflow:hidden}
-.vote-bar{height:100%;border-radius:20px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:0}
-.vote-item.first .vote-item-name{color:#fbbf24}
-.vote-item.first .vote-badge{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
-.vote-item.first .vote-bar{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
-.vote-item:not(.first) .vote-bar{background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
-.modal.show{display:flex}
-.modal-box{width:min(1100px,98vw);max-height:90vh;overflow:auto;background:#1e1e1e;border:1px solid rgba(255,255,255,.09);border-radius:16px;box-shadow:var(--shadow);padding:24px}
-.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-.modal-title{font-size:20px;font-weight:900;color:var(--text)}
-.modal-close{background:transparent;color:#888;border:1px solid rgba(255,255,255,.1);width:38px;height:38px;border-radius:50%;font-size:22px;cursor:pointer;line-height:1}
-.modal-voters{display:flex;flex-wrap:wrap;gap:8px}
-.modal-empty{color:#4a4a4a;font-size:16px}
-.ballot-stage{position:relative;height:160px;border-radius:12px;background:linear-gradient(180deg,rgba(0,229,100,.10),rgba(0,229,100,.02));overflow:hidden;border:1px solid rgba(255,255,255,.07)}
-.pile-wrap{position:absolute;bottom:0;left:0;right:0;height:200px;z-index:2;pointer-events:none}
-.pile-paper{position:absolute;bottom:0;width:44px;height:58px;border-radius:3px 3px 2px 2px;background:linear-gradient(170deg,#ffffff,#eeeeee);border:1px solid rgba(0,0,0,.1);box-shadow:0 2px 8px rgba(0,0,0,.28);transform-origin:bottom center}
-.pile-paper::after{content:'';position:absolute;top:8px;left:6px;right:6px;height:2px;background:rgba(0,0,0,.1);border-radius:2px;box-shadow:0 5px 0 rgba(0,0,0,.06),0 10px 0 rgba(0,0,0,.04)}
-.ballot-fly{position:absolute;width:44px;height:58px;border-radius:3px 3px 2px 2px;background:linear-gradient(170deg,#ffffff,#eeeeee);border:1px solid rgba(0,0,0,.1);box-shadow:0 6px 18px rgba(0,0,0,.3);z-index:10;pointer-events:none}
-.ballot-fly::after{content:'';position:absolute;top:8px;left:6px;right:6px;height:2px;background:rgba(0,0,0,.1);border-radius:2px;box-shadow:0 5px 0 rgba(0,0,0,.06),0 10px 0 rgba(0,0,0,.04)}
-.empty{text-align:center;padding:40px 20px;color:#4a4a4a}
-.empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#1e1e1e;border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--text);box-shadow:var(--shadow);transition:transform .3s;z-index:999;white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.voter-chip{position:relative;padding:6px 12px;border-radius:999px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);font-size:13px;font-weight:800;color:#ccc;cursor:default;transition:background .15s,border-color .15s,color .15s;display:inline-block;line-height:1.4}
-.voter-chip.lit{background:#2ecc71;border-color:#2ecc71;color:#000;box-shadow:0 0 16px rgba(46,204,113,.7)}
-.voter-chip.won{background:#1a6e3e;border-color:#2ecc71;color:#2ecc71;opacity:.7;text-decoration:line-through}
-.voter-chip.won-cancelled{background:#2a2a2a;border-color:#555;color:#555;opacity:.5;text-decoration:line-through}
-.btn-raffle{padding:10px 20px;border-radius:10px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;box-shadow:0 2px 12px rgba(245,158,11,.4);transition:opacity .15s,transform .1s}
-.btn-raffle:hover{opacity:.88}.btn-raffle:active{transform:scale(.97)}
-.btn-raffle:disabled{opacity:.4;cursor:not-allowed}
-.manual-raffle-input{width:100%;min-height:150px;padding:14px 16px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:18px;font-family:inherit;font-weight:700;outline:none;resize:vertical;line-height:1.55}
-.manual-raffle-input:focus{border-color:rgba(46,204,113,.55)}
-.manual-raffle-help{font-size:13px;color:#666;margin-top:10px;line-height:1.5}
-.manual-raffle-preview{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
-.winner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;opacity:0;transition:opacity .4s;pointer-events:none;overflow:hidden}
-.winner-overlay.show{opacity:1;pointer-events:all}
-.winner-crown{font-size:90px;margin-bottom:12px;animation:crown-bounce .5s ease infinite alternate;display:inline-block;filter:drop-shadow(0 0 24px #f59e0b)}
-@keyframes crown-bounce{from{transform:translateY(0) scale(1) rotate(-4deg)}to{transform:translateY(-14px) scale(1.12) rotate(4deg)}}
-.winner-label{font-size:18px;font-weight:700;color:#f59e0b;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;animation:fadein .4s ease}
-.winner-name{font-size:72px;font-weight:900;color:#fff;text-align:center;padding:0 32px;letter-spacing:-1px;animation:winner-pop .6s cubic-bezier(.175,.885,.32,1.275) both;text-shadow:0 0 40px rgba(255,255,255,.3)}
-@keyframes winner-pop{from{transform:scale(.3) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
-.winner-option{font-size:20px;color:#888;margin-top:10px;animation:fadein .6s .3s ease both}
-.confetti-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-.cf{position:absolute;border-radius:2px;will-change:transform,opacity}
-.winner-close{padding:12px 36px;border-radius:12px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:#2ecc71;color:#000;box-shadow:0 2px 16px rgba(46,204,113,.4)}
-.winner-close:hover{opacity:.88}
-.winner-chat-wrap{margin-top:28px;width:min(540px,90vw)}
-.winner-chat-feed{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px 20px;height:150px;overflow-y:auto;display:flex;flex-direction:column;justify-content:center}
-.winner-chat-feed::-webkit-scrollbar{width:3px}.winner-chat-feed::-webkit-scrollbar-thumb{background:#444;border-radius:3px}
-.winner-chat-msg{font-size:24px;font-weight:700;color:#fff;text-align:center;line-height:1.7;animation:fadein .3s ease}
-@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:480px){
-  .header{padding-top:0}.header-badge{position:static;margin:0 auto 14px auto}.header h1{font-size:30px}.header p{font-size:16px}.wrap{padding:20px 14px 50px}.vote-title-input{font-size:26px}.winner-name{font-size:48px}.vote-item-header{align-items:flex-start;flex-direction:column}.vote-count{text-align:left;min-width:0}
-}
+.header h1{font-size:44px;font-weight:900;letter-spacing:-.7px;margin-bottom:10px}.header p{font-size:22px;color:#888}
+.ws-dot{width:14px;height:14px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}.ws-dot.on{background:#2ecc71;box-shadow:0 0 10px #2ecc71;animation:blink 1.4s infinite}.ws-dot.err{background:#ef4444}
+.btn{padding:12px 22px;border-radius:10px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;transition:opacity .15s,transform .1s;letter-spacing:.2px}.btn:hover{opacity:.85}.btn:active{transform:scale(.97)}.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(46,204,113,.3)}.btn-danger{background:#ef4444;color:#fff}.btn-ghost{background:#2a2a2a;color:#888;border:1px solid rgba(255,255,255,.1)}
+.card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:28px;margin-bottom:24px;box-shadow:var(--shadow)}.card-title{font-size:20px;font-weight:800;color:#4a4a4a;letter-spacing:.4px;margin-bottom:18px}
+.vote-title-input{width:100%;padding:10px 0;background:transparent;border:none;border-bottom:2px solid #2ecc71;color:#fff;font-size:32px;font-weight:900;font-family:'Pretendard',sans-serif;outline:none;letter-spacing:-.5px;transition:border-color .2s;display:block;margin-bottom:24px}.vote-title-input:focus{border-color:#2ecc71}.vote-title-input::placeholder{color:#2a2a2a}
+.option-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}.option-num{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}.option-input{flex:1;padding:14px 16px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:22px;font-family:inherit;outline:none;transition:border-color .15s;font-weight:700}.option-input:focus{border-color:rgba(255,255,255,.3)}.option-input::placeholder{color:#4a4a4a}.btn-remove-opt{width:34px;height:34px;border-radius:50%;background:transparent;border:1px solid rgba(255,255,255,.1);color:#555;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}.btn-remove-opt:hover{background:#ef4444;border-color:#ef4444;color:#fff}
+.vote-item{margin-bottom:18px;cursor:pointer;min-height:72px}.vote-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;min-height:32px;gap:12px}.vote-item-name{font-size:22px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;min-width:0;word-break:break-word}.vote-badge{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}.vote-count{font-size:19px;font-weight:800;color:#888;min-width:120px;text-align:right;flex-shrink:0}.vote-bar-wrap{height:14px;background:#2a2a2a;border-radius:20px;overflow:hidden}.vote-bar{height:100%;border-radius:20px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:0}.vote-item.first .vote-item-name{color:#fbbf24}.vote-item.first .vote-badge{background:linear-gradient(135deg,#f59e0b,#fbbf24)}.vote-item.first .vote-bar{background:linear-gradient(90deg,#f59e0b,#fbbf24)}.vote-item:not(.first) .vote-bar{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}.modal.show{display:flex}.modal-box{width:min(1100px,98vw);max-height:90vh;overflow:auto;background:#1e1e1e;border:1px solid rgba(255,255,255,.09);border-radius:16px;box-shadow:var(--shadow);padding:24px}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.modal-title{font-size:20px;font-weight:900;color:var(--text)}.modal-close{background:transparent;color:#888;border:1px solid rgba(255,255,255,.1);width:38px;height:38px;border-radius:50%;font-size:22px;cursor:pointer;line-height:1}.modal-voters{display:flex;flex-wrap:wrap;gap:8px}.modal-empty{color:#4a4a4a;font-size:16px}
+.ballot-stage{position:relative;height:160px;border-radius:12px;background:linear-gradient(180deg,rgba(0,229,100,.10),rgba(0,229,100,.02));overflow:hidden;border:1px solid rgba(255,255,255,.07)}.pile-wrap{position:absolute;bottom:0;left:0;right:0;height:200px;z-index:2;pointer-events:none}.pile-paper{position:absolute;bottom:0;width:44px;height:58px;border-radius:3px 3px 2px 2px;background:linear-gradient(170deg,#ffffff,#eeeeee);border:1px solid rgba(0,0,0,.1);box-shadow:0 2px 8px rgba(0,0,0,.28);transform-origin:bottom center}.pile-paper::after{content:'';position:absolute;top:8px;left:6px;right:6px;height:2px;background:rgba(0,0,0,.1);border-radius:2px;box-shadow:0 5px 0 rgba(0,0,0,.06),0 10px 0 rgba(0,0,0,.04)}.ballot-fly{position:absolute;width:44px;height:58px;border-radius:3px 3px 2px 2px;background:linear-gradient(170deg,#ffffff,#eeeeee);border:1px solid rgba(0,0,0,.1);box-shadow:0 6px 18px rgba(0,0,0,.3);z-index:10;pointer-events:none}.ballot-fly::after{content:'';position:absolute;top:8px;left:6px;right:6px;height:2px;background:rgba(0,0,0,.1);border-radius:2px;box-shadow:0 5px 0 rgba(0,0,0,.06),0 10px 0 rgba(0,0,0,.04)}
+.empty{text-align:center;padding:40px 20px;color:#4a4a4a}.empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#1e1e1e;border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--text);box-shadow:var(--shadow);transition:transform .3s;z-index:999;white-space:nowrap}.toast.show{transform:translateX(-50%) translateY(0)}
+.voter-chip{position:relative;padding:6px 12px;border-radius:999px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);font-size:13px;font-weight:800;color:#ccc;cursor:default;transition:background .15s,border-color .15s,color .15s;display:inline-block;line-height:1.4}.voter-chip.lit{background:#2ecc71;border-color:#2ecc71;color:#000;box-shadow:0 0 16px rgba(46,204,113,.7)}.voter-chip.won{background:#1a6e3e;border-color:#2ecc71;color:#2ecc71;opacity:.7;text-decoration:line-through}.voter-chip.won-cancelled{background:#2a2a2a;border-color:#555;color:#555;opacity:.5;text-decoration:line-through}.btn-raffle{padding:10px 20px;border-radius:10px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;box-shadow:0 2px 12px rgba(245,158,11,.4);transition:opacity .15s,transform .1s}.btn-raffle:hover{opacity:.88}.btn-raffle:active{transform:scale(.97)}.btn-raffle:disabled{opacity:.4;cursor:not-allowed}
+.manual-raffle-input{width:100%;min-height:180px;padding:14px 16px;background:#2a2a2a;border:1.5px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:18px;font-family:inherit;font-weight:700;outline:none;resize:vertical;line-height:1.55}.manual-raffle-input:focus{border-color:rgba(46,204,113,.55)}.manual-raffle-help{font-size:13px;color:#666;margin-top:10px;line-height:1.5}.manual-raffle-preview{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}.manual-modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.winner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;opacity:0;transition:opacity .4s;pointer-events:none;overflow:hidden}.winner-overlay.show{opacity:1;pointer-events:all}.winner-crown{font-size:90px;margin-bottom:12px;animation:crown-bounce .5s ease infinite alternate;display:inline-block;filter:drop-shadow(0 0 24px #f59e0b)}@keyframes crown-bounce{from{transform:translateY(0) scale(1) rotate(-4deg)}to{transform:translateY(-14px) scale(1.12) rotate(4deg)}}.winner-label{font-size:18px;font-weight:700;color:#f59e0b;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;animation:fadein .4s ease}.winner-name{font-size:72px;font-weight:900;color:#fff;text-align:center;padding:0 32px;letter-spacing:-1px;animation:winner-pop .6s cubic-bezier(.175,.885,.32,1.275) both;text-shadow:0 0 40px rgba(255,255,255,.3)}@keyframes winner-pop{from{transform:scale(.3) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}.winner-option{font-size:20px;color:#888;margin-top:10px;animation:fadein .6s .3s ease both}.confetti-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}.cf{position:absolute;border-radius:2px;will-change:transform,opacity}.winner-close{padding:12px 36px;border-radius:12px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer;border:none;background:#2ecc71;color:#000;box-shadow:0 2px 16px rgba(46,204,113,.4)}.winner-close:hover{opacity:.88}.winner-chat-wrap{margin-top:28px;width:min(540px,90vw)}.winner-chat-feed{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px 20px;height:150px;overflow-y:auto;display:flex;flex-direction:column;justify-content:center}.winner-chat-feed::-webkit-scrollbar{width:3px}.winner-chat-feed::-webkit-scrollbar-thumb{background:#444;border-radius:3px}.winner-chat-msg{font-size:24px;font-weight:700;color:#fff;text-align:center;line-height:1.7;animation:fadein .3s ease}@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:480px){.header{padding-top:0}.header-badge{position:static;margin:0 auto 10px auto}.header-manual-raffle{position:static;margin:0 auto 18px auto}.header h1{font-size:30px}.header p{font-size:16px}.wrap{padding:20px 14px 50px}.vote-title-input{font-size:26px}.winner-name{font-size:48px}.vote-item-header{align-items:flex-start;flex-direction:column}.vote-count{text-align:left;min-width:0}.manual-modal-actions .btn,.manual-modal-actions .btn-raffle{width:100%}}
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -117,459 +39,63 @@ body::before{content:'';position:fixed;inset:0;background:none;pointer-events:no
 <div class="wrap">
   <div class="header">
     <div class="header-badge"><img class="brand-logo" src="/logo.png" alt="첫째와둘째 로고"/>첫째와둘째</div>
+    <div class="header-manual-raffle"><button class="btn-raffle btn-header-raffle" onclick="openManualRaffleModal()">🎰 직접 명단 추첨</button></div>
     <h1>🗳 실시간 채팅 투표</h1>
     <p>채팅창에 <strong>항목 이름</strong>, <strong>번호</strong>, 또는 <strong>!투표 번호</strong>를 입력하면 투표됩니다</p>
   </div>
-
   <div class="card" id="setup-card">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="ws-dot" id="ws-dot"></div>
-        <span id="ws-label" style="font-size:14px;font-weight:700;color:#888">연결 안됨</span>
-      </div>
-      <div id="status-right" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary" id="btn-start" onclick="startVote()" style="padding:8px 16px;font-size:15px">▶ 투표 시작</button>
-        <button class="btn btn-ghost" id="btn-reset" onclick="resetVote()" style="padding:8px 16px;font-size:15px">🗑 초기화</button>
-        <button class="btn btn-danger" id="btn-end" onclick="endVote()" style="display:none;padding:8px 16px;font-size:15px">⏹ 투표 종료</button>
-      </div>
+      <div style="display:flex;align-items:center;gap:8px"><div class="ws-dot" id="ws-dot"></div><span id="ws-label" style="font-size:14px;font-weight:700;color:#888">연결 안됨</span></div>
+      <div id="status-right" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" id="btn-start" onclick="startVote()" style="padding:8px 16px;font-size:15px">▶ 투표 시작</button><button class="btn btn-ghost" id="btn-reset" onclick="resetVote()" style="padding:8px 16px;font-size:15px">🗑 초기화</button><button class="btn btn-danger" id="btn-end" onclick="endVote()" style="display:none;padding:8px 16px;font-size:15px">⏹ 투표 종료</button></div>
     </div>
     <input id="vote-title-input" class="vote-title-input" placeholder="투표 제목을 입력하세요" autocomplete="off"/>
     <div id="options-wrap"></div>
-    <div id="results-inline" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-size:16px;font-weight:800;color:#4a4a4a">결과</div>
-        <div style="font-size:13px;font-weight:700;color:#555">총 <span id="total-votes" style="color:#888;font-size:16px;font-weight:900">0</span>표</div>
-      </div>
-      <div id="results"></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn btn-ghost" id="btn-add-option" onclick="addOption()" style="flex:1">＋ 항목 추가</button>
-    </div>
+    <div id="results-inline" style="display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-size:16px;font-weight:800;color:#4a4a4a">결과</div><div style="font-size:13px;font-weight:700;color:#555">총 <span id="total-votes" style="color:#888;font-size:16px;font-weight:900">0</span>표</div></div><div id="results"></div></div>
+    <div style="display:flex;gap:8px;margin-top:4px"><button class="btn btn-ghost" id="btn-add-option" onclick="addOption()" style="flex:1">＋ 항목 추가</button></div>
   </div>
+  <div class="card" id="anim-card" style="display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:14px;font-weight:700;color:#4a4a4a">🗳 투표 진행 중</div><div style="font-size:11px;color:#333">투표가 들어올 때마다 투표용지가 떨어져요</div></div><div class="ballot-stage" id="ballot-stage"><div class="pile-wrap" id="pile-wrap"></div></div></div>
+</div>
 
-  <div class="card" id="manual-raffle-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap">
-      <div>
-        <div style="font-size:20px;font-weight:900;color:#aaa">🎰 직접 명단 추첨</div>
-        <div style="font-size:13px;color:#555;margin-top:4px">투표 없이 입력한 명단에서 바로 당첨자를 뽑습니다</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-ghost" onclick="applyManualRaffle()" style="padding:8px 16px;font-size:15px">명단 적용</button>
-        <button class="btn-raffle" id="btn-manual-raffle" onclick="openManualRaffle()" disabled>🎰 명단에서 뽑기</button>
-        <button class="btn btn-ghost" onclick="resetManualRaffle()" style="padding:8px 16px;font-size:15px">초기화</button>
-      </div>
-    </div>
+<div class="modal" id="manual-raffle-modal" onclick="onManualRaffleBackdrop(event)">
+  <div class="modal-box">
+    <div class="modal-head"><div class="modal-title">🎰 직접 명단 추첨</div><button class="modal-close" onclick="closeManualRaffleModal()" aria-label="닫기">×</button></div>
     <textarea id="manual-raffle-input" class="manual-raffle-input" placeholder="한 줄에 한 명씩 입력하세요&#10;예)&#10;첫째&#10;둘째&#10;시청자A&#10;시청자B"></textarea>
     <div class="manual-raffle-help">줄바꿈 또는 쉼표로 구분해서 입력할 수 있습니다. 중복 이름은 한 명으로 처리됩니다.</div>
+    <div class="manual-modal-actions"><button class="btn btn-ghost" onclick="applyManualRaffle()">명단 적용</button><button class="btn-raffle" id="btn-manual-raffle" onclick="startManualRaffle()" disabled>🎰 명단에서 뽑기</button><button class="btn btn-ghost" onclick="resetManualRaffle()">초기화</button></div>
     <div class="manual-raffle-preview" id="manual-raffle-preview"><div class="modal-empty">명단을 입력하고 적용을 눌러주세요</div></div>
   </div>
-
-  <div class="card" id="anim-card" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div style="font-size:14px;font-weight:700;color:#4a4a4a">🗳 투표 진행 중</div>
-      <div style="font-size:11px;color:#333">투표가 들어올 때마다 투표용지가 떨어져요</div>
-    </div>
-    <div class="ballot-stage" id="ballot-stage"><div class="pile-wrap" id="pile-wrap"></div></div>
-  </div>
 </div>
 
-<div class="modal" id="voter-modal" onclick="onModalBackdrop(event)">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-title" id="modal-title">투표자 목록</div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <button class="btn-raffle" id="btn-raffle" onclick="startRaffle()">🎰 당첨자 뽑기</button>
-        <button class="modal-close" onclick="closeVoterModal()" aria-label="닫기">×</button>
-      </div>
-    </div>
-    <div class="modal-voters" id="modal-voters"></div>
-  </div>
-</div>
-
-<div class="winner-overlay" id="winner-overlay">
-  <div class="confetti-wrap" id="confetti-wrap"></div>
-  <div class="winner-crown">🏆</div>
-  <div class="winner-label">🎉 당첨자 🎉</div>
-  <div class="winner-name" id="winner-name"></div>
-  <div class="winner-option" id="winner-option"></div>
-  <div class="winner-chat-wrap"><div class="winner-chat-feed" id="winner-chat-feed"></div></div>
-  <div style="display:flex;gap:14px;margin-top:32px">
-    <button class="winner-close" style="background:#333;color:#aaa;box-shadow:none" onclick="cancelWinner()">✕ 취소</button>
-    <button class="winner-close" onclick="closeWinner()">✓ 확인</button>
-  </div>
-</div>
-
+<div class="modal" id="voter-modal" onclick="onModalBackdrop(event)"><div class="modal-box"><div class="modal-head"><div class="modal-title" id="modal-title">투표자 목록</div><div style="display:flex;gap:10px;align-items:center"><button class="btn-raffle" id="btn-raffle" onclick="startRaffle()">🎰 당첨자 뽑기</button><button class="modal-close" onclick="closeVoterModal()" aria-label="닫기">×</button></div></div><div class="modal-voters" id="modal-voters"></div></div></div>
+<div class="winner-overlay" id="winner-overlay"><div class="confetti-wrap" id="confetti-wrap"></div><div class="winner-crown">🏆</div><div class="winner-label">🎉 당첨자 🎉</div><div class="winner-name" id="winner-name"></div><div class="winner-option" id="winner-option"></div><div class="winner-chat-wrap"><div class="winner-chat-feed" id="winner-chat-feed"></div></div><div style="display:flex;gap:14px;margin-top:32px"><button class="winner-close" style="background:#333;color:#aaa;box-shadow:none" onclick="cancelWinner()">✕ 취소</button><button class="winner-close" onclick="closeWinner()">✓ 확인</button></div></div>
 <div class="toast" id="toast"></div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
 import { getFirestore, collection, addDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-
-const _app = initializeApp({
-  apiKey:'AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw',
-  authDomain:'firstandsecond-b449c.firebaseapp.com',
-  projectId:'firstandsecond-b449c',
-  storageBucket:'firstandsecond-b449c.firebasestorage.app',
-  messagingSenderId:'794631097887',
-  appId:'1:794631097887:web:e03fe5f49915f4c741cf2a'
-});
-const _db = getFirestore(_app);
-let _voteDocId = null;
-
-async function upsertVoteResult(title, winnersArr, startedAt){
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  const startTime = startedAt ? startedAt.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) : '';
-  const endTime = today.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-  const duration = startedAt ? `${startTime} ~ ${endTime}` : endTime;
-  const nl = String.fromCharCode(10);
-  const note = winnersArr.length ? ['당첨자', ...winnersArr.map((n,i)=>`${i+1}. ${n}`)].join(nl) : '';
-  const data = { title: title||'투표', date: dateStr, duration, note, files:[] };
-  if(_voteDocId){
-    await updateDoc(doc(_db,'contents',_voteDocId), data);
-  } else {
-    const ref = await addDoc(collection(_db,'contents'),{ ...data, createdAt: serverTimestamp() });
-    _voteDocId = ref.id;
-  }
-}
-window._resetVoteDoc = ()=>{ _voteDocId=null; };
-window._upsertVoteResult = upsertVoteResult;
+const _app=initializeApp({apiKey:'AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw',authDomain:'firstandsecond-b449c.firebaseapp.com',projectId:'firstandsecond-b449c',storageBucket:'firstandsecond-b449c.firebasestorage.app',messagingSenderId:'794631097887',appId:'1:794631097887:web:e03fe5f49915f4c741cf2a'});
+const _db=getFirestore(_app);let _voteDocId=null;
+async function upsertVoteResult(title,winnersArr,startedAt){const today=new Date();const dateStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;const startTime=startedAt?startedAt.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'';const endTime=today.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});const duration=startedAt?`${startTime} ~ ${endTime}`:endTime;const nl=String.fromCharCode(10);const note=winnersArr.length?['당첨자',...winnersArr.map((n,i)=>`${i+1}. ${n}`)].join(nl):'';const data={title:title||'투표',date:dateStr,duration,note,files:[]};if(_voteDocId){await updateDoc(doc(_db,'contents',_voteDocId),data)}else{const ref=await addDoc(collection(_db,'contents'),{...data,createdAt:serverTimestamp()});_voteDocId=ref.id}}
+window._resetVoteDoc=()=>{_voteDocId=null};window._upsertVoteResult=upsertVoteResult;
 </script>
-
 <script>
-const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
-const MANUAL_RAFFLE_KEY='__manual_raffle__';
-
-let voteOptions={}, voteCounts={}, voterMap={}, voteStartedAt=null, winnersLog=[];
-let ws=null, wsConnected=false, wsReconnectTimer=null, wsAutoReconnect=true, channelIdCache=null;
-let voteRunning=false, voteEnded=false, pileCount=0;
-let optionRows=[{id:1,label:''},{id:2,label:''}], optRowId=3;
-let currentRaffleKey=null, raffleVoters=[], winnersSet=new Set();
-let manualRaffleNames=[], manualWinnersSet=new Set();
-let currentWinner=null;
-let ballotQueue=0, ballotRunning=false;
-
-function escapeHTML(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
-function escapeAttr(str){ return escapeHTML(str); }
-
-function renderOptionInputs(){
-  document.getElementById('options-wrap').innerHTML=optionRows.map((o,i)=>`
-    <div class="option-row">
-      <div class="option-num">${i+1}</div>
-      <input class="option-input" id="opt-${o.id}" value="${escapeAttr(o.label)}" placeholder="항목 이름"/>
-      ${optionRows.length>1?`<button class="btn-remove-opt" onclick="removeOption(${o.id})">×</button>`:'<div style="width:34px"></div>'}
-    </div>`).join('');
-}
-function syncOptionInputs(){ optionRows.forEach(o=>{ const el=document.getElementById(`opt-${o.id}`); if(el) o.label=el.value; }); }
-function addOption(){ syncOptionInputs(); optionRows.push({id:optRowId++,label:''}); renderOptionInputs(); updateVoteControls(); }
-function removeOption(id){ if(optionRows.length<=1) return; syncOptionInputs(); optionRows=optionRows.filter(o=>o.id!==id); renderOptionInputs(); updateVoteControls(); }
-function applyOptions(){
-  optionRows.forEach(o=>{ o.label=document.getElementById(`opt-${o.id}`)?.value?.trim()||''; });
-  voteOptions={}; window.optionColors={};
-  optionRows.forEach((o,i)=>{ voteOptions[String(i+1)]=o.label||String(i+1); });
-  const nc={}; Object.keys(voteOptions).forEach(k=>{ nc[k]=voteCounts[k]||0; });
-  voteCounts=nc; renderResults();
-}
-
-function updateVoteControls(){
-  document.getElementById('btn-start').style.display=voteRunning?'none':'';
-  document.getElementById('btn-reset').style.display=voteRunning?'none':'';
-  document.getElementById('btn-end').style.display=voteRunning?'':'none';
-  const setupVisible=!voteRunning&&!voteEnded;
-  document.getElementById('btn-add-option').style.display=setupVisible?'':'none';
-  document.getElementById('vote-title-input').readOnly=!setupVisible;
-  document.querySelectorAll('.option-input').forEach(el=>{ el.readOnly=!setupVisible; });
-  document.querySelectorAll('.btn-remove-opt').forEach(el=>{ el.style.display=setupVisible?'':'none'; });
-}
-function toggleVotePanels(){
-  const show=!voteRunning&&voteEnded;
-  document.getElementById('anim-card').style.display=voteRunning?'':'none';
-  document.getElementById('results-inline').style.display=show?'':'none';
-  document.getElementById('options-wrap').style.display=show?'none':'';
-}
-function startVote(){
-  applyOptions(); voteRunning=true; voteEnded=false; voteStartedAt=new Date(); winnersLog=[];
-  pileCount=0; renderPile(); updateVoteControls(); toggleVotePanels(); showToast('▶ 투표 진행 중');
-}
-function endVote(){ voteRunning=false; voteEnded=true; updateVoteControls(); toggleVotePanels(); showToast('⏹ 투표 종료 · 결과를 확인하세요'); }
-function resetVote(){
-  voteCounts={}; voterMap={}; voteEnded=false; pileCount=0; voteStartedAt=null; winnersLog=[];
-  Object.keys(voteOptions).forEach(k=>{ voteCounts[k]=0; });
-  renderPile(); updateStats(); renderResults(); toggleVotePanels(); closeVoterModal(); updateVoteControls();
-  wsAutoReconnect=true; if(!wsConnected) wsConnect(); showToast('🗑 초기화 완료');
-}
-
-function seededRand(seed){ return ((seed*9301+49297)%233280)/233280; }
-const PILE_STAGE_W=800, VISIBLE_PILE=60;
-function addPilePaper(idx){
-  const wrap=document.getElementById('pile-wrap'); if(!wrap) return;
-  const ww=wrap.parentElement?.offsetWidth||PILE_STAGE_W;
-  const p=document.createElement('div'); p.className='pile-paper'; p.id=`pile-${idx}`;
-  const xPos=Math.floor(seededRand(idx*3+1)*Math.max(ww-70,100))+8;
-  const angle=(seededRand(idx*7+2)*28)-14;
-  const stackY=Math.min(idx,VISIBLE_PILE)*1.5;
-  p.style.cssText=`left:${xPos}px;bottom:${stackY}px;transform:rotate(${angle}deg);`;
-  wrap.appendChild(p); while(wrap.children.length>VISIBLE_PILE) wrap.removeChild(wrap.firstChild);
-}
-function renderPile(){ const wrap=document.getElementById('pile-wrap'); if(wrap&&pileCount===0) wrap.innerHTML=''; }
-function launchBallot(){ ballotQueue++; if(!ballotRunning) processBallotQueue(); }
-function processBallotQueue(){
-  if(ballotQueue===0){ ballotRunning=false; return; }
-  ballotRunning=true;
-  const batch=Math.min(ballotQueue,8); ballotQueue-=batch;
-  const stage=document.getElementById('ballot-stage'); if(!stage){ ballotRunning=false; return; }
-  const sw=stage.offsetWidth, sh=stage.offsetHeight;
-  for(let b=0;b<batch;b++){
-    setTimeout(()=>{
-      const paper=document.createElement('div'); paper.className='ballot-fly';
-      const targetX=Math.floor(Math.random()*(sw-60))+8;
-      const targetY=sh-66;
-      paper.style.cssText=`top:-70px;left:${targetX}px;opacity:1;transform:rotate(${Math.random()*20-10}deg);`;
-      stage.appendChild(paper);
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        const dur=260+Math.random()*100;
-        paper.style.transition=`top ${dur}ms cubic-bezier(.55,0,1,1)`;
-        paper.style.top=`${targetY}px`;
-        setTimeout(()=>{
-          const wrap=document.getElementById('pile-wrap');
-          if(wrap){
-            const p=document.createElement('div'); p.className='pile-paper';
-            const angle=(Math.random()*28)-14;
-            p.style.cssText=`left:${targetX}px;bottom:0px;transform:rotate(${angle}deg);position:absolute;`;
-            wrap.appendChild(p); while(wrap.children.length>60) wrap.removeChild(wrap.firstChild);
-          }
-          paper.remove(); pileCount++;
-        },dur);
-      }));
-    },b*40);
-  }
-  setTimeout(processBallotQueue,500);
-}
-
-async function wsConnect(){
-  try{
-    setWsStatus('connecting');
-    const liveRes=await fetch('/api/live-status').then(r=>r.json());
-    if(!liveRes?.content?.chatChannelId) throw new Error('방송 중이 아니에요');
-    channelIdCache=liveRes.content.chatChannelId;
-    const tokenRes=await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`).then(r=>r.json());
-    const accessToken=tokenRes?.content?.accessToken||'';
-    ws=new WebSocket('wss://kr-ss1.chat.naver.com/chat');
-    ws.onopen=()=>{
-      ws.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:channelIdCache,bdy:{uid:null,devType:2001,accTkn:accessToken,auth:'READ'},tid:1}));
-      setWsStatus(true);
-    };
-    ws.onmessage=onWsMsg;
-    ws.onclose=()=>{ setWsStatus(false); if(wsAutoReconnect&&channelIdCache) wsReconnectTimer=setTimeout(wsConnect,5000); };
-    ws.onerror=()=>setWsStatus('err');
-  }catch(e){ setWsStatus('err'); showToast('⚠️ '+e.message); }
-}
-function wsDisconnect(){ wsAutoReconnect=false; clearTimeout(wsReconnectTimer); if(ws) ws.close(); setWsStatus(false); }
-function onWsMsg(e){
-  try{
-    const msg=JSON.parse(e.data);
-    if(msg.cmd===93101&&msg.bdy){
-      const chats=Array.isArray(msg.bdy)?msg.bdy:[msg.bdy];
-      chats.forEach(chat=>{
-        if(!chat.msg||!chat.profile) return;
-        const profile=typeof chat.profile==='string'?JSON.parse(chat.profile):chat.profile;
-        const nick=profile.nickname||'익명';
-        processVote(nick,chat.msg.trim());
-        if(currentWinner&&nick===currentWinner) addWinnerChat(chat.msg.trim());
-      });
-    }
-    if(msg.cmd===0) ws.send(JSON.stringify({ver:'2',cmd:10000}));
-  }catch(err){}
-}
-function addWinnerChat(msg){
-  const feed=document.getElementById('winner-chat-feed'); if(!feed) return;
-  const div=document.createElement('div'); div.className='winner-chat-msg'; div.textContent=msg;
-  feed.appendChild(div); feed.scrollTop=feed.scrollHeight;
-}
-setInterval(()=>{ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ver:'2',cmd:10000})); },20000);
-
-function parseNumberToken(text){
-  if(!/^[0-9]+$/.test(text)) return NaN;
-  const first=text[0];
-  if([...text].every(ch=>ch===first)) return Number(first);
-  return Number(text);
-}
-function processVote(nick,msg){
-  if(!voteRunning) return;
-  const text=msg.trim();
-  const keys=Object.keys(voteOptions); if(!keys.length) return;
-  let matchedKey=null;
-  const cmdPrefix='!투표';
-  if(text.startsWith(cmdPrefix)){
-    const num=parseNumberToken(text.slice(cmdPrefix.length).trim());
-    if(!Number.isNaN(num)&&num>=1&&num<=keys.length) matchedKey=keys[num-1];
-  }
-  if(!matchedKey) matchedKey=keys.find(k=>voteOptions[k]===text);
-  if(!matchedKey){
-    const num=parseNumberToken(text);
-    if(!Number.isNaN(num)&&num>=1&&num<=keys.length) matchedKey=keys[num-1];
-  }
-  if(!matchedKey) return;
-  const prev=voterMap[nick]; if(prev===matchedKey) return;
-  if(prev) voteCounts[prev]=Math.max(0,(voteCounts[prev]||0)-1);
-  voterMap[nick]=matchedKey;
-  voteCounts[matchedKey]=(voteCounts[matchedKey]||0)+1;
-  updateStats(); renderResults(); launchBallot();
-}
-function updateStats(){ const el=document.getElementById('total-votes'); if(el) el.textContent=Object.values(voteCounts).reduce((s,v)=>s+v,0); }
-function renderResults(){
-  const el=document.getElementById('results'); if(!el) return;
-  const keys=Object.keys(voteOptions).length>0?Object.keys(voteOptions):Object.keys(voteCounts);
-  if(!keys.length){ el.innerHTML=`<div class="empty"><div class="empty-icon">🗳</div><div>항목을 설정하고 투표를 시작하세요</div></div>`; return; }
-  const total=Object.values(voteCounts).reduce((s,v)=>s+v,0)||1;
-  const sorted=keys.slice().sort((a,b)=>(voteCounts[b]||0)-(voteCounts[a]||0));
-  const maxV=voteCounts[sorted[0]]||0;
-  if(!window.optionColors) window.optionColors={};
-  keys.forEach(k=>{ if(!window.optionColors[k]) window.optionColors[k]=`hsl(${Math.floor(Math.random()*360)},70%,58%)`; });
-  Object.keys(window.optionColors).forEach(k=>{ if(!keys.includes(k)) delete window.optionColors[k]; });
-  el.innerHTML=keys.map(k=>{
-    const cnt=voteCounts[k]||0, pct=Math.round(cnt/total*100), isFirst=cnt>0&&cnt===maxV, col=window.optionColors[k];
-    return `<div class="vote-item${isFirst?' first':''}" onclick="showOptionVoters('${escapeAttr(k)}')">
-      <div class="vote-item-header">
-        <div class="vote-item-name"><div class="vote-badge" style="${!isFirst?`background:${col}`:''}">${escapeHTML(k)}</div>${escapeHTML(voteOptions[k]||k)}</div>
-        <div class="vote-count">${cnt}표 (${pct}%)</div>
-      </div>
-      <div class="vote-bar-wrap"><div class="vote-bar" style="width:${pct}%;${!isFirst?`background:${col}`:''}"></div></div>
-    </div>`;
-  }).join('');
-}
-
-function showOptionVoters(key){
-  const voters=Object.keys(voterMap).filter(n=>voterMap[n]===key);
-  const label=voteOptions[key]||`${key}번`;
-  currentRaffleKey=key; raffleVoters=voters; winnersSet=new Set();
-  document.getElementById('modal-title').textContent=`${label} (${voters.length}명)`;
-  document.getElementById('modal-voters').innerHTML=voters.length?voters.map((n,i)=>`<span class="voter-chip" id="chip-${i}">${escapeHTML(n)}</span>`).join(''):`<div class="modal-empty">투표 인원 없음</div>`;
-  const btn=document.getElementById('btn-raffle'); btn.disabled=!voters.length;
-  document.getElementById('voter-modal').classList.add('show');
-}
-
-function parseManualRaffleNames(text){
-  const seen=new Set();
-  const sep=String.fromCharCode(10);
-  return String(text||'').replaceAll(',',sep).split(sep).map(v=>v.trim()).filter(Boolean).filter(name=>{ if(seen.has(name)) return false; seen.add(name); return true; });
-}
-function renderManualRafflePreview(){
-  const el=document.getElementById('manual-raffle-preview'), btn=document.getElementById('btn-manual-raffle');
-  if(!el||!btn) return;
-  btn.disabled=!manualRaffleNames.some(n=>!manualWinnersSet.has(n));
-  if(!manualRaffleNames.length){ el.innerHTML='<div class="modal-empty">명단을 입력하고 적용을 눌러주세요</div>'; return; }
-  el.innerHTML=manualRaffleNames.map(n=>`<span class="voter-chip ${manualWinnersSet.has(n)?'won':''}">${escapeHTML(n)}</span>`).join('');
-}
-function applyManualRaffle(){
-  const input=document.getElementById('manual-raffle-input');
-  manualRaffleNames=parseManualRaffleNames(input?.value||''); manualWinnersSet=new Set(); renderManualRafflePreview();
-  showToast(manualRaffleNames.length?`명단 ${manualRaffleNames.length}명 적용 완료`:'명단을 입력해주세요');
-}
-function resetManualRaffle(){
-  manualRaffleNames=[]; manualWinnersSet=new Set();
-  const input=document.getElementById('manual-raffle-input'); if(input) input.value='';
-  renderManualRafflePreview(); showToast('직접 명단 초기화 완료');
-}
-function openManualRaffle(){
-  if(!manualRaffleNames.length){ applyManualRaffle(); if(!manualRaffleNames.length) return; }
-  currentRaffleKey=MANUAL_RAFFLE_KEY; raffleVoters=manualRaffleNames.slice(); winnersSet=manualWinnersSet;
-  document.getElementById('modal-title').textContent=`직접 명단 추첨 (${manualRaffleNames.length}명)`;
-  document.getElementById('modal-voters').innerHTML=manualRaffleNames.map((n,i)=>`<span class="voter-chip ${manualWinnersSet.has(n)?'won':''}" id="chip-${i}">${escapeHTML(n)}</span>`).join('');
-  const btn=document.getElementById('btn-raffle'); btn.disabled=!manualRaffleNames.some(n=>!manualWinnersSet.has(n));
-  document.getElementById('voter-modal').classList.add('show');
-}
-
-function startRaffle(){
-  if(!raffleVoters.length) return;
-  const eligible=raffleVoters.map((n,i)=>({name:n,idx:i})).filter(o=>!winnersSet.has(o.name));
-  if(!eligible.length){ showToast('🎉 모든 참가자가 당첨됐어요!'); return; }
-  const btn=document.getElementById('btn-raffle'); btn.disabled=true;
-  const chips=raffleVoters.map((_,i)=>document.getElementById(`chip-${i}`));
-  const total=eligible.length;
-  const winner=eligible[Math.floor(Math.random()*eligible.length)];
-  const SLOW_STEPS=8;
-  const winnerEligibleIdx=eligible.indexOf(winner);
-  const slowStartPos=(winnerEligibleIdx-SLOW_STEPS+1+total*100)%total;
-  const slowDelays=[80,150,230,330,450,600,780,1000].map(d=>d+Math.floor(Math.random()*40-20));
-  const laps=total<=10?3+Math.floor(Math.random()*3):total<=30?2+Math.floor(Math.random()*2):1+Math.floor(Math.random()*2);
-  const startOffset=Math.floor(Math.random()*total);
-  const fastFrames=total*laps+((slowStartPos-startOffset+total*100)%total);
-  const fastDelay=total<=10?60+Math.floor(Math.random()*40):total<=30?20+Math.floor(Math.random()*20):15+Math.floor(Math.random()*10);
-  let frame=0,lastLit=-1;
-  function litChip(eligiblePos,on){ const chip=chips[eligible[eligiblePos%total].idx]; if(!chip) return; chip.classList.toggle('lit',on); }
-  function step(){
-    if(lastLit>=0) litChip(lastLit,false);
-    if(frame>=fastFrames+SLOW_STEPS){
-      const winChip=chips[winner.idx]; if(winChip) winChip.classList.add('lit'); winChip?.scrollIntoView({block:'nearest',behavior:'smooth'});
-      setTimeout(()=>showWinner(winner.name),800); btn.disabled=false; return;
-    }
-    const pos=frame<fastFrames?(startOffset+frame)%total:(slowStartPos+(frame-fastFrames))%total;
-    litChip(pos,true); lastLit=pos;
-    const delay=frame<fastFrames?fastDelay:slowDelays[frame-fastFrames]; frame++; setTimeout(step,delay);
-  }
-  step();
-}
-
-const CF_COLORS=['#2ecc71','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#fff','#fbbf24'];
-function launchConfetti(){
-  const wrap=document.getElementById('confetti-wrap'); if(!wrap) return; wrap.innerHTML='';
-  const W=window.innerWidth,H=window.innerHeight;
-  [{x:W*.2,y:H,baseAngle:-Math.PI*.72},{x:W*.8,y:H,baseAngle:-Math.PI*.28}].forEach(origin=>{
-    for(let i=0;i<80;i++){
-      const el=document.createElement('div'); el.className='cf';
-      const color=CF_COLORS[Math.floor(Math.random()*CF_COLORS.length)], w=7+Math.random()*12, h=11+Math.random()*16;
-      el.style.cssText=`width:${w}px;height:${h}px;background:${color};border-radius:${Math.random()>.5?'50%':'2px'};position:absolute;left:0;top:0;`;
-      wrap.appendChild(el);
-      const angle=origin.baseAngle+(Math.random()-.5)*Math.PI*.6, speed=18+Math.random()*22;
-      let vx=Math.cos(angle)*speed, vy=Math.sin(angle)*speed, x=origin.x, y=origin.y, rot=Math.random()*360;
-      const rotSpeed=(Math.random()-.5)*18, gravity=.55, delay=Math.random()*300;
-      setTimeout(()=>{ let frame=0,maxFrames=140; function tick(){ vy+=gravity; x+=vx; y+=vy; vx*=.985; rot+=rotSpeed; el.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg)`; el.style.opacity=Math.max(0,1-frame/maxFrames); if(frame<maxFrames&&y<H+80){ frame++; requestAnimationFrame(tick); } else el.remove(); } requestAnimationFrame(tick); },delay);
-    }
-  });
-}
-function showWinner(name){
-  winnersSet.add(name); currentWinner=name; launchConfetti();
-  const idx=raffleVoters.indexOf(name); if(idx>=0){ const chip=document.getElementById(`chip-${idx}`); if(chip){ chip.classList.remove('lit'); chip.classList.add('won'); } }
-  const label=currentRaffleKey===MANUAL_RAFFLE_KEY?'직접 명단 추첨':(voteOptions[currentRaffleKey]||`${currentRaffleKey}번`);
-  document.getElementById('winner-name').textContent=name;
-  document.getElementById('winner-option').textContent=label;
-  document.getElementById('winner-chat-feed').innerHTML='';
-  document.getElementById('winner-overlay').classList.add('show');
-}
-function closeWinner(){
-  if(currentWinner){
-    if(currentRaffleKey===MANUAL_RAFFLE_KEY){
-      renderManualRafflePreview();
-      const btn=document.getElementById('btn-raffle'); if(btn) btn.disabled=!manualRaffleNames.some(n=>!manualWinnersSet.has(n));
-    } else {
-      winnersLog.push(currentWinner);
-      const voteTitle=document.getElementById('vote-title-input')?.value?.trim()||'투표';
-      if(window._upsertVoteResult) window._upsertVoteResult(voteTitle,[...winnersLog],voteStartedAt).catch(()=>{});
-    }
-  }
-  currentWinner=null; document.getElementById('winner-overlay').classList.remove('show');
-}
-function cancelWinner(){
-  if(currentWinner){
-    const chipIdx=raffleVoters.indexOf(currentWinner);
-    if(chipIdx>=0){ const chip=document.getElementById(`chip-${chipIdx}`); if(chip){ chip.classList.remove('won'); chip.classList.add('won-cancelled'); } }
-    if(currentRaffleKey===MANUAL_RAFFLE_KEY) renderManualRafflePreview();
-  }
-  currentWinner=null; document.getElementById('winner-overlay').classList.remove('show'); showToast('취소됨 · 다음 뽑기에서 제외돼요');
-}
-function closeVoterModal(){ document.getElementById('voter-modal').classList.remove('show'); }
-function onModalBackdrop(e){ if(e.target.id==='voter-modal') closeVoterModal(); }
-function setWsStatus(state){
-  const dot=document.getElementById('ws-dot'), label=document.getElementById('ws-label');
-  if(state===true){ wsConnected=true; wsAutoReconnect=true; dot.style.background=''; dot.className='ws-dot on'; label.textContent='채팅 연결됨'; }
-  else if(state==='connecting'){ dot.className='ws-dot'; dot.style.background='#f59e0b'; label.textContent='연결 중...'; }
-  else if(state==='err'){ wsConnected=false; dot.className='ws-dot err'; label.textContent='연결 실패'; voteRunning=false; updateVoteControls(); toggleVotePanels(); }
-  else{ wsConnected=false; dot.className='ws-dot'; dot.style.background=''; label.textContent='연결 안됨'; }
-}
-function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
-
-renderOptionInputs(); applyOptions(); renderResults(); updateVoteControls(); toggleVotePanels(); renderManualRafflePreview(); wsConnect();
+const CHANNEL_ID='48070f8882233efa7aee52519fee8fca';const MANUAL_RAFFLE_KEY='__manual_raffle__';
+let voteOptions={},voteCounts={},voterMap={},voteStartedAt=null,winnersLog=[];let ws=null,wsConnected=false,wsReconnectTimer=null,wsAutoReconnect=true,channelIdCache=null;let voteRunning=false,voteEnded=false,pileCount=0;let optionRows=[{id:1,label:''},{id:2,label:''}],optRowId=3;let currentRaffleKey=null,raffleVoters=[],winnersSet=new Set();let manualRaffleNames=[],manualWinnersSet=new Set();let currentWinner=null;let ballotQueue=0,ballotRunning=false;
+function escapeHTML(str){return String(str).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}function escapeAttr(str){return escapeHTML(str)}
+function renderOptionInputs(){document.getElementById('options-wrap').innerHTML=optionRows.map((o,i)=>`<div class="option-row"><div class="option-num">${i+1}</div><input class="option-input" id="opt-${o.id}" value="${escapeAttr(o.label)}" placeholder="항목 이름"/>${optionRows.length>1?`<button class="btn-remove-opt" onclick="removeOption(${o.id})">×</button>`:'<div style="width:34px"></div>'}</div>`).join('')}
+function syncOptionInputs(){optionRows.forEach(o=>{const el=document.getElementById(`opt-${o.id}`);if(el)o.label=el.value})}function addOption(){syncOptionInputs();optionRows.push({id:optRowId++,label:''});renderOptionInputs();updateVoteControls()}function removeOption(id){if(optionRows.length<=1)return;syncOptionInputs();optionRows=optionRows.filter(o=>o.id!==id);renderOptionInputs();updateVoteControls()}function applyOptions(){optionRows.forEach(o=>{o.label=document.getElementById(`opt-${o.id}`)?.value?.trim()||''});voteOptions={};window.optionColors={};optionRows.forEach((o,i)=>{voteOptions[String(i+1)]=o.label||String(i+1)});const nc={};Object.keys(voteOptions).forEach(k=>{nc[k]=voteCounts[k]||0});voteCounts=nc;renderResults()}
+function updateVoteControls(){document.getElementById('btn-start').style.display=voteRunning?'none':'';document.getElementById('btn-reset').style.display=voteRunning?'none':'';document.getElementById('btn-end').style.display=voteRunning?'':'none';const setupVisible=!voteRunning&&!voteEnded;document.getElementById('btn-add-option').style.display=setupVisible?'':'none';document.getElementById('vote-title-input').readOnly=!setupVisible;document.querySelectorAll('.option-input').forEach(el=>{el.readOnly=!setupVisible});document.querySelectorAll('.btn-remove-opt').forEach(el=>{el.style.display=setupVisible?'':'none'})}
+function toggleVotePanels(){const show=!voteRunning&&voteEnded;document.getElementById('anim-card').style.display=voteRunning?'':'none';document.getElementById('results-inline').style.display=show?'':'none';document.getElementById('options-wrap').style.display=show?'none':''}function startVote(){applyOptions();voteRunning=true;voteEnded=false;voteStartedAt=new Date();winnersLog=[];pileCount=0;renderPile();updateVoteControls();toggleVotePanels();showToast('▶ 투표 진행 중')}function endVote(){voteRunning=false;voteEnded=true;updateVoteControls();toggleVotePanels();showToast('⏹ 투표 종료 · 결과를 확인하세요')}function resetVote(){voteCounts={};voterMap={};voteEnded=false;pileCount=0;voteStartedAt=null;winnersLog=[];Object.keys(voteOptions).forEach(k=>{voteCounts[k]=0});renderPile();updateStats();renderResults();toggleVotePanels();closeVoterModal();updateVoteControls();wsAutoReconnect=true;if(!wsConnected)wsConnect();showToast('🗑 초기화 완료')}
+function seededRand(seed){return((seed*9301+49297)%233280)/233280}const PILE_STAGE_W=800,VISIBLE_PILE=60;function renderPile(){const wrap=document.getElementById('pile-wrap');if(wrap&&pileCount===0)wrap.innerHTML=''}function launchBallot(){ballotQueue++;if(!ballotRunning)processBallotQueue()}function processBallotQueue(){if(ballotQueue===0){ballotRunning=false;return}ballotRunning=true;const batch=Math.min(ballotQueue,8);ballotQueue-=batch;const stage=document.getElementById('ballot-stage');if(!stage){ballotRunning=false;return}const sw=stage.offsetWidth,sh=stage.offsetHeight;for(let b=0;b<batch;b++){setTimeout(()=>{const paper=document.createElement('div');paper.className='ballot-fly';const targetX=Math.floor(Math.random()*(sw-60))+8,targetY=sh-66;paper.style.cssText=`top:-70px;left:${targetX}px;opacity:1;transform:rotate(${Math.random()*20-10}deg);`;stage.appendChild(paper);requestAnimationFrame(()=>requestAnimationFrame(()=>{const dur=260+Math.random()*100;paper.style.transition=`top ${dur}ms cubic-bezier(.55,0,1,1)`;paper.style.top=`${targetY}px`;setTimeout(()=>{const wrap=document.getElementById('pile-wrap');if(wrap){const p=document.createElement('div');p.className='pile-paper';const angle=(Math.random()*28)-14;p.style.cssText=`left:${targetX}px;bottom:0px;transform:rotate(${angle}deg);position:absolute;`;wrap.appendChild(p);while(wrap.children.length>60)wrap.removeChild(wrap.firstChild)}paper.remove();pileCount++},dur)}))},b*40)}setTimeout(processBallotQueue,500)}
+async function wsConnect(){try{setWsStatus('connecting');const liveRes=await fetch('/api/live-status').then(r=>r.json());if(!liveRes?.content?.chatChannelId)throw new Error('방송 중이 아니에요');channelIdCache=liveRes.content.chatChannelId;const tokenRes=await fetch(`/api/access-token?channelId=${encodeURIComponent(channelIdCache)}`).then(r=>r.json());const accessToken=tokenRes?.content?.accessToken||'';ws=new WebSocket('wss://kr-ss1.chat.naver.com/chat');ws.onopen=()=>{ws.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:channelIdCache,bdy:{uid:null,devType:2001,accTkn:accessToken,auth:'READ'},tid:1}));setWsStatus(true)};ws.onmessage=onWsMsg;ws.onclose=()=>{setWsStatus(false);if(wsAutoReconnect&&channelIdCache)wsReconnectTimer=setTimeout(wsConnect,5000)};ws.onerror=()=>setWsStatus('err')}catch(e){setWsStatus('err');showToast('⚠️ '+e.message)}}function wsDisconnect(){wsAutoReconnect=false;clearTimeout(wsReconnectTimer);if(ws)ws.close();setWsStatus(false)}function onWsMsg(e){try{const msg=JSON.parse(e.data);if(msg.cmd===93101&&msg.bdy){const chats=Array.isArray(msg.bdy)?msg.bdy:[msg.bdy];chats.forEach(chat=>{if(!chat.msg||!chat.profile)return;const profile=typeof chat.profile==='string'?JSON.parse(chat.profile):chat.profile;const nick=profile.nickname||'익명';processVote(nick,chat.msg.trim());if(currentWinner&&nick===currentWinner)addWinnerChat(chat.msg.trim())})}if(msg.cmd===0)ws.send(JSON.stringify({ver:'2',cmd:10000}))}catch(err){}}function addWinnerChat(msg){const feed=document.getElementById('winner-chat-feed');if(!feed)return;const div=document.createElement('div');div.className='winner-chat-msg';div.textContent=msg;feed.appendChild(div);feed.scrollTop=feed.scrollHeight}setInterval(()=>{if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({ver:'2',cmd:10000}))},20000);
+function parseNumberToken(text){if(!/^[0-9]+$/.test(text))return NaN;const first=text[0];if([...text].every(ch=>ch===first))return Number(first);return Number(text)}function processVote(nick,msg){if(!voteRunning)return;const text=msg.trim();const keys=Object.keys(voteOptions);if(!keys.length)return;let matchedKey=null;const cmdPrefix='!투표';if(text.startsWith(cmdPrefix)){const num=parseNumberToken(text.slice(cmdPrefix.length).trim());if(!Number.isNaN(num)&&num>=1&&num<=keys.length)matchedKey=keys[num-1]}if(!matchedKey)matchedKey=keys.find(k=>voteOptions[k]===text);if(!matchedKey){const num=parseNumberToken(text);if(!Number.isNaN(num)&&num>=1&&num<=keys.length)matchedKey=keys[num-1]}if(!matchedKey)return;const prev=voterMap[nick];if(prev===matchedKey)return;if(prev)voteCounts[prev]=Math.max(0,(voteCounts[prev]||0)-1);voterMap[nick]=matchedKey;voteCounts[matchedKey]=(voteCounts[matchedKey]||0)+1;updateStats();renderResults();launchBallot()}function updateStats(){const el=document.getElementById('total-votes');if(el)el.textContent=Object.values(voteCounts).reduce((s,v)=>s+v,0)}
+function renderResults(){const el=document.getElementById('results');if(!el)return;const keys=Object.keys(voteOptions).length>0?Object.keys(voteOptions):Object.keys(voteCounts);if(!keys.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🗳</div><div>항목을 설정하고 투표를 시작하세요</div></div>`;return}const total=Object.values(voteCounts).reduce((s,v)=>s+v,0)||1;const sorted=keys.slice().sort((a,b)=>(voteCounts[b]||0)-(voteCounts[a]||0));const maxV=voteCounts[sorted[0]]||0;if(!window.optionColors)window.optionColors={};keys.forEach(k=>{if(!window.optionColors[k])window.optionColors[k]=`hsl(${Math.floor(Math.random()*360)},70%,58%)`});Object.keys(window.optionColors).forEach(k=>{if(!keys.includes(k))delete window.optionColors[k]});el.innerHTML=keys.map(k=>{const cnt=voteCounts[k]||0,pct=Math.round(cnt/total*100),isFirst=cnt>0&&cnt===maxV,col=window.optionColors[k];return`<div class="vote-item${isFirst?' first':''}" onclick="showOptionVoters('${escapeAttr(k)}')"><div class="vote-item-header"><div class="vote-item-name"><div class="vote-badge" style="${!isFirst?`background:${col}`:''}">${escapeHTML(k)}</div>${escapeHTML(voteOptions[k]||k)}</div><div class="vote-count">${cnt}표 (${pct}%)</div></div><div class="vote-bar-wrap"><div class="vote-bar" style="width:${pct}%;${!isFirst?`background:${col}`:''}"></div></div></div>`}).join('')}
+function showOptionVoters(key){closeManualRaffleModal();const voters=Object.keys(voterMap).filter(n=>voterMap[n]===key);const label=voteOptions[key]||`${key}번`;currentRaffleKey=key;raffleVoters=voters;winnersSet=new Set();document.getElementById('modal-title').textContent=`${label} (${voters.length}명)`;document.getElementById('modal-voters').innerHTML=voters.length?voters.map((n,i)=>`<span class="voter-chip" id="chip-${i}">${escapeHTML(n)}</span>`).join(''):`<div class="modal-empty">투표 인원 없음</div>`;const btn=document.getElementById('btn-raffle');btn.disabled=!voters.length;document.getElementById('voter-modal').classList.add('show')}
+function parseManualRaffleNames(text){const seen=new Set();const sep=String.fromCharCode(10);return String(text||'').replaceAll(',',sep).split(sep).map(v=>v.trim()).filter(Boolean).filter(name=>{if(seen.has(name))return false;seen.add(name);return true})}function openManualRaffleModal(){closeVoterModal();renderManualRafflePreview();document.getElementById('manual-raffle-modal').classList.add('show')}function closeManualRaffleModal(){document.getElementById('manual-raffle-modal')?.classList.remove('show')}function onManualRaffleBackdrop(e){if(e.target.id==='manual-raffle-modal')closeManualRaffleModal()}function renderManualRafflePreview(){const el=document.getElementById('manual-raffle-preview'),btn=document.getElementById('btn-manual-raffle');if(!el||!btn)return;btn.disabled=!manualRaffleNames.some(n=>!manualWinnersSet.has(n));if(!manualRaffleNames.length){el.innerHTML='<div class="modal-empty">명단을 입력하고 적용을 눌러주세요</div>';return}el.innerHTML=manualRaffleNames.map((n,i)=>`<span class="voter-chip ${manualWinnersSet.has(n)?'won':''}" id="chip-${i}">${escapeHTML(n)}</span>`).join('')}function applyManualRaffle(){const input=document.getElementById('manual-raffle-input');manualRaffleNames=parseManualRaffleNames(input?.value||'');manualWinnersSet=new Set();renderManualRafflePreview();showToast(manualRaffleNames.length?`명단 ${manualRaffleNames.length}명 적용 완료`:'명단을 입력해주세요')}function resetManualRaffle(){manualRaffleNames=[];manualWinnersSet=new Set();const input=document.getElementById('manual-raffle-input');if(input)input.value='';renderManualRafflePreview();showToast('직접 명단 초기화 완료')}function startManualRaffle(){if(!manualRaffleNames.length){applyManualRaffle();if(!manualRaffleNames.length)return}currentRaffleKey=MANUAL_RAFFLE_KEY;raffleVoters=manualRaffleNames.slice();winnersSet=manualWinnersSet;renderManualRafflePreview();startRaffle()}
+function startRaffle(){if(!raffleVoters.length)return;const eligible=raffleVoters.map((n,i)=>({name:n,idx:i})).filter(o=>!winnersSet.has(o.name));if(!eligible.length){showToast('🎉 모든 참가자가 당첨됐어요!');return}const btn=currentRaffleKey===MANUAL_RAFFLE_KEY?document.getElementById('btn-manual-raffle'):document.getElementById('btn-raffle');if(btn)btn.disabled=true;const chips=raffleVoters.map((_,i)=>document.getElementById(`chip-${i}`));const total=eligible.length;const winner=eligible[Math.floor(Math.random()*eligible.length)];const SLOW_STEPS=8;const winnerEligibleIdx=eligible.indexOf(winner);const slowStartPos=(winnerEligibleIdx-SLOW_STEPS+1+total*100)%total;const slowDelays=[80,150,230,330,450,600,780,1000].map(d=>d+Math.floor(Math.random()*40-20));const laps=total<=10?3+Math.floor(Math.random()*3):total<=30?2+Math.floor(Math.random()*2):1+Math.floor(Math.random()*2);const startOffset=Math.floor(Math.random()*total);const fastFrames=total*laps+((slowStartPos-startOffset+total*100)%total);const fastDelay=total<=10?60+Math.floor(Math.random()*40):total<=30?20+Math.floor(Math.random()*20):15+Math.floor(Math.random()*10);let frame=0,lastLit=-1;function litChip(eligiblePos,on){const chip=chips[eligible[eligiblePos%total].idx];if(!chip)return;chip.classList.toggle('lit',on)}function step(){if(lastLit>=0)litChip(lastLit,false);if(frame>=fastFrames+SLOW_STEPS){const winChip=chips[winner.idx];if(winChip)winChip.classList.add('lit');winChip?.scrollIntoView({block:'nearest',behavior:'smooth'});setTimeout(()=>showWinner(winner.name),800);if(btn)btn.disabled=false;return}const pos=frame<fastFrames?(startOffset+frame)%total:(slowStartPos+(frame-fastFrames))%total;litChip(pos,true);lastLit=pos;const delay=frame<fastFrames?fastDelay:slowDelays[frame-fastFrames];frame++;setTimeout(step,delay)}step()}
+const CF_COLORS=['#2ecc71','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#fff','#fbbf24'];function launchConfetti(){const wrap=document.getElementById('confetti-wrap');if(!wrap)return;wrap.innerHTML='';const W=window.innerWidth,H=window.innerHeight;[{x:W*.2,y:H,baseAngle:-Math.PI*.72},{x:W*.8,y:H,baseAngle:-Math.PI*.28}].forEach(origin=>{for(let i=0;i<80;i++){const el=document.createElement('div');el.className='cf';const color=CF_COLORS[Math.floor(Math.random()*CF_COLORS.length)],w=7+Math.random()*12,h=11+Math.random()*16;el.style.cssText=`width:${w}px;height:${h}px;background:${color};border-radius:${Math.random()>.5?'50%':'2px'};position:absolute;left:0;top:0;`;wrap.appendChild(el);const angle=origin.baseAngle+(Math.random()-.5)*Math.PI*.6,speed=18+Math.random()*22;let vx=Math.cos(angle)*speed,vy=Math.sin(angle)*speed,x=origin.x,y=origin.y,rot=Math.random()*360;const rotSpeed=(Math.random()-.5)*18,gravity=.55,delay=Math.random()*300;setTimeout(()=>{let frame=0,maxFrames=140;function tick(){vy+=gravity;x+=vx;y+=vy;vx*=.985;rot+=rotSpeed;el.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg)`;el.style.opacity=Math.max(0,1-frame/maxFrames);if(frame<maxFrames&&y<H+80){frame++;requestAnimationFrame(tick)}else el.remove()}requestAnimationFrame(tick)},delay)}})}
+function showWinner(name){winnersSet.add(name);currentWinner=name;launchConfetti();const idx=raffleVoters.indexOf(name);if(idx>=0){const chip=document.getElementById(`chip-${idx}`);if(chip){chip.classList.remove('lit');chip.classList.add('won')}}const label=currentRaffleKey===MANUAL_RAFFLE_KEY?'직접 명단 추첨':(voteOptions[currentRaffleKey]||`${currentRaffleKey}번`);document.getElementById('winner-name').textContent=name;document.getElementById('winner-option').textContent=label;document.getElementById('winner-chat-feed').innerHTML='';document.getElementById('winner-overlay').classList.add('show')}function closeWinner(){if(currentWinner){if(currentRaffleKey===MANUAL_RAFFLE_KEY){renderManualRafflePreview();const btn=document.getElementById('btn-manual-raffle');if(btn)btn.disabled=!manualRaffleNames.some(n=>!manualWinnersSet.has(n))}else{winnersLog.push(currentWinner);const voteTitle=document.getElementById('vote-title-input')?.value?.trim()||'투표';if(window._upsertVoteResult)window._upsertVoteResult(voteTitle,[...winnersLog],voteStartedAt).catch(()=>{})}}currentWinner=null;document.getElementById('winner-overlay').classList.remove('show')}function cancelWinner(){if(currentWinner){const chipIdx=raffleVoters.indexOf(currentWinner);if(chipIdx>=0){const chip=document.getElementById(`chip-${chipIdx}`);if(chip){chip.classList.remove('won');chip.classList.add('won-cancelled')}}if(currentRaffleKey===MANUAL_RAFFLE_KEY)renderManualRafflePreview()}currentWinner=null;document.getElementById('winner-overlay').classList.remove('show');showToast('취소됨 · 다음 뽑기에서 제외돼요')}function closeVoterModal(){document.getElementById('voter-modal')?.classList.remove('show')}function onModalBackdrop(e){if(e.target.id==='voter-modal')closeVoterModal()}function setWsStatus(state){const dot=document.getElementById('ws-dot'),label=document.getElementById('ws-label');if(state===true){wsConnected=true;wsAutoReconnect=true;dot.style.background='';dot.className='ws-dot on';label.textContent='채팅 연결됨'}else if(state==='connecting'){dot.className='ws-dot';dot.style.background='#f59e0b';label.textContent='연결 중...'}else if(state==='err'){wsConnected=false;dot.className='ws-dot err';label.textContent='연결 실패';voteRunning=false;updateVoteControls();toggleVotePanels()}else{wsConnected=false;dot.className='ws-dot';dot.style.background='';label.textContent='연결 안됨'}}function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+renderOptionInputs();applyOptions();renderResults();updateVoteControls();toggleVotePanels();renderManualRafflePreview();wsConnect();
 </script>
 </body>
 </html>
