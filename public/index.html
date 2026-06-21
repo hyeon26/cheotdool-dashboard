@@ -1290,6 +1290,7 @@ let currentLiveTitle='';
 let chatSessionId=null; // Firebase 세션 ID
 const CHAT_OFFLINE_IDLE_MS = 60000;
 const CHAT_OFFLINE_RECONNECT_LIMIT = 5;
+const ENABLE_BROWSER_AUTO_CHAT = false;
 let chatAutoConnecting=false, chatManualStop=false, chatLastRecordAt=0;
 let chatOfflineSince=null, chatOfflineReconnectAttempts=0, lastLiveState=false;
 let doneMap={}, doneAnon=0;
@@ -2369,7 +2370,7 @@ async function checkLive(){
       chatLastRecordAt=Date.now();
     }
     lastLiveState=isLive;
-    if(isLive && !chatManualStop && !chatConnected && !chatAutoConnecting && (!chatWs || chatWs.readyState===WebSocket.CLOSING || chatWs.readyState===WebSocket.CLOSED)){
+    if(ENABLE_BROWSER_AUTO_CHAT && isLive && !chatManualStop && !chatConnected && !chatAutoConnecting && (!chatWs || chatWs.readyState===WebSocket.CLOSING || chatWs.readyState===WebSocket.CLOSED)){
       chatConnect({auto:true});
     }
   }catch(e){}
