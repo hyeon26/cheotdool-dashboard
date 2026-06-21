@@ -1288,6 +1288,10 @@ let chatLogs=[], userMap={}, chatWs=null, chatConnected=false, chatSessionStart=
 let chatAutoReconnect=true, chatReconnectTimer=null, chatChannelIdCache=null, chatTokenCache=null;
 let currentLiveTitle='';
 let chatSessionId=null; // Firebase 세션 ID
+const CHAT_OFFLINE_IDLE_MS = 60000;
+const CHAT_OFFLINE_RECONNECT_LIMIT = 5;
+let chatAutoConnecting=false, chatManualStop=false, chatLastRecordAt=0;
+let chatOfflineSince=null, chatOfflineReconnectAttempts=0, lastLiveState=false;
 let doneMap={}, doneAnon=0;
 let missionMap={}, missionAnon=0, missionRecords={};
 let doneLogs=[];
@@ -1316,6 +1320,8 @@ function refreshChatStats(){
     </div>`).join('');
 }
 function saveChatRecord(time,nick,msg, extra={}){
+  chatLastRecordAt=Date.now();
+  chatOfflineReconnectAttempts=0;
   chatLogs.push({time,nick,msg,...extra}); userMap[nick]=(userMap[nick]||0)+1;
   // Firebase에 채팅 저장 (백그라운드)
   if(chatSessionId){
@@ -2029,9 +2035,43 @@ function chatOnMessage(e){
   }catch(err){}
 }
 
+function chatLogSystem(text, color='var(--text3)'){
+  const log=document.getElementById('chat-log');
+  if(!log) return;
+  const d=document.createElement('div');
+  d.style.cssText=`color:${color};text-align:center;padding:6px;font-size:12px`;
+  d.textContent=text;
+  log.appendChild(d); log.scrollTop=log.scrollHeight;
+}
+function stopChatCollection(reason){
+  chatAutoReconnect=false;
+  chatAutoConnecting=false;
+  chatOfflineSince=null;
+  chatOfflineReconnectAttempts=0;
+  if(chatReconnectTimer){ clearTimeout(chatReconnectTimer); chatReconnectTimer=null; }
+  const ws=chatWs; chatWs=null;
+  if(ws && ws.readyState!==WebSocket.CLOSED){
+    try{ ws.close(); }catch(e){}
+  }
+  chatSetStatus(false);
+  if(reason) chatLogSystem(reason, '#ef4444');
+}
+function scheduleChatReconnect(delay=5000, message='── 연결 끊김, 5초 후 재연결 시도... ──'){
+  if(!chatAutoReconnect || !chatChannelIdCache) return;
+  if(chatReconnectTimer) clearTimeout(chatReconnectTimer);
+  if(message) chatLogSystem(message, '#f59e0b');
+  chatReconnectTimer=setTimeout(()=>reconnectChat(),delay);
+}
 
 async function reconnectChat(){
   if(!chatAutoReconnect || !chatChannelIdCache) return;
+  if(!lastLiveState && chatOfflineSince){
+    chatOfflineReconnectAttempts++;
+    if(chatOfflineReconnectAttempts>CHAT_OFFLINE_RECONNECT_LIMIT){
+      stopChatCollection('── 방송 종료 후 채팅 없이 5회 이상 재연결되어 수집 종료 ──');
+      return;
+    }
+  }
   try {
     // 토큰 재발급
     const tokenData=await fetchAccessToken(chatChannelIdCache);
@@ -2049,13 +2089,11 @@ async function reconnectChat(){
     chatWs.onmessage=chatOnMessage;
     chatWs.onclose=()=>{
       chatSetStatus(false);
-      if(chatAutoReconnect && chatChannelIdCache){
-        chatReconnectTimer=setTimeout(()=>reconnectChat(),5000);
-      }
+      scheduleChatReconnect(5000, '');
     };
     chatWs.onerror=()=>{ chatSetStatus(false); };
   } catch(e){
-    if(chatAutoReconnect) chatReconnectTimer=setTimeout(()=>reconnectChat(),10000);
+    scheduleChatReconnect(10000, '');
   }
 }
 
@@ -2222,9 +2260,13 @@ window.downloadSession=async(sessionId, title)=>{
   } catch(e){ alert('다운로드 실패: '+e.message); }
 };
 
-window.chatConnect=async()=>{
+window.chatConnect=async(options={})=>{
+  const isAuto=!!options.auto;
+  if(chatConnected || chatAutoConnecting) return;
+  chatAutoConnecting=true;
+  chatManualStop=false;
   const btn=document.getElementById('chat-connect-btn');
-  btn.textContent='연결 중...'; btn.disabled=true;
+  btn.textContent=isAuto?'자동 연결 중...':'연결 중...'; btn.disabled=true;
   try{
     const data=await fetchLiveStatus();
     const chatChannelId = data.content?.chatChannelId || CHANNEL_ID;
@@ -2235,10 +2277,11 @@ window.chatConnect=async()=>{
       const tokenData=await fetchAccessToken(chatChannelId);
       finalToken=tokenData?.content?.accessToken||'';
     }
-    chatChannelIdCache=chatChannelId; chatAutoReconnect=true;
+    chatChannelIdCache=chatChannelId; chatAutoReconnect=true; chatLastRecordAt=Date.now();
     chatWs=new WebSocket('wss://kr-ss1.chat.naver.com/chat');
     chatSessionStart=new Date();
     chatWs.onopen=async()=>{
+      chatAutoConnecting=false;
       chatWs.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:chatChannelId,bdy:{uid:null,devType:2001,accTkn:finalToken,auth:'READ'},tid:1}));
       chatSetStatus(true);
       const log=document.getElementById('chat-log'); log.innerHTML='';
@@ -2256,21 +2299,15 @@ window.chatConnect=async()=>{
     };
     chatWs.onmessage=chatOnMessage;
     chatWs.onclose=()=>{
+      chatAutoConnecting=false;
       chatSetStatus(false);
-      if(chatAutoReconnect && chatChannelIdCache){
-        const log=document.getElementById('chat-log');
-        const d=document.createElement('div');
-        d.style.cssText='color:#f59e0b;text-align:center;padding:6px;font-size:12px';
-        d.textContent='── 연결 끊김, 5초 후 재연결 시도... ──';
-        log.appendChild(d); log.scrollTop=log.scrollHeight;
-        chatReconnectTimer=setTimeout(()=>reconnectChat(),5000);
-      }
+      scheduleChatReconnect();
     };
-    chatWs.onerror=()=>{ chatSetStatus(false); };
-  }catch(err){ alert('연결 오류: '+err.message); }
-  finally{ btn.textContent='🔌 채팅 수집 시작'; btn.disabled=false; }
+    chatWs.onerror=()=>{ chatAutoConnecting=false; chatSetStatus(false); };
+  }catch(err){ isAuto?console.warn('자동 채팅 연결 오류:', err):alert('연결 오류: '+err.message); }
+  finally{ chatAutoConnecting=false; btn.textContent='🔌 채팅 수집 시작'; btn.disabled=false; }
 };
-window.chatDisconnect=()=>{ chatAutoReconnect=false; if(chatReconnectTimer) clearTimeout(chatReconnectTimer); if(chatWs) chatWs.close(); chatSetStatus(false); updateLiveBadge(false); };
+window.chatDisconnect=()=>{ chatManualStop=true; stopChatCollection('── 채팅 수집 중지 ──'); };
 window.chatClear=()=>{
   chatLogs=[]; userMap={};
   document.getElementById('chat-log').innerHTML='<div style="color:var(--text3);text-align:center;padding:40px">채팅 수집 시작 버튼을 눌러주세요</div>';
@@ -2297,9 +2334,12 @@ setInterval(()=>{
   if(chatConnected && chatWs && chatWs.readyState!==WebSocket.OPEN){
     console.warn('웹소켓 끊김 감지 - 재연결 시도');
     chatSetStatus(false);
-    if(chatAutoReconnect && chatChannelIdCache) reconnectChat();
+    scheduleChatReconnect(0, '');
+  } else if(!lastLiveState && chatAutoReconnect && chatOfflineSince && chatWs && chatWs.readyState===WebSocket.OPEN && Date.now()-chatLastRecordAt>=CHAT_OFFLINE_IDLE_MS){
+    chatLogSystem('── 방송 종료 후 채팅 없음, 재연결 시도... ──', '#f59e0b');
+    try{ chatWs.close(); }catch(e){}
   }
-},60000);
+},30000);
 
 // ── 라이브 체크 ──
 function updateLiveBadge(isLive, title){
@@ -2315,10 +2355,23 @@ async function checkLive(){
     const data=await fetchLiveStatus();
     const isLive = data?.content?.status==='OPEN' || data?.content?.status==='STARTED';
     const title = data?.content?.liveTitle||'';
+    const wasLive = lastLiveState;
     if(data?.content?.chatChannelId && !chatChannelIdCache){
       chatChannelIdCache = data.content.chatChannelId;
     }
     updateLiveBadge(isLive, title);
+    if(isLive && !wasLive){
+      chatManualStop=false;
+      chatOfflineSince=null;
+      chatOfflineReconnectAttempts=0;
+    } else if(!isLive && wasLive){
+      chatOfflineSince=Date.now();
+      chatLastRecordAt=Date.now();
+    }
+    lastLiveState=isLive;
+    if(isLive && !chatManualStop && !chatConnected && !chatAutoConnecting && (!chatWs || chatWs.readyState===WebSocket.CLOSING || chatWs.readyState===WebSocket.CLOSED)){
+      chatConnect({auto:true});
+    }
   }catch(e){}
 }
 checkLive(); setInterval(checkLive, 3000);
