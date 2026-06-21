@@ -20,7 +20,7 @@ const firebaseApp = initializeApp({
 
 const db = getFirestore(firebaseApp);
 
-const SITE_URL = trimTrailingSlash(process.env.PUBLIC_SITE_URL || 'https://firstandsecon.vercel.app');
+const SITE_URL = trimTrailingSlash(process.env.PUBLIC_SITE_URL || 'https://firstandsecond.vercel.app');
 const CHANNEL_ID = process.env.CHZZK_CHANNEL_ID || '48070f8882233efa7aee52519fee8fca';
 const POLL_INTERVAL_MS = numberEnv('POLL_INTERVAL_MS', 3000);
 const OFFLINE_IDLE_MS = numberEnv('OFFLINE_IDLE_MS', 60000);

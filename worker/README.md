@@ -10,7 +10,7 @@ This worker is for an always-on VM. It watches the CHZZK live status, opens the 
 All variables are optional unless your deployment needs a custom value.
 
 ```bash
-PUBLIC_SITE_URL=https://firstandsecon.vercel.app
+PUBLIC_SITE_URL=https://firstandsecond.vercel.app
 CHZZK_CHANNEL_ID=48070f8882233efa7aee52519fee8fca
 POLL_INTERVAL_MS=3000
 OFFLINE_IDLE_MS=60000
