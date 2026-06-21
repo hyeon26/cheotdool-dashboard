@@ -1,0 +1,12 @@
+{
+  "name": "cheotdool-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "collector": "node worker/chat-collector.js"
+  },
+  "dependencies": {
+    "firebase": "^11.6.0",
+    "ws": "^8.18.3"
+  }
+}
