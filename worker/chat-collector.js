@@ -72,12 +72,82 @@ async function fetchJson(url) {
   return response.json();
 }
 
+function chzzkHeaders() {
+  const cookie = [
+    process.env.CHZZK_NID_AUT ? `NID_AUT=${process.env.CHZZK_NID_AUT}` : '',
+    process.env.CHZZK_NID_SES ? `NID_SES=${process.env.CHZZK_NID_SES}` : ''
+  ].filter(Boolean).join('; ');
+
+  return {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json',
+    'Accept-Language': 'ko-KR,ko;q=0.9',
+    'Referer': 'https://chzzk.naver.com/',
+    'Origin': 'https://chzzk.naver.com',
+    ...(cookie ? { Cookie: cookie } : {})
+  };
+}
+
+async function fetchChzzkLiveStatus() {
+  const detail = await fetchJsonWithHeaders(
+    `https://api.chzzk.naver.com/service/v3/channels/${CHANNEL_ID}/live-detail`,
+    chzzkHeaders()
+  );
+  const chatChannelId = detail?.content?.chatChannelId;
+  const status = detail?.content?.status;
+  const liveTitle = detail?.content?.liveTitle || '';
+
+  if (!chatChannelId) {
+    return {
+      content: {
+        status: 'CLOSED',
+        chatChannelId: CHANNEL_ID,
+        accessToken: '',
+        liveTitle: ''
+      }
+    };
+  }
+
+  const tokenData = await fetchChzzkAccessToken(chatChannelId);
+  return {
+    content: {
+      status,
+      chatChannelId,
+      accessToken: tokenData?.content?.accessToken || '',
+      liveTitle
+    }
+  };
+}
+
+async function fetchChzzkAccessToken(channelId) {
+  return fetchJsonWithHeaders(
+    `https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${encodeURIComponent(channelId)}&chatType=STREAMING`,
+    chzzkHeaders()
+  );
+}
+
+async function fetchJsonWithHeaders(url, headers) {
+  const response = await fetch(url, { headers });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+  return response.json();
+}
+
 async function fetchLiveStatus() {
-  return fetchJson(`${SITE_URL}/api/live-status`);
+  try {
+    return await fetchJson(`${SITE_URL}/api/live-status`);
+  } catch (error) {
+    log(`site live-status failed (${error.message}), falling back to CHZZK`);
+    return fetchChzzkLiveStatus();
+  }
 }
 
 async function fetchAccessToken(channelId) {
-  return fetchJson(`${SITE_URL}/api/access-token?channelId=${encodeURIComponent(channelId)}`);
+  try {
+    return await fetchJson(`${SITE_URL}/api/access-token?channelId=${encodeURIComponent(channelId)}`);
+  } catch (error) {
+    log(`site access-token failed (${error.message}), falling back to CHZZK`);
+    return fetchChzzkAccessToken(channelId);
+  }
 }
 
 async function createSession({ liveTitle, chatChannelId }) {
