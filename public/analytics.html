@@ -101,17 +101,6 @@ let currentChats = [];
 function isBotChat(chat){return String(chat.nick || '').trim() === '뚜봇';}
 function stripEmoticons(text){return String(text || '').replace(/\{[^}]*\}/g,' ');}
 
-function expandChatDocs(docs){
-  return docs.flatMap(d=>{
-    const data=d.data();
-    if(Array.isArray(data.items)){
-      const fallbackTs=data.createdAt?.toMillis?.()||0;
-      return data.items.map(item=>({...item,_ts:item.createdAt?.toMillis?.()||fallbackTs}));
-    }
-    return [{...data,_ts:data.createdAt?.toMillis?.()||0}];
-  }).sort((a,b)=>(a._ts||0)-(b._ts||0));
-}
-
 const $ = id => document.getElementById(id);
 function setStatus(text, type='loading'){
   const el = $('status');
@@ -415,7 +404,7 @@ async function analyzeSelected(){
       getDocs(query(collection(db,`chatSessions/${sessionId}/chats`), orderBy('createdAt','asc'))),
       getDocs(query(collection(db,`chatSessions/${sessionId}/donations`), orderBy('createdAt','asc')))
     ]);
-    const chats = expandChatDocs(chatSnap.docs).filter(chat => !isBotChat(chat));
+    const chats = chatSnap.docs.map(doc => doc.data()).filter(chat => !isBotChat(chat));
     currentChats = chats;
     const donations = donationSnap.docs.map(doc => doc.data());
     const userCounts = new Map();

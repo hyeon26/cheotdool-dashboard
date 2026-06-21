@@ -2125,17 +2125,6 @@ window.openSessionHistory=async()=>{
   } catch(e){ el.innerHTML='<div style="color:var(--red);padding:16px">불러오기 실패: '+e.message+'</div>'; }
 };
 
-function expandChatDocs(docs){
-  return docs.flatMap(d=>{
-    const data=d.data();
-    if(Array.isArray(data.items)){
-      const fallbackTs=data.createdAt?.toMillis?.()||0;
-      return data.items.map(item=>({...item,_type:'chat',_ts:item.createdAt?.toMillis?.()||fallbackTs}));
-    }
-    return [{...data,_type:'chat',_ts:data.createdAt?.toMillis?.()||0}];
-  });
-}
-
 window.loadSession=async(sessionId)=>{
   closeModal('session-history-modal');
   chatClear();
@@ -2145,7 +2134,6 @@ window.loadSession=async(sessionId)=>{
       getDocs(query(collection(db,`chatSessions/${sessionId}/chats`),orderBy('createdAt','asc'))),
       getDocs(query(collection(db,`chatSessions/${sessionId}/donations`),orderBy('createdAt','asc')))
     ]);
-    const chatItems = expandChatDocs(cSnap.docs);
 
     const missionOfferGroups = {};
     dSnap.docs.forEach(docSnap=>{
@@ -2169,7 +2157,7 @@ window.loadSession=async(sessionId)=>{
 
     // 채팅+도네 합쳐서 시간순 정렬
     const allItems = [
-      ...chatItems,
+      ...cSnap.docs.map(d=>({...d.data(), _type:'chat', _ts: d.data().createdAt?.toMillis?.()||0})),
       ...dSnap.docs.map(d=>({...d.data(), _type:'donation', _ts: d.data().createdAt?.toMillis?.()||0}))
     ].sort((a,b)=>a._ts-b._ts);
 
@@ -2231,7 +2219,7 @@ window.loadSession=async(sessionId)=>{
     const feed=document.getElementById('done-feed');
     if(feed && !feed.querySelector('[data-empty]')) feed.scrollTop=feed.scrollHeight;
     log.scrollTop=log.scrollHeight;
-    alert(`${chatItems.length}개 채팅, ${dSnap.docs.length}개 후원 불러왔어요!`);
+    alert(`${cSnap.docs.length}개 채팅, ${dSnap.docs.length}개 후원 불러왔어요!`);
   } catch(e){ alert('불러오기 실패: '+e.message); }
 };
 
@@ -2265,8 +2253,7 @@ window.downloadSession=async(sessionId, title)=>{
   try {
     const snap=await getDocs(query(collection(db,`chatSessions/${sessionId}/chats`),orderBy('createdAt','asc')));
     const dSnap=await getDocs(query(collection(db,`chatSessions/${sessionId}/donations`),orderBy('createdAt','asc')));
-    const chatItems = expandChatDocs(snap.docs);
-    const lines=[`[${title}] 채팅 기록`,'',...chatItems.map(({time,nick,msg})=>`[${time}] ${nick}: ${msg}`),
+    const lines=[`[${title}] 채팅 기록`,'',...snap.docs.map(d=>{const {time,nick,msg}=d.data();return `[${time}] ${nick}: ${msg}`;}),
       '','=== 후원/미션 ===',...dSnap.docs.map(d=>{const item=d.data();const {time,nick,amt,type}=item;const label=type==='mission'?`[${getMissionHistoryLabel(item)}]`:'[후원]';return `[${time}] ${label} ${nick}: ${toDonationAmount(amt).toLocaleString()}원`;})];
     const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob);

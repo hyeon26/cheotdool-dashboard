@@ -26,28 +26,21 @@ const POLL_INTERVAL_MS = numberEnv('POLL_INTERVAL_MS', 3000);
 const OFFLINE_IDLE_MS = numberEnv('OFFLINE_IDLE_MS', 60000);
 const OFFLINE_RECONNECT_LIMIT = numberEnv('OFFLINE_RECONNECT_LIMIT', 5);
 const HEARTBEAT_MS = numberEnv('HEARTBEAT_MS', 20000);
-const CHAT_CHUNK_SIZE = numberEnv('CHAT_CHUNK_SIZE', 50);
-const CHAT_FLUSH_MS = numberEnv('CHAT_FLUSH_MS', 10000);
-const OFFLINE_STATUS_CONFIRMATIONS = numberEnv('OFFLINE_STATUS_CONFIRMATIONS', 5);
 
 let ws = null;
 let heartbeatTimer = null;
 let reconnectTimer = null;
 let pollTimer = null;
-let flushTimer = null;
-let flushPromise = null;
 let sessionId = null;
 let sessionStartedAt = null;
 let currentLiveTitle = '';
 let currentChatChannelId = '';
 let lastLiveState = false;
-let offlineStatusCount = 0;
 let offlineSince = null;
 let lastRecordAt = 0;
 let reconnectAttemptsAfterOffline = 0;
 let connecting = false;
 let stopped = false;
-let pendingChats = [];
 
 function numberEnv(name, fallback) {
   const parsed = Number(process.env[name]);
@@ -174,7 +167,6 @@ async function finishSession(reason) {
   if (!sessionId) return;
   const id = sessionId;
   try {
-    await flushChatBuffer();
     await updateDoc(doc(db, 'chatSessions', id), {
       endedAt: serverTimestamp(),
       endReason: reason || 'stopped'
@@ -184,38 +176,6 @@ async function finishSession(reason) {
   }
   sessionId = null;
   sessionStartedAt = null;
-}
-
-function scheduleFlush() {
-  if (flushTimer || !pendingChats.length) return;
-  flushTimer = setTimeout(() => {
-    flushTimer = null;
-    flushChatBuffer().catch(error => log(`failed to flush chats: ${error.message}`));
-  }, CHAT_FLUSH_MS);
-}
-
-async function flushChatBuffer() {
-  if (flushPromise) return flushPromise;
-  if (!sessionId || !pendingChats.length) return;
-
-  const items = pendingChats.splice(0, CHAT_CHUNK_SIZE);
-  flushPromise = addDoc(collection(db, `chatSessions/${sessionId}/chats`), {
-    chunk: true,
-    count: items.length,
-    firstTime: items[0]?.time || '',
-    lastTime: items[items.length - 1]?.time || '',
-    items,
-    createdAt: serverTimestamp()
-  }).catch(error => {
-    pendingChats = [...items, ...pendingChats].slice(0, CHAT_CHUNK_SIZE * 200);
-    throw error;
-  }).finally(() => {
-    flushPromise = null;
-  });
-
-  await flushPromise;
-  if (pendingChats.length >= CHAT_CHUNK_SIZE) return flushChatBuffer();
-  if (pendingChats.length) scheduleFlush();
 }
 
 function parseMaybeJson(value) {
@@ -248,20 +208,14 @@ async function saveChat(chat) {
   lastRecordAt = Date.now();
   reconnectAttemptsAfterOffline = 0;
 
-  pendingChats.push({
+  await addDoc(collection(db, `chatSessions/${sessionId}/chats`), {
     time: formatChatTime(),
     nick,
     msg,
-    createdAt: new Date()
+    createdAt: serverTimestamp()
   });
 
-  if (pendingChats.length >= CHAT_CHUNK_SIZE) {
-    await flushChatBuffer();
-  } else {
-    scheduleFlush();
-  }
-
-  log(`chat queued: ${nick}: ${msg.slice(0, 80)}`);
+  log(`chat saved: ${nick}: ${msg.slice(0, 80)}`);
 }
 
 async function handleMessage(raw) {
@@ -323,11 +277,9 @@ function scheduleReconnect(delayMs = 5000) {
 async function stopCollection(reason) {
   closeSocket();
   clearReconnect();
-  await flushChatBuffer();
   currentChatChannelId = '';
   reconnectAttemptsAfterOffline = 0;
   offlineSince = null;
-  offlineStatusCount = 0;
   await finishSession(reason);
   log(`collector stopped: ${reason}`);
 }
@@ -402,7 +354,6 @@ async function checkLive() {
     const wasLive = lastLiveState;
 
     if (isLive) {
-      offlineStatusCount = 0;
       currentLiveTitle = content.liveTitle || currentLiveTitle || '';
       currentChatChannelId = content.chatChannelId || currentChatChannelId || CHANNEL_ID;
       offlineSince = null;
@@ -413,15 +364,9 @@ async function checkLive() {
         await connectChat();
       }
     } else if (wasLive) {
-      offlineStatusCount += 1;
-      if (offlineStatusCount < OFFLINE_STATUS_CONFIRMATIONS) {
-        return;
-      }
-      if (!offlineSince) {
-        offlineSince = Date.now();
-        lastRecordAt = Date.now();
-        log('live ended, waiting for quiet chat reconnects');
-      }
+      offlineSince = Date.now();
+      lastRecordAt = Date.now();
+      log('live ended, waiting for quiet chat reconnects');
     }
 
     lastLiveState = isLive;
