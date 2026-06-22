@@ -856,6 +856,31 @@ const app = initializeApp({
 });
 const db = getFirestore(app);
 
+async function chatStoreRequest(path, options={}){
+  const res = await fetch(`/api/chat-store?path=${encodeURIComponent(path)}`, {
+    method: options.method || 'GET',
+    headers: options.body ? {'Content-Type':'application/json'} : undefined,
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+  if(!res.ok){
+    const text = await res.text().catch(()=>'');
+    throw new Error(text || res.status);
+  }
+  return res.json();
+}
+
+function toDateValue(value){
+  if(!value) return null;
+  if(value.toDate) return value.toDate();
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function itemTs(item){
+  const d = toDateValue(item?.createdAt);
+  return d ? d.getTime() : 0;
+}
+
 const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
 const TYPE_COLOR = {content:'#5B4AE8',schedule:'#f59e0b',vod:'#10b981',info:'#38bdf8'};
 const TYPE_CLASS = {content:'ev-stream',schedule:'ev-plan',vod:'ev-vod',info:'ev-info'};
@@ -1288,7 +1313,7 @@ function initDrag(containerId,type){
 let chatLogs=[], userMap={}, chatWs=null, chatConnected=false, chatSessionStart=null;
 let chatAutoReconnect=true, chatReconnectTimer=null, chatChannelIdCache=null, chatTokenCache=null;
 let currentLiveTitle='';
-let chatSessionId=null; // Firebase 세션 ID
+let chatSessionId=null; // chat store session ID
 const CHAT_OFFLINE_IDLE_MS = 60000;
 const CHAT_OFFLINE_RECONNECT_LIMIT = 5;
 const ENABLE_BROWSER_AUTO_CHAT = false;
@@ -1325,9 +1350,12 @@ function saveChatRecord(time,nick,msg, extra={}){
   chatLastRecordAt=Date.now();
   chatOfflineReconnectAttempts=0;
   chatLogs.push({time,nick,msg,...extra}); userMap[nick]=(userMap[nick]||0)+1;
-  // Firebase에 채팅 저장 (백그라운드)
+  // chat store save (background)
   if(chatSessionId){
-      addDoc(collection(db,`chatSessions/${chatSessionId}/chats`),{time,nick,msg,...extra,createdAt:serverTimestamp()}).catch(()=>{});
+      chatStoreRequest(`/sessions/${encodeURIComponent(chatSessionId)}/chats`, {
+        method:'POST',
+        body:{time,nick,msg,...extra,createdAt:new Date().toISOString()}
+      }).catch(()=>{});
   }
   refreshChatStats();
 }
@@ -1931,13 +1959,13 @@ function handleDonation(donation){
           missionStatus: missionStatus.status, missionSuccess: missionStatus.success,
           missionFailed: missionStatus.failed, missionStatusLabel: missionStatus.label,
           extras,
-          createdAt: serverTimestamp()
+          createdAt: new Date().toISOString()
         };
-        if(isMission && missionId){
-          setDoc(doc(db,`chatSessions/${chatSessionId}/donations`, `mission_${safeDocId(missionId)}_${safeDocId(entry.key)}`), payload, { merge: true }).catch(()=>{});
-        } else {
-          addDoc(collection(db,`chatSessions/${chatSessionId}/donations`), payload).catch(()=>{});
-        }
+        if(isMission && missionId) payload.documentId = `mission_${safeDocId(missionId)}_${safeDocId(entry.key)}`;
+        chatStoreRequest(`/sessions/${encodeURIComponent(chatSessionId)}/donations`, {
+          method:'POST',
+          body: payload
+        }).catch(()=>{});
       });
     }
   } catch(e){}
@@ -2050,6 +2078,14 @@ function stopChatCollection(reason){
   chatAutoConnecting=false;
   chatOfflineSince=null;
   chatOfflineReconnectAttempts=0;
+  const finishingSessionId=chatSessionId;
+  chatSessionId=null;
+  if(finishingSessionId){
+    chatStoreRequest(`/sessions/${encodeURIComponent(finishingSessionId)}/finish`, {
+      method:'PATCH',
+      body:{reason: reason||'stopped'}
+    }).catch(()=>{});
+  }
   if(chatReconnectTimer){ clearTimeout(chatReconnectTimer); chatReconnectTimer=null; }
   const ws=chatWs; chatWs=null;
   if(ws && ws.readyState!==WebSocket.CLOSED){
@@ -2104,11 +2140,11 @@ window.openSessionHistory=async()=>{
   openModal('session-history-modal');
   const el=document.getElementById('session-list');
   try {
-    const snap=await getDocs(query(collection(db,'chatSessions'),orderBy('startedAt','desc')));
-    const sessions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const result=await chatStoreRequest('/sessions?limit=200');
+    const sessions=result.sessions||[];
     if(!sessions.length){ el.innerHTML='<div class="empty-state" style="padding:20px">기록이 없어요</div>'; return; }
     el.innerHTML=sessions.map(s=>{
-      const d=s.startedAt?.toDate?.();
+      const d=toDateValue(s.startedAt);
       const dateStr=d?`${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`:'';
       return `<div style="padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
@@ -2131,19 +2167,17 @@ window.loadSession=async(sessionId)=>{
   chatClear();
   const log=document.getElementById('chat-log'); log.innerHTML='';
   try {
-    const [cSnap, dSnap] = await Promise.all([
-      getDocs(query(collection(db,`chatSessions/${sessionId}/chats`),orderBy('createdAt','asc'))),
-      getDocs(query(collection(db,`chatSessions/${sessionId}/donations`),orderBy('createdAt','asc')))
-    ]);
+    const detail = await chatStoreRequest(`/sessions/${encodeURIComponent(sessionId)}`);
+    const storedChats = detail.chats||[];
+    const storedDonations = detail.donations||[];
 
     const missionOfferGroups = {};
-    dSnap.docs.forEach(docSnap=>{
-      const item = docSnap.data();
+    storedDonations.forEach(item=>{
       if(item.type !== 'mission') return;
       const missionKey = item.missionDonationId || item.missionEventId || '';
       if(!missionKey) return;
       const group = missionOfferGroups[missionKey] || { rawTotal: 0, maxOffer: 0, seen: {} };
-      const contributionKey = item.missionContributionKey || docSnap.id;
+      const contributionKey = item.missionContributionKey || item.id;
       const rawAmount = toDonationAmount(item.rawAmt);
       if(rawAmount>0 && !group.seen[contributionKey]){
         group.rawTotal += rawAmount;
@@ -2158,8 +2192,8 @@ window.loadSession=async(sessionId)=>{
 
     // 채팅+도네 합쳐서 시간순 정렬
     const allItems = [
-      ...cSnap.docs.map(d=>({...d.data(), _type:'chat', _ts: d.data().createdAt?.toMillis?.()||0})),
-      ...dSnap.docs.map(d=>({...d.data(), _type:'donation', _ts: d.data().createdAt?.toMillis?.()||0}))
+      ...storedChats.map(item=>({...item, _type:'chat', _ts:itemTs(item)})),
+      ...storedDonations.map(item=>({...item, _type:'donation', _ts:itemTs(item)}))
     ].sort((a,b)=>a._ts-b._ts);
 
     allItems.forEach(item=>{
@@ -2220,7 +2254,7 @@ window.loadSession=async(sessionId)=>{
     const feed=document.getElementById('done-feed');
     if(feed && !feed.querySelector('[data-empty]')) feed.scrollTop=feed.scrollHeight;
     log.scrollTop=log.scrollHeight;
-    alert(`${cSnap.docs.length}개 채팅, ${dSnap.docs.length}개 후원 불러왔어요!`);
+    alert(`${storedChats.length}개 채팅, ${storedDonations.length}개 후원 불러왔어요!`);
   } catch(e){ alert('불러오기 실패: '+e.message); }
 };
 
@@ -2239,11 +2273,7 @@ window.deleteSession=async(sessionId, btn)=>{
   if(!confirm('이 기록을 삭제할까요?')) return;
   btn.textContent='삭제 중...'; btn.disabled=true;
   try {
-    const cSnap=await getDocs(collection(db,`chatSessions/${sessionId}/chats`));
-    const dSnap=await getDocs(collection(db,`chatSessions/${sessionId}/donations`));
-    await batchDelete(cSnap.docs);
-    await batchDelete(dSnap.docs);
-    const b=writeBatch(db); b.delete(doc(db,'chatSessions',sessionId)); await b.commit();
+    await chatStoreRequest(`/sessions/${encodeURIComponent(sessionId)}`, {method:'DELETE'});
     let el = btn;
     while(el && !el.style.borderRadius) el = el.parentElement;
     if(el) el.remove();
@@ -2252,10 +2282,11 @@ window.deleteSession=async(sessionId, btn)=>{
 
 window.downloadSession=async(sessionId, title)=>{
   try {
-    const snap=await getDocs(query(collection(db,`chatSessions/${sessionId}/chats`),orderBy('createdAt','asc')));
-    const dSnap=await getDocs(query(collection(db,`chatSessions/${sessionId}/donations`),orderBy('createdAt','asc')));
-    const lines=[`[${title}] 채팅 기록`,'',...snap.docs.map(d=>{const {time,nick,msg}=d.data();return `[${time}] ${nick}: ${msg}`;}),
-      '','=== 후원/미션 ===',...dSnap.docs.map(d=>{const item=d.data();const {time,nick,amt,type}=item;const label=type==='mission'?`[${getMissionHistoryLabel(item)}]`:'[후원]';return `[${time}] ${label} ${nick}: ${toDonationAmount(amt).toLocaleString()}원`;})];
+    const detail=await chatStoreRequest(`/sessions/${encodeURIComponent(sessionId)}`);
+    const chats=detail.chats||[];
+    const donations=detail.donations||[];
+    const lines=[`[${title}] 채팅 기록`,'',...chats.map(item=>{const {time,nick,msg}=item;return `[${time}] ${nick}: ${msg}`;}),
+      '','=== 후원/미션 ===',...donations.map(item=>{const {time,nick,amt,type}=item;const label=type==='mission'?`[${getMissionHistoryLabel(item)}]`:'[후원]';return `[${time}] ${label} ${nick}: ${toDonationAmount(amt).toLocaleString()}원`;})];
     const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
     a.download=`첫째와둘째_${title}_기록.txt`; a.click();
@@ -2289,14 +2320,18 @@ window.chatConnect=async(options={})=>{
       const log=document.getElementById('chat-log'); log.innerHTML='';
       const d=document.createElement('div'); d.style.cssText='color:var(--text3);text-align:center;padding:8px;font-size:12px';
       d.textContent=`── 채팅 수집 시작 ${chatSessionStart.toLocaleTimeString()} ──`; log.appendChild(d);
-      // Firebase 세션 생성
+      // chat store session
       try {
-        const sessionRef = await addDoc(collection(db,'chatSessions'),{
-          startedAt: serverTimestamp(),
-          liveTitle: currentLiveTitle||'',
-          chatChannelId: chatChannelIdCache
+        const result = await chatStoreRequest('/sessions',{
+          method:'POST',
+          body:{
+            startedAt: new Date().toISOString(),
+            liveTitle: currentLiveTitle||'',
+            chatChannelId: chatChannelIdCache,
+            collector: isAuto?'browser-auto':'browser'
+          }
         });
-        chatSessionId = sessionRef.id;
+        chatSessionId = result.session.id;
       } catch(e){ console.warn('세션 생성 실패:', e); }
     };
     chatWs.onmessage=chatOnMessage;

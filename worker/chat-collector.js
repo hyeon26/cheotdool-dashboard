@@ -1,24 +1,7 @@
 import WebSocket from 'ws';
-import { initializeApp } from 'firebase/app';
-import {
-  addDoc,
-  collection,
-  doc,
-  getFirestore,
-  serverTimestamp,
-  updateDoc
-} from 'firebase/firestore';
+import { openChatStore } from './chat-store.js';
 
-const firebaseApp = initializeApp({
-  apiKey: 'AIzaSyCe3izM-r1ljlhO5YKyBe_3jEHvXxHy7Yw',
-  authDomain: 'firstandsecond-b449c.firebaseapp.com',
-  projectId: 'firstandsecond-b449c',
-  storageBucket: 'firstandsecond-b449c.firebasestorage.app',
-  messagingSenderId: '794631097887',
-  appId: '1:794631097887:web:e03fe5f49915f4c741cf2a'
-});
-
-const db = getFirestore(firebaseApp);
+const store = openChatStore();
 
 const SITE_URL = trimTrailingSlash(process.env.PUBLIC_SITE_URL || 'https://firstandsecond.vercel.app');
 const CHANNEL_ID = process.env.CHZZK_CHANNEL_ID || '48070f8882233efa7aee52519fee8fca';
@@ -152,13 +135,12 @@ async function fetchAccessToken(channelId) {
 
 async function createSession({ liveTitle, chatChannelId }) {
   if (sessionId) return;
-  const ref = await addDoc(collection(db, 'chatSessions'), {
-    startedAt: serverTimestamp(),
+  const session = store.createSession({
     liveTitle: liveTitle || '',
     chatChannelId: chatChannelId || '',
     collector: 'oracle-worker'
   });
-  sessionId = ref.id;
+  sessionId = session.id;
   sessionStartedAt = new Date();
   log(`created chat session ${sessionId}`);
 }
@@ -167,10 +149,7 @@ async function finishSession(reason) {
   if (!sessionId) return;
   const id = sessionId;
   try {
-    await updateDoc(doc(db, 'chatSessions', id), {
-      endedAt: serverTimestamp(),
-      endReason: reason || 'stopped'
-    });
+    store.finishSession(id, reason || 'stopped');
   } catch (error) {
     log(`failed to update session ${id}: ${error.message}`);
   }
@@ -208,11 +187,11 @@ async function saveChat(chat) {
   lastRecordAt = Date.now();
   reconnectAttemptsAfterOffline = 0;
 
-  await addDoc(collection(db, `chatSessions/${sessionId}/chats`), {
+  store.addChat(sessionId, {
     time: formatChatTime(),
     nick,
     msg,
-    createdAt: serverTimestamp()
+    createdAt: new Date().toISOString()
   });
 
   log(`chat saved: ${nick}: ${msg.slice(0, 80)}`);

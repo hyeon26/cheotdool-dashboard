@@ -3,10 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "collector": "node worker/chat-collector.js"
+    "collector": "node worker/chat-collector.js",
+    "chat-api": "node worker/chat-api.js",
+    "import:firebase": "node worker/import-firebase-export.js"
   },
   "dependencies": {
-    "firebase": "^11.6.0",
     "ws": "^8.18.3"
   }
 }
