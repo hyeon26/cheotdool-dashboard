@@ -2600,7 +2600,8 @@ window.openClipPlayer = (id, title, type='chzzk') => {
 function getClipShareUrl() {
   const { id, type } = currentClip;
   if(!id) return '';
-  return `https://firstandsecond.vercel.app/clips?open=${encodeURIComponent(id)}&type=${encodeURIComponent(type || 'chzzk')}`;
+  if(type === 'youtube') return `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
+  return `https://chzzk.naver.com/clips/${encodeURIComponent(id)}`;
 }
 
 async function copyText(text) {
