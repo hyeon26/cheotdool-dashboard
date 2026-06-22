@@ -7,7 +7,7 @@ const SITE_URL = trimTrailingSlash(process.env.PUBLIC_SITE_URL || 'https://first
 const CHANNEL_ID = process.env.CHZZK_CHANNEL_ID || '48070f8882233efa7aee52519fee8fca';
 const POLL_INTERVAL_MS = numberEnv('POLL_INTERVAL_MS', 3000);
 const OFFLINE_IDLE_MS = numberEnv('OFFLINE_IDLE_MS', 60000);
-const OFFLINE_RECONNECT_LIMIT = numberEnv('OFFLINE_RECONNECT_LIMIT', 5);
+const OFFLINE_RECONNECT_LIMIT = numberEnv('OFFLINE_RECONNECT_LIMIT', 3);
 const HEARTBEAT_MS = numberEnv('HEARTBEAT_MS', 20000);
 
 let ws = null;

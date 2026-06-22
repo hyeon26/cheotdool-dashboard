@@ -1315,7 +1315,7 @@ let chatAutoReconnect=true, chatReconnectTimer=null, chatChannelIdCache=null, ch
 let currentLiveTitle='';
 let chatSessionId=null; // chat store session ID
 const CHAT_OFFLINE_IDLE_MS = 60000;
-const CHAT_OFFLINE_RECONNECT_LIMIT = 5;
+const CHAT_OFFLINE_RECONNECT_LIMIT = 3;
 const ENABLE_BROWSER_AUTO_CHAT = false;
 let chatAutoConnecting=false, chatManualStop=false, chatLastRecordAt=0;
 let chatOfflineSince=null, chatOfflineReconnectAttempts=0, lastLiveState=false;
