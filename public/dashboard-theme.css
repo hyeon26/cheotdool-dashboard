@@ -887,3 +887,98 @@ body.menu-collapsed .tab-icon {
   color: #3b3152 !important;
   text-shadow: .25px 0 0 currentColor !important;
 }
+/* Non-sticky app chrome */
+.header {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: auto !important;
+  margin: 16px 16px 0 !important;
+}
+.tabs {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  float: left !important;
+  height: auto !important;
+  min-height: calc(100vh - 122px) !important;
+  margin: 16px 0 18px 16px !important;
+}
+.page {
+  margin-left: 286px !important;
+  padding: 16px 28px 42px 0 !important;
+}
+body.menu-collapsed .page {
+  margin-left: 102px !important;
+}
+.live-banner {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  width: auto !important;
+  margin: 16px 28px 0 286px !important;
+}
+@media (max-width: 900px) {
+  .header {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 10px 14px !important;
+  }
+  .tabs,
+  body.menu-collapsed .tabs {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    float: none !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 10px 10px 0 !important;
+    overflow-x: auto !important;
+  }
+  .tab,
+  body.menu-collapsed .tab {
+    width: auto !important;
+    min-width: 84px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    flex: 0 0 auto !important;
+    justify-content: center !important;
+    padding: 0 12px !important;
+  }
+  body.menu-collapsed .tab-label {
+    width: auto !important;
+    opacity: 1 !important;
+    display: inline !important;
+  }
+  body.menu-collapsed .tab-icon {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: auto !important;
+  }
+  .page,
+  body.menu-collapsed .page {
+    clear: both !important;
+    margin-left: 0 !important;
+    padding: 14px 14px 32px !important;
+  }
+  .live-banner,
+  .live-banner.show {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    width: auto !important;
+    margin: 10px 14px 0 !important;
+  }
+}
