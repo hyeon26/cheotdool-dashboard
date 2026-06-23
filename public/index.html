@@ -354,7 +354,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
 .active-sort { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 </style>
-<link rel="stylesheet" href="/dashboard-theme.css?v=1"/>
+<link rel="stylesheet" href="/dashboard-theme.css?v=2"/>
 
 <link rel="icon" type="image/png" href="/logo.png"/>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -371,6 +371,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
       <div class="logo-sub">치지직 채널 관리 대시보드</div>
     </div>
   </div>
+  <button id="menu-toggle" class="menu-toggle" type="button" onclick="toggleSideMenu()" aria-expanded="true" aria-label="메뉴 접기"><span id="menu-toggle-icon">☰</span><span class="menu-toggle-text">메뉴</span></button>
   <a id="live-badge" class="live-badge off" href="https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca" target="_blank" rel="noopener">
     <div class="live-dot"></div>
     <span id="live-text">ON AIR</span>
@@ -2949,6 +2950,20 @@ function linkify(text){
   if(!text) return '';
   return text.replace(/(https?:\/\/[^\s<>"']+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;word-break:break-all">$1</a>');
 }
+window.setSideMenuCollapsed=(collapsed)=>{
+  document.body.classList.toggle('menu-collapsed', collapsed);
+  try{ localStorage.setItem('side-menu-collapsed', collapsed ? '1' : '0'); }catch(e){}
+  const btn=document.getElementById('menu-toggle');
+  const icon=document.getElementById('menu-toggle-icon');
+  if(btn){
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    btn.setAttribute('aria-label', collapsed ? '메뉴 펼치기' : '메뉴 접기');
+    btn.title = collapsed ? '메뉴 펼치기' : '메뉴 접기';
+  }
+  if(icon) icon.textContent = collapsed ? '☰' : '×';
+};
+window.toggleSideMenu=()=>setSideMenuCollapsed(!document.body.classList.contains('menu-collapsed'));
+try{ setSideMenuCollapsed(localStorage.getItem('side-menu-collapsed')==='1'); }catch(e){ setSideMenuCollapsed(false); }
 window.switchTab=(name,el)=>{
   if(name==='clips'){ allClipsCache=[]; clipsPage=0; loadClips(true); }
   history.replaceState(null, '', '/' + name);
