@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>첫째와둘째</title>
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css"/>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -26,7 +26,7 @@
     --accent-light:#1e1a38;--red-light:#2a1010;--red-border:#7f1d1d;
   }
 }
-body{font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
 /* 헤더 */
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);width:100%}
@@ -65,14 +65,14 @@ body{font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystem
 .modal{background:var(--surface);border-radius:var(--radius);padding:28px;width:100%;max-width:430px;border:1px solid var(--border2);box-shadow:var(--shadow-md);max-height:90vh;overflow-y:auto}
 .modal h3{font-size:16px;font-weight:700;margin-bottom:20px}
 .modal label{font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:5px;margin-top:14px;text-transform:uppercase;letter-spacing:.5px}
-.modal input,.modal select,.modal textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--surface2);color:var(--text);font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:border-color .15s;outline:none}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--surface2);color:var(--text);font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:border-color .15s;outline:none}
 .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent)}
 .modal textarea{resize:vertical;min-height:140px}
 .modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
-.btn-cancel{padding:9px 18px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:13px;font-weight:600;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
-.btn-save{padding:9px 20px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;font-weight:700;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3)}
-.btn-del{padding:9px 16px;border-radius:var(--radius-sm);border:none;background:#fee2e2;color:#991b1b;cursor:pointer;font-size:13px;font-weight:700;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
-.btn-share{padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px}
+.btn-cancel{padding:9px 18px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:13px;font-weight:600;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+.btn-save{padding:9px 20px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;font-weight:700;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3)}
+.btn-del{padding:9px 16px;border-radius:var(--radius-sm);border:none;background:#fee2e2;color:#991b1b;cursor:pointer;font-size:13px;font-weight:700;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+.btn-share{padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px}
 
 /* 엑셀 업로드 */
 .excel-upload{display:none}
@@ -118,7 +118,7 @@ body{font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystem
 
 /* 컨텐츠 */
 .content-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
-.ct-new{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3);transition:opacity .15s}
+.ct-new{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3);transition:opacity .15s}
 .ct-new:hover{opacity:.88}
 .content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .content-card{border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s,background .2s,opacity .2s;box-shadow:var(--shadow);will-change:transform}
@@ -151,13 +151,13 @@ body{font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystem
 .stream-stat-val{font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.5px}
 
 /* 시간 입력 */
-.time-picker-clear{padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;white-space:nowrap}
+.time-picker-clear{padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;white-space:nowrap}
 
 /* 채팅 */
-.chat-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:opacity .15s}
+.chat-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:opacity .15s}
 .chat-btn:hover{opacity:.85}
 
-.add-btn{width:100%;margin-top:16px;padding:11px;border-radius:var(--radius-sm);border:1.5px dashed var(--border2);background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:background .15s,color .15s,border-color .15s}
+.add-btn{width:100%;margin-top:16px;padding:11px;border-radius:var(--radius-sm);border:1.5px dashed var(--border2);background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:background .15s,color .15s,border-color .15s}
 .add-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
 .loading{text-align:center;padding:48px;color:var(--text2);font-size:14px}
 .empty-state{text-align:center;padding:48px 20px;color:var(--text2);font-size:14px;border:2px dashed var(--border2);border-radius:var(--radius)}
@@ -694,7 +694,7 @@ body{font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystem
     <div style="margin-top:14px">
       <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">유튜브 링크 (선택)</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="sd-youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;background:var(--surface2);color:var(--text);font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;outline:none"/>
+        <input id="sd-youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;background:var(--surface2);color:var(--text);font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;outline:none"/>
         <a id="sd-youtube-btn" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;padding:9px 14px;background:#ff0000;border-radius:var(--radius-sm);text-decoration:none;flex-shrink:0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         </a>
@@ -961,7 +961,7 @@ let pickerYearVal=new Date().getFullYear();
 function renderMonthPicker(){
   document.getElementById('picker-year').textContent=pickerYearVal+'년';
   document.getElementById('month-picker-grid').innerHTML=MONTHS_KR.map((m,i)=>`
-    <button onclick="selectMonth(${i})" style="padding:10px 4px;border-radius:8px;border:1.5px solid ${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--border2)'};background:${i===calMonth&&pickerYearVal===calYear?'var(--accent-light)':'transparent'};color:${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--text)'};font-size:13px;font-weight:600;cursor:pointer;font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif">${m}</button>`).join('');
+    <button onclick="selectMonth(${i})" style="padding:10px 4px;border-radius:8px;border:1.5px solid ${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--border2)'};background:${i===calMonth&&pickerYearVal===calYear?'var(--accent-light)':'transparent'};color:${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--text)'};font-size:13px;font-weight:600;cursor:pointer;font-family:'SUIT Variable','SUIT',-apple-system,BlinkMacSystemFont,system-ui,sans-serif">${m}</button>`).join('');
 }
 window.pickerYear=(dir)=>{ pickerYearVal+=dir; renderMonthPicker(); };
 window.selectMonth=(m)=>{ calYear=pickerYearVal; calMonth=m; renderCal(); closeModal('month-picker-modal'); };
