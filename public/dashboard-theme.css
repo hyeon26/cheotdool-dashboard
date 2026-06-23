@@ -982,3 +982,45 @@ body.menu-collapsed .page {
     margin: 10px 14px 0 !important;
   }
 }
+/* Live banner inside header flow */
+.header {
+  gap: 16px !important;
+  flex-wrap: nowrap !important;
+}
+.header .logo-area {
+  flex: 0 0 auto !important;
+}
+.header .live-banner {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  width: auto !important;
+  max-width: 620px !important;
+  min-width: 260px !important;
+  flex: 1 1 420px !important;
+  height: 44px !important;
+  margin: 0 8px 0 auto !important;
+}
+.header .live-banner.show {
+  display: flex !important;
+}
+.header .live-badge {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+}
+@media (max-width: 900px) {
+  .header {
+    flex-wrap: wrap !important;
+    gap: 8px 10px !important;
+  }
+  .header .live-banner,
+  .header .live-banner.show {
+    order: 3 !important;
+    flex: 1 0 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 4px 0 0 !important;
+  }
+}
