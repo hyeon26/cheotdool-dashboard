@@ -715,3 +715,111 @@ body.menu-collapsed .tab.active {
     margin-left: 0 !important;
   }
 }
+/* Sidebar and live alignment polish v3 */
+.live-banner {
+  top: 30px !important;
+  right: 182px !important;
+}
+.menu-head {
+  width: 100% !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 2px 0 12px !important;
+  margin: 0 0 5px !important;
+}
+.menu-heading {
+  color: #504469 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+.menu-toggle {
+  align-self: center !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+#menu-toggle-icon {
+  position: relative !important;
+  width: 16px !important;
+  min-width: 16px !important;
+  height: 16px !important;
+  display: block !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  transform: none !important;
+}
+#menu-toggle-icon::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 5px !important;
+  top: 4px !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-left: 2px solid currentColor !important;
+  border-bottom: 2px solid currentColor !important;
+  transform: rotate(45deg) !important;
+}
+.tab {
+  display: flex !important;
+  align-items: center !important;
+}
+.tab-icon {
+  display: inline-grid !important;
+  place-items: center !important;
+  text-align: center !important;
+  line-height: 1 !important;
+}
+body.menu-collapsed .menu-head {
+  height: 42px !important;
+  min-height: 42px !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin-bottom: 4px !important;
+}
+body.menu-collapsed .menu-heading {
+  display: none !important;
+}
+body.menu-collapsed #menu-toggle-icon::before {
+  left: 4px !important;
+  transform: rotate(225deg) !important;
+}
+body.menu-collapsed .tab {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+body.menu-collapsed .tab-icon {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  margin: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+@media (max-width: 900px) {
+  .menu-head {
+    width: auto !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+    margin: 0 4px 0 0 !important;
+  }
+  .menu-heading { display: none !important; }
+  .live-banner {
+    top: auto !important;
+    right: auto !important;
+  }
+}

@@ -354,7 +354,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
 .active-sort { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 </style>
-<link rel="stylesheet" href="/dashboard-theme.css?v=5"/>
+<link rel="stylesheet" href="/dashboard-theme.css?v=6"/>
 
 <link rel="icon" type="image/png" href="/logo.png"/>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -379,7 +379,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 
 <!-- 탭 -->
 <div class="tabs">
-  <button id="menu-toggle" class="menu-toggle" type="button" onclick="toggleSideMenu()" aria-expanded="true" aria-label="메뉴 접기" title="메뉴 접기"><span id="menu-toggle-icon">‹</span><span class="menu-toggle-text">메뉴 접기</span></button>
+  <div class="menu-head"><span class="menu-heading">메뉴</span><button id="menu-toggle" class="menu-toggle" type="button" onclick="toggleSideMenu()" aria-expanded="true" aria-label="메뉴 접기" title="메뉴 접기"><span id="menu-toggle-icon" aria-hidden="true"></span></button></div>
   <div class="tab active" onclick="switchTab('schedule',this)"><span class="tab-icon">📅</span><span class="tab-label">스케줄</span></div>
   <div class="tab" onclick="switchTab('content',this)"><span class="tab-icon">🎬</span><span class="tab-label">컨텐츠</span></div>
   <div class="tab" onclick="switchTab('tools',this)"><span class="tab-icon">🔗</span><span class="tab-label">사이트</span></div>
