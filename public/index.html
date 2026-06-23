@@ -502,14 +502,15 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
           </div>
         </div>
         <div id="chat-filter-bar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow)">
-          <input id="chat-filter-query" type="text" placeholder="채팅 내용 검색" oninput="applyChatFilters()" style="flex:1;min-width:160px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none"/>
-          <input id="chat-filter-nick" type="text" placeholder="닉네임" oninput="applyChatFilters()" style="width:120px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none"/>
-          <select id="chat-filter-type" onchange="applyChatFilters()" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 9px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none">
+          <input id="chat-filter-query" type="text" placeholder="채팅 내용 검색" onkeydown="if(event.key==='Enter') applyChatFilters()" style="flex:1;min-width:160px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none"/>
+          <input id="chat-filter-nick" type="text" placeholder="닉네임" onkeydown="if(event.key==='Enter') applyChatFilters()" style="width:120px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none"/>
+          <select id="chat-filter-type" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 9px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none">
             <option value="all">전체</option>
             <option value="chat">채팅</option>
             <option value="donation">후원</option>
             <option value="mission">미션</option>
           </select>
+          <button type="button" onclick="applyChatFilters()" class="chat-btn" style="background:var(--accent);color:#fff;white-space:nowrap">검색</button>
           <button type="button" onclick="clearChatFilters()" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2);white-space:nowrap">초기화</button>
           <span id="chat-filter-count" style="font-size:12.5px;color:var(--text3);white-space:nowrap">전체 표시</span>
         </div>
@@ -570,7 +571,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
           <div id="stat-mission-list" style="font-size:13.5px"></div>
           <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
-              <div style="font-size:12.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">📆 월간 후원/미션</div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">📆 월간 받은 후원/미션</div>
               <div style="display:flex;gap:6px;align-items:center">
                 <select id="monthly-stats-year" onchange="loadMonthlyDonationStats(true)" style="border:1.5px solid var(--border);border-radius:7px;padding:5px 6px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:12.5px;outline:none"></select>
                 <button type="button" onclick="loadMonthlyDonationStats(true)" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2);padding:5px 8px;font-size:12.5px">갱신</button>
@@ -1418,13 +1419,12 @@ function clearChatFilters(){
   if(type) type.value='all';
   applyChatFilters();
 }
-let chatFilterObserver=null;
 function initChatFilterObserver(){
-  const log=document.getElementById('chat-log');
-  if(!log||chatFilterObserver) return;
-  chatFilterObserver=new MutationObserver(()=>applyChatFilters());
-  chatFilterObserver.observe(log,{childList:true});
-  applyChatFilters();
+  const count=document.getElementById('chat-filter-count');
+  if(count && !count.dataset.ready){
+    count.dataset.ready='1';
+    count.textContent='검색 버튼을 눌러 결과 표시';
+  }
 }
 window.applyChatFilters=applyChatFilters;
 window.clearChatFilters=clearChatFilters;
@@ -1858,14 +1858,8 @@ function initMonthlyStatsYear(){
   const year=new Date().getFullYear();
   select.innerHTML=Array.from({length:4},(_,i)=>year-i).map(y=>`<option value="${y}">${y}년</option>`).join('');
 }
-function getMonthlyStatsRows(json){
-  if(Array.isArray(json?.content?.data)) return json.content.data;
-  if(Array.isArray(json?.data)) return json.data;
-  if(Array.isArray(json?.items)) return json.items;
-  return [];
-}
-function getDonationMonthKey(item){
-  const raw=String(item?.purchaseDate || item?.createdAt || item?.date || '');
+function getDonationMonthKey(item, session={}){
+  const raw=String(item?.createdAt || session?.startedAt || item?.date || '');
   const m=raw.match(/^(\d{4})-(\d{2})/);
   if(m) return `${m[1]}-${m[2]}`;
   const d=new Date(raw);
@@ -1873,8 +1867,34 @@ function getDonationMonthKey(item){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 function isMonthlyMission(item){
-  const type=String(item?.donationType || item?.type || '').toUpperCase();
-  return type.includes('MISSION');
+  return String(item?.type || item?.donationType || '').toUpperCase().includes('MISSION');
+}
+function addMonthlyDonation(months, item, session){
+  const key=getDonationMonthKey(item, session);
+  if(!key) return;
+  const amount=toDonationAmount(item?.amt ?? item?.amount ?? item?.payAmount ?? item?.totalPayAmount);
+  if(!amount) return;
+  const slot=months[key] || { total:0, donation:0, mission:0, count:0 };
+  slot.total+=amount;
+  if(isMonthlyMission(item)) slot.mission+=amount;
+  else slot.donation+=amount;
+  slot.count+=1;
+  months[key]=slot;
+}
+async function collectReceivedMonthlyDonations(year){
+  const result=await chatStoreRequest('/sessions?limit=200');
+  const sessions=result.sessions||[];
+  const months={};
+  for(const session of sessions){
+    try{
+      const detail=await chatStoreRequest(`/sessions/${encodeURIComponent(session.id)}`);
+      (detail.donations||[]).forEach(item=>{
+        const key=getDonationMonthKey(item, detail.session||session);
+        if(key.startsWith(`${year}-`)) addMonthlyDonation(months, item, detail.session||session);
+      });
+    }catch(e){ console.warn('월간 후원 세션 집계 실패:', session.id, e); }
+  }
+  return months;
 }
 async function loadMonthlyDonationStats(force=false){
   initMonthlyStatsYear();
@@ -1884,36 +1904,21 @@ async function loadMonthlyDonationStats(force=false){
   const year=select.value || String(new Date().getFullYear());
   if(!force && monthlyStatsLoadedYear===year && list.dataset.ready==='1') return;
   list.dataset.ready='0';
-  list.innerHTML='<div style="color:var(--text3);text-align:center;padding:12px">월간 통계 불러오는 중...</div>';
+  list.innerHTML='<div style="color:var(--text3);text-align:center;padding:12px">받은 후원/미션 통계 불러오는 중...</div>';
   try{
-    const response=await fetch(`/api/cheese-history?year=${encodeURIComponent(year)}`);
-    if(!response.ok) throw new Error(response.status);
-    const rows=getMonthlyStatsRows(await response.json());
-    const months={};
-    rows.forEach(item=>{
-      const key=getDonationMonthKey(item);
-      if(!key || !key.startsWith(`${year}-`)) return;
-      const amount=toDonationAmount(item.payAmount ?? item.amount ?? item.amt ?? item.totalPayAmount);
-      if(!amount) return;
-      const slot=months[key] || { total:0, donation:0, mission:0, count:0 };
-      slot.total+=amount;
-      if(isMonthlyMission(item)) slot.mission+=amount;
-      else slot.donation+=amount;
-      slot.count+=1;
-      months[key]=slot;
-    });
+    const months=await collectReceivedMonthlyDonations(year);
     const entries=Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0]));
     monthlyStatsLoadedYear=year;
     list.dataset.ready='1';
     if(!entries.length){
-      list.innerHTML='<div style="color:var(--text3);text-align:center;padding:12px">이 해의 후원 내역이 없어요</div>';
+      list.innerHTML='<div style="color:var(--text3);text-align:center;padding:12px">이 해에 저장된 받은 후원/미션이 없어요</div>';
       return;
     }
     const yearTotal=entries.reduce((sum,[,v])=>sum+v.total,0);
     const maxTotal=Math.max(...entries.map(([,v])=>v.total),1);
     list.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface2);border-radius:8px;padding:9px 10px;margin-bottom:2px">
-        <span style="font-weight:700;color:var(--text2)">${year} 합계</span>
+        <span style="font-weight:700;color:var(--text2)">${year} 받은 합계</span>
         <span style="font-weight:900;color:var(--accent)">${yearTotal.toLocaleString()}원</span>
       </div>
       ${entries.map(([key,value])=>{
@@ -1930,7 +1935,7 @@ async function loadMonthlyDonationStats(force=false){
       }).join('')}`;
   }catch(e){
     list.dataset.ready='0';
-    list.innerHTML=`<div style="color:#ef4444;text-align:center;padding:12px">월간 통계 불러오기 실패: ${e.message}</div>`;
+    list.innerHTML=`<div style="color:#ef4444;text-align:center;padding:12px">받은 후원 통계 불러오기 실패: ${e.message}</div>`;
   }
 }
 window.initMonthlyStatsYear=initMonthlyStatsYear;
