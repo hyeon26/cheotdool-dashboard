@@ -1290,14 +1290,14 @@ body {
     min-height: 200px !important;
   }
   #chat-log {
-    height: calc(100vh - 312px) !important;
-    min-height: 300px !important;
+    height: calc(100vh - 342px) !important;
+    min-height: 280px !important;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1180px) {
   #chat-log {
-    height: min(430px, calc(100vh - 312px)) !important;
-    min-height: 280px !important;
+    height: min(400px, calc(100vh - 342px)) !important;
+    min-height: 260px !important;
   }
 }
