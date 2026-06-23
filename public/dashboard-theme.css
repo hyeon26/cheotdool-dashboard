@@ -1131,3 +1131,10 @@ body {
     padding-bottom: 0 !important;
   }
 }
+/* Chat filter count line break */
+#chat-filter-count {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  display: block !important;
+  margin-top: 2px !important;
+}
