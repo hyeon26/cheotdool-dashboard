@@ -354,7 +354,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
 .active-sort { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 </style>
-<link rel="stylesheet" href="/dashboard-theme.css?v=2"/>
+<link rel="stylesheet" href="/dashboard-theme.css?v=3"/>
 
 <link rel="icon" type="image/png" href="/logo.png"/>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -371,7 +371,6 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
       <div class="logo-sub">치지직 채널 관리 대시보드</div>
     </div>
   </div>
-  <button id="menu-toggle" class="menu-toggle" type="button" onclick="toggleSideMenu()" aria-expanded="true" aria-label="메뉴 접기"><span id="menu-toggle-icon">☰</span><span class="menu-toggle-text">메뉴</span></button>
   <a id="live-badge" class="live-badge off" href="https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca" target="_blank" rel="noopener">
     <div class="live-dot"></div>
     <span id="live-text">ON AIR</span>
@@ -380,13 +379,13 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 
 <!-- 탭 -->
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('schedule',this)">📅 스케줄</div>
-  <div class="tab" onclick="switchTab('content',this)">🎬 컨텐츠</div>
-  <div class="tab" onclick="switchTab('tools',this)">🔗 사이트</div>
-  <div class="tab" onclick="switchTab('chat',this)">💬 채팅 수집</div>
-  <div class="tab" onclick="switchTab('clips',this)">🎞 클립</div>
+  <button id="menu-toggle" class="menu-toggle" type="button" onclick="toggleSideMenu()" aria-expanded="true" aria-label="메뉴 접기" title="메뉴 접기"><span id="menu-toggle-icon">‹</span><span class="menu-toggle-text">메뉴 접기</span></button>
+  <div class="tab active" onclick="switchTab('schedule',this)"><span class="tab-icon">📅</span><span class="tab-label">스케줄</span></div>
+  <div class="tab" onclick="switchTab('content',this)"><span class="tab-icon">🎬</span><span class="tab-label">컨텐츠</span></div>
+  <div class="tab" onclick="switchTab('tools',this)"><span class="tab-icon">🔗</span><span class="tab-label">사이트</span></div>
+  <div class="tab" onclick="switchTab('chat',this)"><span class="tab-icon">💬</span><span class="tab-label">채팅 수집</span></div>
+  <div class="tab" onclick="switchTab('clips',this)"><span class="tab-icon">🎞</span><span class="tab-label">클립</span></div>
 </div>
-
 <div class="page">
 
   <!-- 라이브 배너 -->
@@ -2960,7 +2959,9 @@ window.setSideMenuCollapsed=(collapsed)=>{
     btn.setAttribute('aria-label', collapsed ? '메뉴 펼치기' : '메뉴 접기');
     btn.title = collapsed ? '메뉴 펼치기' : '메뉴 접기';
   }
-  if(icon) icon.textContent = collapsed ? '☰' : '×';
+  if(icon) icon.textContent = collapsed ? '›' : '‹';
+  const label=document.querySelector('#menu-toggle .menu-toggle-text');
+  if(label) label.textContent = collapsed ? '메뉴 펼치기' : '메뉴 접기';
 };
 window.toggleSideMenu=()=>setSideMenuCollapsed(!document.body.classList.contains('menu-collapsed'));
 try{ setSideMenuCollapsed(localStorage.getItem('side-menu-collapsed')==='1'); }catch(e){ setSideMenuCollapsed(false); }
