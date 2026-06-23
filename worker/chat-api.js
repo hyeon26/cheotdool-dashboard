@@ -24,6 +24,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/sessions') {
       return sendJson(res, 200, { sessions: store.listSessions(url.searchParams.get('limit') || 50) });
     }
+    if (req.method === 'GET' && url.pathname === '/donations/monthly') {
+      const year = url.searchParams.get('year') || new Date().getFullYear();
+      return sendJson(res, 200, { year: String(year), months: store.getMonthlyDonationStats(year) });
+    }
 
     if (req.method === 'POST' && url.pathname === '/sessions') {
       const body = await readJson(req);

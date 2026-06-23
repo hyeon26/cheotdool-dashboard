@@ -85,6 +85,18 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
   const getSessionStmt = db.prepare('SELECT * FROM sessions WHERE id = ?');
   const listChatsStmt = db.prepare('SELECT * FROM chats WHERE sessionId = ? ORDER BY createdAt ASC, id ASC');
   const listDonationsStmt = db.prepare('SELECT * FROM donations WHERE sessionId = ? ORDER BY createdAt ASC, id ASC');
+  const monthlyDonationStatsStmt = db.prepare(`
+    SELECT
+      substr(createdAt, 1, 7) AS month,
+      COALESCE(SUM(amt), 0) AS total,
+      COALESCE(SUM(CASE WHEN type = 'mission' THEN amt ELSE 0 END), 0) AS mission,
+      COALESCE(SUM(CASE WHEN type = 'mission' THEN 0 ELSE amt END), 0) AS donation,
+      COUNT(*) AS count
+    FROM donations
+    WHERE createdAt >= ? AND createdAt < ? AND COALESCE(amt, 0) > 0
+    GROUP BY month
+    ORDER BY month DESC
+  `);
   const deleteSessionStmt = db.prepare('DELETE FROM sessions WHERE id = ?');
 
   function createSession(data = {}) {
@@ -160,6 +172,12 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
     return result.changes || 0;
   }
 
+  function getMonthlyDonationStats(year = new Date().getFullYear()) {
+    const y = String(year || new Date().getFullYear()).replace(/[^0-9]/g, '').slice(0, 4);
+    const targetYear = y || String(new Date().getFullYear());
+    return monthlyDonationStatsStmt.all(`${targetYear}-01-01`, `${Number(targetYear) + 1}-01-01`);
+  }
+
   return {
     db,
     createSession,
@@ -169,6 +187,7 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
     listSessions,
     getSession,
     getSessionDetail,
+    getMonthlyDonationStats,
     deleteSession
   };
 }

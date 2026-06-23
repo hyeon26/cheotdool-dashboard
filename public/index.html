@@ -1882,19 +1882,25 @@ function addMonthlyDonation(months, item, session){
   months[key]=slot;
 }
 async function collectReceivedMonthlyDonations(year){
-  const result=await chatStoreRequest('/sessions?limit=200');
-  const sessions=result.sessions||[];
-  const months={};
-  for(const session of sessions){
-    try{
-      const detail=await chatStoreRequest(`/sessions/${encodeURIComponent(session.id)}`);
-      (detail.donations||[]).forEach(item=>{
-        const key=getDonationMonthKey(item, detail.session||session);
-        if(key.startsWith(`${year}-`)) addMonthlyDonation(months, item, detail.session||session);
-      });
-    }catch(e){ console.warn('월간 후원 세션 집계 실패:', session.id, e); }
+  try{
+    const result=await chatStoreRequest(`/donations/monthly?year=${encodeURIComponent(year)}`);
+    const months={};
+    (result.months||[]).forEach(item=>{
+      const key=String(item.month||'');
+      if(!key) return;
+      months[key]={
+        total: toDonationAmount(item.total),
+        donation: toDonationAmount(item.donation),
+        mission: toDonationAmount(item.mission),
+        count: Number(item.count||0)
+      };
+    });
+    return months;
+  }catch(e){
+    const msg=String(e.message||e);
+    if(msg.includes('not found')) throw new Error('Oracle chat-api 업데이트가 필요해요. 서버에서 최신 코드 pull 후 chat-api를 재시작해주세요.');
+    throw e;
   }
-  return months;
 }
 async function loadMonthlyDonationStats(force=false){
   initMonthlyStatsYear();
