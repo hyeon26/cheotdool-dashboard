@@ -29,44 +29,44 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .wrap{position:relative;z-index:1;display:grid;grid-template-columns:320px 1fr;gap:20px;padding:0 26px 40px;max-width:1200px;margin:0 auto}
 @media(max-width:900px){.wrap{grid-template-columns:1fr;padding:0 14px 30px}}
 .header{text-align:center;margin-bottom:28px;position:relative;padding:36px 26px 0;max-width:1100px;margin-inline:auto}
-.header-badge{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(255,255,255,.06);font-size:16px;font-weight:800;color:#ccc;letter-spacing:.4px;margin-bottom:14px}
+.header-badge{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:20px;background:rgba(255,255,255,.06);font-size:18px;font-weight:800;color:#ccc;letter-spacing:.4px;margin-bottom:14px}
 .brand-logo{width:26px;height:26px;border-radius:7px;object-fit:cover;display:block}
-.header h1{font-size:44px;font-weight:900;letter-spacing:-.7px;margin-bottom:10px}
-.header p{font-size:20px;color:#888}
+.header h1{font-size:46px;font-weight:900;letter-spacing:-.7px;margin-bottom:10px}
+.header p{font-size:22px;color:#888}
 .status-area{display:flex;align-items:center;gap:10px}
 .status-dot{width:12px;height:12px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
 .status-dot.on{background:var(--accent);box-shadow:0 0 10px var(--accent);animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.status-text{font-size:14px;font-weight:700;color:var(--text2)}
+.status-text{font-size:16px;font-weight:700;color:var(--text2)}
 .card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
-.card-title{font-size:16px;font-weight:900;color:#bdbdbd;letter-spacing:.2px;margin-bottom:14px}
+.card-title{font-size:18px;font-weight:900;color:#bdbdbd;letter-spacing:.2px;margin-bottom:14px}
 .setting-group,.setting-row{display:flex;flex-direction:column;gap:8px}.setting-group{gap:14px}
-.setting-label{font-size:13px;font-weight:700;color:var(--text2)}
-.setting-input,.roulette-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none}
+.setting-label{font-size:15px;font-weight:700;color:var(--text2)}
+.setting-input,.roulette-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:16px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none}
 .setting-input:focus,.roulette-textarea:focus{border-color:var(--accent)}
-.setting-hint{font-size:12px;color:var(--text3)}
+.setting-hint{font-size:14px;color:var(--text3)}
 .preset-btns{display:flex;gap:6px;flex-wrap:wrap}
-.preset-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer}
+.preset-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer}
 .preset-btn:hover,.preset-btn.active{background:#1a6e3e;border-color:var(--accent);color:var(--accent)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;border:none;font-family:inherit;font-size:14px;font-weight:900;cursor:pointer;transition:opacity .15s;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;border:none;font-family:inherit;font-size:16px;font-weight:900;cursor:pointer;transition:opacity .15s;width:100%}
 .btn:hover{opacity:.85}.btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-connect,.btn-copy{background:var(--accent);color:#fff}.btn-stop{background:var(--red);color:#fff}.btn-open{background:var(--amber);color:#fff}
 .btn-clear{background:#2a2a2a;color:#888;border:1.5px solid rgba(255,255,255,.1)}
 .right-panel{display:flex;flex-direction:column;gap:16px}
 .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .stat-box{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center}
-.stat-num{font-size:24px;font-weight:900;color:var(--text);line-height:1}.stat-num.blurred{filter:blur(8px);user-select:none;cursor:pointer}
-.stat-label{font-size:12px;color:var(--text2);margin-top:6px}
+.stat-num{font-size:26px;font-weight:900;color:var(--text);line-height:1}.stat-num.blurred{filter:blur(8px);user-select:none;cursor:pointer}
+.stat-label{font-size:14px;color:var(--text2);margin-top:6px}
 .edit-item,.feed-item{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface2)}
-.edit-item-name{flex:1;font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.edit-item-cnt,.feed-cnt{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:#1a6e3e;color:var(--accent);flex-shrink:0}
-.edit-item-input{flex:1;background:var(--surface);border:1.5px solid var(--accent);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;padding:4px 8px;outline:none;min-width:0}
+.edit-item-name{flex:1;font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.edit-item-cnt,.feed-cnt{font-size:13px;font-weight:700;padding:2px 8px;border-radius:20px;background:#1a6e3e;color:var(--accent);flex-shrink:0}
+.edit-item-input{flex:1;background:var(--surface);border:1.5px solid var(--accent);border-radius:6px;color:var(--text);font-family:inherit;font-size:15px;padding:4px 8px;outline:none;min-width:0}
 .feed-wrap{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}.feed-item{display:block}
-.feed-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.feed-nick,.feed-amt{font-size:13px;font-weight:700}.feed-amt{color:var(--accent);filter:blur(8px);user-select:none;cursor:pointer}.feed-amt.show{filter:none}
-.feed-msg{font-size:12px;color:var(--text2);margin-top:4px}.feed-time,.feed-empty{font-size:11px;color:var(--text3)}
+.feed-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.feed-nick,.feed-amt{font-size:15px;font-weight:700}.feed-amt{color:var(--accent);filter:blur(8px);user-select:none;cursor:pointer}.feed-amt.show{filter:none}
+.feed-msg{font-size:14px;color:var(--text2);margin-top:4px}.feed-time,.feed-empty{font-size:13px;color:var(--text3)}
 .collapsible-trigger{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
 .collapsible-body{overflow:hidden;max-height:0;transition:max-height .35s ease}.collapsible-body.open{max-height:500px}
-.helper{font-size:12px;color:var(--text2);line-height:1.5}
+.helper{font-size:14px;color:var(--text2);line-height:1.5}
 </style>
 </head>
 <body>
@@ -139,10 +139,10 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div class="card-title" style="margin:0">3) 룰렛 목록 확인/편집</div>
-        <span style="font-size:11px;color:var(--text3)" id="item-count-label">0종류</span>
+        <span style="font-size:13px;color:var(--text3)" id="item-count-label">0종류</span>
       </div>
       <div id="item-edit-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;margin-bottom:12px">
-        <div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>
+        <div style="color:var(--text3);text-align:center;padding:20px;font-size:14px">후원이 들어오면 자동으로 추가됩니다</div>
       </div>
       <div class="helper" style="margin-bottom:8px">항목명*개수 형식으로 자동 정리됩니다. (예: 치킨*3)</div>
       <textarea class="roulette-textarea" id="roulette-list" readonly></textarea>
@@ -160,10 +160,10 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   <div class="card">
     <div class="collapsible-trigger" onclick="toggleFeed()">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:13px;font-weight:700;color:var(--text)">실시간 후원 내역</div>
-        <span style="font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-light);padding:2px 10px;border-radius:20px" id="feed-count">0건</span>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">실시간 후원 내역</div>
+        <span style="font-size:14px;font-weight:600;color:var(--accent);background:var(--accent-light);padding:2px 10px;border-radius:20px" id="feed-count">0건</span>
       </div>
-      <span id="feed-arrow" style="font-size:12px;font-weight:600;color:var(--text2)">▼ 펼치기</span>
+      <span id="feed-arrow" style="font-size:14px;font-weight:600;color:var(--text2)">▼ 펼치기</span>
     </div>
     <div class="collapsible-body" id="feed-body">
       <div style="height:14px"></div>
@@ -322,7 +322,7 @@ function renderEditList(countMap){
   var el=document.getElementById('item-edit-list');
   var entries=Object.keys(countMap).map(function(k){return[k,countMap[k]];}).sort(function(a,b){return b[1]-a[1];});
   if(entries.length===0){
-    el.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>';
+    el.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:14px">후원이 들어오면 자동으로 추가됩니다</div>';
     document.getElementById('item-count-label').textContent='0종류';
     return;
   }
@@ -393,7 +393,7 @@ function clearList(){
   document.getElementById('roulette-list').value='';
   document.getElementById('feed-wrap').innerHTML='<div class="feed-empty">후원을 기다리는 중...</div>';
   document.getElementById('feed-count').textContent='0건';
-  document.getElementById('item-edit-list').innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원이 들어오면 자동으로 추가됩니다</div>';
+  document.getElementById('item-edit-list').innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:14px">후원이 들어오면 자동으로 추가됩니다</div>';
   document.getElementById('item-count-label').textContent='0종류';
   updateStats();
 }

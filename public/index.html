@@ -32,8 +32,8 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);width:100%}
 .logo-area{display:flex;align-items:center;gap:12px}
 .logo-icon{width:48px;height:48px;border-radius:13px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.logo-text{font-size:18px;font-weight:900;letter-spacing:-.3px}
-.logo-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.logo-text{font-size:20px;font-weight:900;letter-spacing:-.3px}
+.logo-sub{font-size:13px;color:var(--text2);margin-top:1px}
 .live-badge{display:flex;align-items:center;text-decoration:none;transition:all .3s .3s;letter-spacing:.2px}
 
 
@@ -44,7 +44,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 
 /* 탭 */
 .tabs{display:flex;align-items:center;padding:0 32px;gap:4px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:19}
-.tab{padding:13px 20px;font-size:14px;font-weight:600;color:var(--text2);border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;border-radius:8px 8px 0 0}
+.tab{padding:13px 20px;font-size:16px;font-weight:600;color:var(--text2);border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;border-radius:8px 8px 0 0}
 .tab:hover{color:var(--text);background:var(--surface2)}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
@@ -56,51 +56,51 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .live-banner{display:none;align-items:center;gap:14px;padding:14px 20px;border-radius:var(--radius);background:linear-gradient(135deg,#fff1f1,#fff5f5);border:1px solid var(--red-border);margin-bottom:24px;box-shadow:0 2px 12px rgba(239,68,68,.1)}
 .live-banner.show{display:flex}
 .lb-dot{width:11px;height:11px;border-radius:50%;background:var(--red);animation:blink 1.4s infinite;flex-shrink:0}
-.lb-text{flex:1;font-size:13px;color:#7f1d1d;font-weight:600}
-.lb-link{font-size:12px;padding:7px 16px;border-radius:20px;background:var(--red);color:#fff;text-decoration:none;font-weight:700}
+.lb-text{flex:1;font-size:15px;color:#7f1d1d;font-weight:600}
+.lb-link{font-size:14px;padding:7px 16px;border-radius:20px;background:var(--red);color:#fff;text-decoration:none;font-weight:700}
 
 /* 모달 */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(10,8,30,.45);z-index:100;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
 .modal{background:var(--surface);border-radius:var(--radius);padding:28px;width:100%;max-width:430px;border:1px solid var(--border2);box-shadow:var(--shadow-md);max-height:90vh;overflow-y:auto}
-.modal h3{font-size:16px;font-weight:700;margin-bottom:20px}
-.modal label{font-size:12px;color:var(--text2);font-weight:600;display:block;margin-bottom:5px;margin-top:14px;text-transform:uppercase;letter-spacing:.5px}
-.modal input,.modal select,.modal textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--surface2);color:var(--text);font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:border-color .15s;outline:none}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:20px}
+.modal label{font-size:14px;color:var(--text2);font-weight:600;display:block;margin-bottom:5px;margin-top:14px;text-transform:uppercase;letter-spacing:.5px}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:15px;background:var(--surface2);color:var(--text);font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:border-color .15s;outline:none}
 .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent)}
 .modal textarea{resize:vertical;min-height:140px}
 .modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
-.btn-cancel{padding:9px 18px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:13px;font-weight:600;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
-.btn-save{padding:9px 20px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3)}
-.btn-del{padding:9px 16px;border-radius:var(--radius-sm);border:none;background:#fee2e2;color:#991b1b;cursor:pointer;font-size:13px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
-.btn-share{padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:13px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px}
+.btn-cancel{padding:9px 18px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:15px;font-weight:600;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+.btn-save{padding:9px 20px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:15px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3)}
+.btn-del{padding:9px 16px;border-radius:var(--radius-sm);border:none;background:#fee2e2;color:#991b1b;cursor:pointer;font-size:15px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+.btn-share{padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:15px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px}
 
 /* 엑셀 업로드 */
 .excel-upload{display:none}
 .excel-upload-bar{display:flex;align-items:center;gap:10px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface);margin-bottom:12px;cursor:pointer;transition:all .2s;width:fit-content}
 .excel-upload-bar:hover{border-color:var(--accent);background:var(--accent-light)}
-.excel-upload-bar-icon{font-size:14px}
-.excel-upload-bar-text{font-size:12px;font-weight:600;color:var(--text2)}
-.excel-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent)}
+.excel-upload-bar-icon{font-size:16px}
+.excel-upload-bar-text{font-size:14px;font-weight:600;color:var(--text2)}
+.excel-badge{font-size:13px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent)}
 
 /* 달력 */
 .schedule-grid{display:grid;grid-template-columns:1fr 340px;gap:28px}
 @media(max-width:900px){.schedule-grid{grid-template-columns:1fr}}
 .cal-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow)}
 .cal-header{display:flex;align-items:center;justify-content:center;margin-bottom:18px;gap:10px;position:relative}
-.cal-title{font-size:16px;font-weight:700;cursor:pointer;padding:6px 14px;border-radius:20px;transition:background .15s;user-select:none;display:flex;align-items:center;gap:6px}
+.cal-title{font-size:18px;font-weight:700;cursor:pointer;padding:6px 14px;border-radius:20px;transition:background .15s;user-select:none;display:flex;align-items:center;gap:6px}
 .cal-title:hover{background:var(--surface2)}
-.cal-nav-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cal-nav-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .cal-nav-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:3px}
-.cal-day-label{text-align:center;font-size:13px;font-weight:700;color:var(--text2);padding:6px 0;letter-spacing:.5px}
+.cal-day-label{text-align:center;font-size:15px;font-weight:700;color:var(--text2);padding:6px 0;letter-spacing:.5px}
 .cal-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cal-cell{height:calc((100vh - 280px)/6);min-height:90px;padding:6px 7px;border-radius:8px;border:1px solid var(--border);font-size:11px;cursor:pointer;transition:background .12s,border-color .12s;overflow:hidden}
+.cal-cell{height:calc((100vh - 280px)/6);min-height:90px;padding:6px 7px;border-radius:8px;border:1px solid var(--border);font-size:13px;cursor:pointer;transition:background .12s,border-color .12s;overflow:hidden}
 .cal-cell:hover:not(.empty){border-color:var(--border2);background:var(--surface2)}
 .cal-cell.empty{cursor:default;border-color:transparent}
 .cal-cell.today{border-color:var(--accent);background:var(--accent-light)}
-.date-num{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.2}
-.cal-cell.today .date-num{color:var(--accent);font-size:15px}
-.cal-event{margin-top:3px;padding:3px 6px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.date-num{font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.2}
+.cal-cell.today .date-num{color:var(--accent);font-size:17px}
+.cal-event{margin-top:3px;padding:3px 6px;border-radius:4px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .ev-stream{background:#ede9fe;color:#4c1d95}
 .ev-vod{background:#d1fae5;color:#064e3b}
 .ev-edit{background:#d1fae5;color:#064e3b}
@@ -108,65 +108,65 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .ev-info{background:#e0f2fe;color:#0369a1}
 
 .upcoming-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow)}
-.up-title{font-size:14px;font-weight:700;margin-bottom:14px}
+.up-title{font-size:16px;font-weight:700;margin-bottom:14px}
 .up-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--surface2);border-radius:10px;cursor:pointer;transition:transform .15s,border-color .15s;border:1.5px solid transparent}
 .up-item:hover{border-color:var(--border2);transform:translate3d(2px,0,0)}
 .up-dot{width:10px;height:10px;border-radius:50%;margin-top:3px;flex-shrink:0}
-.up-name{font-size:13px;font-weight:600;line-height:1.4}
-.up-time{font-size:11px;color:var(--text2);margin-top:3px}
-.up-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:5px;display:inline-block}
+.up-name{font-size:15px;font-weight:600;line-height:1.4}
+.up-time{font-size:13px;color:var(--text2);margin-top:3px}
+.up-tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:5px;display:inline-block}
 
 /* 컨텐츠 */
 .content-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
-.ct-new{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3);transition:opacity .15s}
+.ct-new{padding:8px 18px;border-radius:20px;font-size:15px;font-weight:700;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3);transition:opacity .15s}
 .ct-new:hover{opacity:.88}
 .content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .content-card{border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s,background .2s,opacity .2s;box-shadow:var(--shadow);will-change:transform}
 .content-card:hover{transform:translate3d(0,-3px,0);box-shadow:var(--shadow-md);border-color:var(--border2)}
-.content-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:36px;position:relative}
-.content-type-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
+.content-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:38px;position:relative}
+.content-type-badge{position:absolute;top:10px;right:10px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px}
 .content-body{padding:14px}
-.content-title{font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.4}
-.content-meta{font-size:11px;color:var(--text2)}
+.content-title{font-size:15px;font-weight:700;margin-bottom:4px;line-height:1.4}
+.content-meta{font-size:13px;color:var(--text2)}
 
 /* 드래그 */
 .drag-item{transition:opacity .15s}
 .drag-item.dragging{opacity:.4;cursor:grabbing}
 .drag-item.drag-over{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--radius)}
-.drag-handle{cursor:grab;color:var(--text3);font-size:16px;padding:2px 4px;user-select:none;flex-shrink:0;opacity:0;transition:opacity .15s}
+.drag-handle{cursor:grab;color:var(--text3);font-size:18px;padding:2px 4px;user-select:none;flex-shrink:0;opacity:0;transition:opacity .15s}
 .drag-item:hover .drag-handle{opacity:1}
 .drag-handle:active{cursor:grabbing}
 
 /* 사이트 */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.section-title{font-size:15px;font-weight:700}
+.section-title{font-size:17px;font-weight:700}
 
 /* 방송 상세 모달 */
 .stream-modal{max-width:480px}
-.stream-modal h3{font-size:15px;line-height:1.5;margin-bottom:6px}
-.stream-time-badge{font-size:12px;color:var(--text2);margin-bottom:20px;display:flex;align-items:center;gap:6px}
+.stream-modal h3{font-size:17px;line-height:1.5;margin-bottom:6px}
+.stream-time-badge{font-size:14px;color:var(--text2);margin-bottom:20px;display:flex;align-items:center;gap:6px}
 .stream-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
 .stream-stat{background:var(--surface2);border-radius:10px;padding:14px 16px;border:1px solid var(--border)}
-.stream-stat-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.stream-stat-val{font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.5px}
+.stream-stat-label{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stream-stat-val{font-size:24px;font-weight:900;color:var(--text);letter-spacing:-.5px}
 
 /* 시간 입력 */
-.time-picker-clear{padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;white-space:nowrap}
+.time-picker-clear{padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:14px;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;white-space:nowrap}
 
 /* 채팅 */
-.chat-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:opacity .15s}
+.chat-btn{padding:7px 14px;border-radius:20px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:opacity .15s}
 .chat-btn:hover{opacity:.85}
 
-.add-btn{width:100%;margin-top:16px;padding:11px;border-radius:var(--radius-sm);border:1.5px dashed var(--border2);background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:background .15s,color .15s,border-color .15s}
+.add-btn{width:100%;margin-top:16px;padding:11px;border-radius:var(--radius-sm);border:1.5px dashed var(--border2);background:transparent;color:var(--text2);font-size:15px;font-weight:600;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;transition:background .15s,color .15s,border-color .15s}
 .add-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
-.loading{text-align:center;padding:48px;color:var(--text2);font-size:14px}
-.empty-state{text-align:center;padding:48px 20px;color:var(--text2);font-size:14px;border:2px dashed var(--border2);border-radius:var(--radius)}
-.empty-icon{font-size:36px;margin-bottom:12px;opacity:.4}
+.loading{text-align:center;padding:48px;color:var(--text2);font-size:16px}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text2);font-size:16px;border:2px dashed var(--border2);border-radius:var(--radius)}
+.empty-icon{font-size:38px;margin-bottom:12px;opacity:.4}
 
 /* ── 모바일 반응형 ── */
 @media (max-width: 640px) {
   .btn-full { display: none; }
-  .chat-btn { font-size: 11px !important; padding: 5px 8px !important; }
+  .chat-btn { font-size: 13px !important; padding: 5px 8px !important; }
 }
 
 @media (max-width: 768px) {
@@ -176,9 +176,9 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   .schedule-grid { grid-template-columns: 1fr !important; }
   .cal-card { padding: 12px 8px; }
   .cal-cells { grid-template-columns: repeat(7, 1fr); }
-  .cal-cell { min-height: 60px; padding: 4px; font-size: 13px; }
-  .cal-cell .event-chip { font-size: 10px; padding: 1px 4px; }
-  .cal-title { font-size: 16px; }
+  .cal-cell { min-height: 60px; padding: 4px; font-size: 15px; }
+  .cal-cell .event-chip { font-size: 12px; padding: 1px 4px; }
+  .cal-title { font-size: 18px; }
   .upcoming-card { margin-top: 12px; }
   .excel-upload-bar { width: 100%; justify-content: center; box-sizing: border-box; }
 }
@@ -186,22 +186,22 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 @media (max-width: 768px) {
   .header { padding: 10px 14px; }
   .header-left img { width: 36px; height: 36px; }
-  .header-left h1 { font-size: 16px; }
-  .header-left p { font-size: 10px; }
+  .header-left h1 { font-size: 18px; }
+  .header-left p { font-size: 12px; }
   .tabs { padding: 0; gap: 0; overflow-x: visible; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab { padding: 10px 0; font-size: 11px; flex: 1; text-align: center; flex-shrink: 0; }
-  .tab-label { display: inline; font-size: 11px; }
-  .tab-icon { font-size: 14px; }
+  .tab { padding: 10px 0; font-size: 13px; flex: 1; text-align: center; flex-shrink: 0; }
+  .tab-label { display: inline; font-size: 13px; }
+  .tab-icon { font-size: 16px; }
   .main { padding: 14px; }
   /* 버튼 줄바꿈 */
-  .chat-btn { font-size: 11px; padding: 6px 10px; }
+  .chat-btn { font-size: 13px; padding: 6px 10px; }
   /* 컨텐츠/방송보조 카드 */
   .card-grid { grid-template-columns: 1fr !important; }
   /* 모달 */
   .modal { margin: 10px; max-height: 90vh; overflow-y: auto; }
   /* 라이브 배너 */
-  .live-banner { padding: 10px 14px; font-size: 13px; }
+  .live-banner { padding: 10px 14px; font-size: 15px; }
 }
 @media (max-width: 480px) {
   .tab-label { display: none; }
@@ -240,7 +240,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 }
 .live-badge .live-dot { display: none; }
 #live-text {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 900;
   letter-spacing: 3px;
   font-family: 'Arial Black', Arial, sans-serif;
@@ -304,7 +304,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   right: 6px;
   background: rgba(0,0,0,.75);
   color: #fff;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
@@ -313,7 +313,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   padding: 10px 12px 12px;
 }
 .clip-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 6px;
@@ -327,7 +327,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text3);
 }
 .clip-views { font-weight: 600; }
@@ -345,7 +345,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   border: 1.5px solid var(--border2);
   background: var(--surface);
   color: var(--text2);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all .2s;
@@ -440,7 +440,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   <!-- 클립 -->
   <div id="tab-clips" class="tab-content">
     <div style="margin-bottom:16px">
-      <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:10px">🎞 클립 모음</div>
+      <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:10px">🎞 클립 모음</div>
       <div style="display:flex;align-items:center;gap:8px">
         <div style="display:flex;gap:4px;flex-shrink:0">
           <button onclick="setSortOrder('newest')" id="sort-newest" class="sort-btn active-sort">최신순</button>
@@ -449,7 +449,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
         </div>
         <div style="position:relative;flex:1;min-width:0">
           <input id="clip-search" type="text" placeholder="클립 검색..." oninput="filterClips(this.value)"
-            style="width:100%;padding:8px 36px 8px 14px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--text);font-size:13px;outline:none;box-sizing:border-box"
+            style="width:100%;padding:8px 36px 8px 14px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--text);font-size:15px;outline:none;box-sizing:border-box"
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'"/>
           <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none">🔍</span>
         </div>
@@ -489,7 +489,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
             <div id="chat-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--text3);flex-shrink:0"></div>
-            <span id="chat-status-text" style="font-size:13px;font-weight:600;color:var(--text2);white-space:nowrap">연결 안됨</span>
+            <span id="chat-status-text" style="font-size:15px;font-weight:600;color:var(--text2);white-space:nowrap">연결 안됨</span>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch">
             <button id="chat-connect-btn" onclick="chatConnect()" class="chat-btn" style="background:var(--accent);color:#fff;white-space:nowrap;flex-shrink:0">🔌 <span class="btn-full">채팅 수집 </span>시작</button>
@@ -501,21 +501,21 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
             <button onclick="openCookieModal()" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2);white-space:nowrap;flex-shrink:0">🍪 쿠키</button>
           </div>
         </div>
-        <div id="chat-log" style="height:calc(100vh - 230px);min-height:400px;overflow-y:auto;overflow-x:hidden;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;font-size:13px;font-family:inherit;line-height:1.7;word-break:break-all">
+        <div id="chat-log" style="height:calc(100vh - 230px);min-height:400px;overflow-y:auto;overflow-x:hidden;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;font-size:15px;font-family:inherit;line-height:1.7;word-break:break-all">
           <div style="color:var(--text3);text-align:center;padding:40px">채팅 수집 시작 버튼을 눌러주세요</div>
         </div>
-        <div style="font-size:11px;color:var(--text3)">총 <span id="chat-count">0</span>개 채팅 수집됨</div>
+        <div style="font-size:13px;color:var(--text3)">총 <span id="chat-count">0</span>개 채팅 수집됨</div>
       </div>
 
       <!-- 2열: 후원 실시간 피드 -->
       <div id="chat-col3" style="display:flex;flex-direction:column;gap:12px">
         <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);height:calc(100vh - 200px);min-height:300px;display:flex;flex-direction:column">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0">
-            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">📨 후원 내역</div>
-            <button onclick="document.getElementById('done-feed').innerHTML=''" style="font-size:10px;color:var(--text3);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='none'">초기화</button>
+            <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">📨 후원 내역</div>
+            <button onclick="document.getElementById('done-feed').innerHTML=''" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='none'">초기화</button>
           </div>
-          <div id="done-feed" style="flex:1;overflow-y:auto;font-size:12px;display:flex;flex-direction:column;gap:6px">
-            <div data-empty style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원 없음</div>
+          <div id="done-feed" style="flex:1;overflow-y:auto;font-size:14px;display:flex;flex-direction:column;gap:6px">
+            <div data-empty style="color:var(--text3);text-align:center;padding:20px;font-size:14px">후원 없음</div>
           </div>
         </div>
       </div>
@@ -523,21 +523,21 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
       <!-- 3열: 수집 현황 + 참여자 목록 -->
       <div id="chat-col2" style="display:flex;flex-direction:column;gap:12px">
         <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">수집 현황</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">수집 현황</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div style="background:var(--surface2);border-radius:8px;padding:12px">
-              <div style="font-size:11px;color:var(--text2);margin-bottom:4px">채팅 수</div>
-              <div id="stat-total" style="font-size:22px;font-weight:900;color:var(--text)">0</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:4px">채팅 수</div>
+              <div id="stat-total" style="font-size:24px;font-weight:900;color:var(--text)">0</div>
             </div>
             <div style="background:var(--surface2);border-radius:8px;padding:12px">
-              <div style="font-size:11px;color:var(--text2);margin-bottom:4px">참여자 수</div>
-              <div id="stat-users" style="font-size:22px;font-weight:900;color:var(--text)">0</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:4px">참여자 수</div>
+              <div id="stat-users" style="font-size:24px;font-weight:900;color:var(--text)">0</div>
             </div>
           </div>
         </div>
         <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);height:calc(100vh - 350px);min-height:200px;overflow-y:auto" id="chat-participants-box">
-          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">참여자 목록</div>
-          <div id="stat-top" style="font-size:12px"></div>
+          <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">참여자 목록</div>
+          <div id="stat-top" style="font-size:14px"></div>
         </div>
       </div>
 
@@ -546,16 +546,16 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
         <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);height:calc(100vh - 200px);min-height:300px;overflow-y:auto">
           <!-- 일반 후원 -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">💰 후원</div>
-            <div style="font-size:12px;font-weight:700;color:var(--accent)">총 <span id="stat-done-total">0</span>원</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">💰 후원</div>
+            <div style="font-size:14px;font-weight:700;color:var(--accent)">총 <span id="stat-done-total">0</span>원</div>
           </div>
-          <div id="stat-done-list" style="font-size:12px;margin-bottom:16px"></div>
+          <div id="stat-done-list" style="font-size:14px;margin-bottom:16px"></div>
           <!-- 미션 후원 -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-top:12px;border-top:1px solid var(--border)">
-            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🎯 미션</div>
-            <div style="font-size:12px;font-weight:700;color:#f59e0b">총 <span id="stat-mission-total">0</span>원</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">🎯 미션</div>
+            <div style="font-size:14px;font-weight:700;color:#f59e0b">총 <span id="stat-mission-total">0</span>원</div>
           </div>
-          <div id="stat-mission-list" style="font-size:12px"></div>
+          <div id="stat-mission-list" style="font-size:14px"></div>
         </div>
       </div>
 
@@ -568,7 +568,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 <div class="modal-bg" id="cookie-modal">
   <div class="modal" style="max-width:480px">
     <h3>🍪 치지직 쿠키 설정</h3>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.7;background:var(--surface2);padding:12px;border-radius:var(--radius-sm)">
+    <div style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.7;background:var(--surface2);padding:12px;border-radius:var(--radius-sm)">
       치지직에 로그인된 브라우저에서<br>
       F12 → Application → Cookies → <code>https://chzzk.naver.com</code><br>
       에서 NID_AUT, NID_SES 값을 복사해주세요
@@ -577,7 +577,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
     <input id="cookie-nid-aut" type="text" placeholder="NID_AUT 값 붙여넣기"/>
     <label>NID_SES</label>
     <input id="cookie-nid-ses" type="text" placeholder="NID_SES 값 붙여넣기"/>
-    <div id="cookie-save-status" style="font-size:12px;margin-top:8px;color:var(--text2)"></div>
+    <div id="cookie-save-status" style="font-size:14px;margin-top:8px;color:var(--text2)"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('cookie-modal')">닫기</button>
       <button class="btn-save" onclick="saveCookies()">저장</button>
@@ -591,7 +591,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
     <h3 style="text-align:center;margin-bottom:20px">📅 월 이동</h3>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px">
       <button class="cal-nav-btn" onclick="pickerYear(-1)" style="width:36px;height:36px">◀</button>
-      <span id="picker-year" style="font-size:16px;font-weight:700"></span>
+      <span id="picker-year" style="font-size:18px;font-weight:700"></span>
       <button class="cal-nav-btn" onclick="pickerYear(1)" style="width:36px;height:36px">▶</button>
     </div>
     <div id="month-picker-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
@@ -661,11 +661,11 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 <div class="modal-bg" id="schedule-view-modal">
   <div class="modal" style="max-width:420px">
     <h3 id="sv-title" style="margin-bottom:6px"></h3>
-    <div id="sv-meta" style="font-size:12px;color:var(--text2);margin-bottom:16px"></div>
-    <div id="sv-note" style="font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;display:none"></div>
+    <div id="sv-meta" style="font-size:14px;color:var(--text2);margin-bottom:16px"></div>
+    <div id="sv-note" style="font-size:15px;color:var(--text2);line-height:1.7;white-space:pre-wrap;background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;display:none"></div>
     <div id="sv-youtube-wrap" style="display:none;margin-top:14px">
       <a id="sv-youtube-link" href="#" target="_blank" rel="noopener"
-        style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#ff0000;color:#fff;border-radius:20px;text-decoration:none;font-size:13px;font-weight:700;transition:opacity .15s"
+        style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#ff0000;color:#fff;border-radius:20px;text-decoration:none;font-size:15px;font-weight:700;transition:opacity .15s"
         onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         유튜브에서 보기
@@ -692,9 +692,9 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
     </div>
     <!-- 유튜브 링크 -->
     <div style="margin-top:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">유튜브 링크 (선택)</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">유튜브 링크 (선택)</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="sd-youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;background:var(--surface2);color:var(--text);font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;outline:none"/>
+        <input id="sd-youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;background:var(--surface2);color:var(--text);font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;outline:none"/>
         <a id="sd-youtube-btn" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;padding:9px 14px;background:#ff0000;border-radius:var(--radius-sm);text-decoration:none;flex-shrink:0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         </a>
@@ -724,9 +724,9 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
       ondragleave="this.style.background='';this.style.borderColor=''"
       ondrop="cDrop(event)">
       <input type="file" id="c-file-input" style="display:none" multiple onchange="cAddFiles(this.files)"/>
-      <div style="font-size:24px;opacity:.35;margin-bottom:6px">📎</div>
-      <div style="font-size:12px;color:var(--text2)">클릭하거나 파일을 드래그해서 첨부</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px">이미지, 문서, 영상 등 모든 파일</div>
+      <div style="font-size:26px;opacity:.35;margin-bottom:6px">📎</div>
+      <div style="font-size:14px;color:var(--text2)">클릭하거나 파일을 드래그해서 첨부</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:2px">이미지, 문서, 영상 등 모든 파일</div>
     </div>
     <div id="c-file-list" style="margin-top:8px"></div>
     <div class="modal-btns">
@@ -741,9 +741,9 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 <div class="modal-bg" id="content-view-modal">
   <div class="modal">
     <h3 id="cv-title-heading">🎬 컨텐츠</h3>
-    <div id="cv-date" style="font-size:13px;color:var(--text3);margin-bottom:8px"></div>
-    <div id="cv-duration" style="font-size:13px;color:var(--text2);margin-bottom:8px"></div>
-    <div id="cv-note" style="font-size:14px;color:var(--text);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin-bottom:12px"></div>
+    <div id="cv-date" style="font-size:15px;color:var(--text3);margin-bottom:8px"></div>
+    <div id="cv-duration" style="font-size:15px;color:var(--text2);margin-bottom:8px"></div>
+    <div id="cv-note" style="font-size:16px;color:var(--text);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin-bottom:12px"></div>
     <div id="cv-files" style="margin-bottom:16px"></div>
     <div class="modal-btns">
       <button onclick="closeModal('content-view-modal')" class="btn-cancel">닫기</button>
@@ -769,8 +769,8 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
       ondragleave="this.style.background='';this.style.borderColor=''"
       ondrop="cdDrop(event)">
       <input type="file" id="cd-file-input" style="display:none" multiple onchange="cdAddFiles(this.files)"/>
-      <div style="font-size:20px;opacity:.35;margin-bottom:4px">＋</div>
-      <div style="font-size:12px;color:var(--text2)">파일 추가</div>
+      <div style="font-size:22px;opacity:.35;margin-bottom:4px">＋</div>
+      <div style="font-size:14px;color:var(--text2)">파일 추가</div>
     </div>
     <div id="cd-file-list" style="margin-top:8px"></div>
     <div class="modal-btns">
@@ -829,11 +829,11 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 <div class="modal-bg" id="clip-player-modal" onclick="if(event.target===this)closeModal('clip-player-modal')">
   <div style="background:var(--surface);border-radius:var(--radius);width:min(1200px,95vw);padding:16px;position:relative">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div id="clip-player-title" style="font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 210px)"></div>
+      <div id="clip-player-title" style="font-size:17px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 210px)"></div>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <button onclick="copyClipShareLink()" class="btn-cancel" style="padding:4px 10px;border-radius:12px;font-size:13px">링크 복사</button>
-        <button onclick="kakaoShareClip()" class="btn-share" style="padding:4px 10px;border-radius:12px;font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.8 3.1c-.1.3.3.5.5.3l3.7-2.4c.8.1 1.7.2 2.6.2 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg> 공유</button>
-        <button onclick="closeModal('clip-player-modal')" style="background:var(--surface2);border:none;cursor:pointer;padding:4px 10px;border-radius:12px;color:var(--text2);font-size:13px">✕</button>
+        <button onclick="copyClipShareLink()" class="btn-cancel" style="padding:4px 10px;border-radius:12px;font-size:15px">링크 복사</button>
+        <button onclick="kakaoShareClip()" class="btn-share" style="padding:4px 10px;border-radius:12px;font-size:15px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.8 3.1c-.1.3.3.5.5.3l3.7-2.4c.8.1 1.7.2 2.6.2 5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg> 공유</button>
+        <button onclick="closeModal('clip-player-modal')" style="background:var(--surface2);border:none;cursor:pointer;padding:4px 10px;border-radius:12px;color:var(--text2);font-size:15px">✕</button>
       </div>
     </div>
     <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden">
@@ -950,7 +950,7 @@ window.onDayClick=(dateStr)=>{
       ${e.youtube?`<a href="${e.youtube}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:#ff0000;border-radius:50%;text-decoration:none;flex-shrink:0;margin-top:2px" title="유튜브에서 보기"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg></a>`:''}
     </div>
       </div>`).join('')
-    : '<div class="empty-state" style="padding:24px"><div class="empty-icon" style="font-size:24px;margin-bottom:8px">📭</div>이 날 일정이 없어요</div>';
+    : '<div class="empty-state" style="padding:24px"><div class="empty-icon" style="font-size:26px;margin-bottom:8px">📭</div>이 날 일정이 없어요</div>';
   openModal('day-events-modal');
 };
 window.addFromDayModal=()=>{ closeModal('day-events-modal'); document.getElementById('s-date').value=currentDayStr; openModal('schedule-modal'); };
@@ -961,7 +961,7 @@ let pickerYearVal=new Date().getFullYear();
 function renderMonthPicker(){
   document.getElementById('picker-year').textContent=pickerYearVal+'년';
   document.getElementById('month-picker-grid').innerHTML=MONTHS_KR.map((m,i)=>`
-    <button onclick="selectMonth(${i})" style="padding:10px 4px;border-radius:8px;border:1.5px solid ${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--border2)'};background:${i===calMonth&&pickerYearVal===calYear?'var(--accent-light)':'transparent'};color:${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--text)'};font-size:13px;font-weight:600;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif">${m}</button>`).join('');
+    <button onclick="selectMonth(${i})" style="padding:10px 4px;border-radius:8px;border:1.5px solid ${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--border2)'};background:${i===calMonth&&pickerYearVal===calYear?'var(--accent-light)':'transparent'};color:${i===calMonth&&pickerYearVal===calYear?'var(--accent)':'var(--text)'};font-size:15px;font-weight:600;cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif">${m}</button>`).join('');
 }
 window.pickerYear=(dir)=>{ pickerYearVal+=dir; renderMonthPicker(); };
 window.selectMonth=(m)=>{ calYear=pickerYearVal; calMonth=m; renderCal(); closeModal('month-picker-modal'); };
@@ -1094,8 +1094,8 @@ function fileIcon(name){ const e=(name.split('.').pop()||'').toLowerCase(); if([
 
 function renderPending(prefix){
   const arr=prefix==='c'?cPendingFiles:cdPendingFiles, el=document.getElementById(prefix+'-file-list'); if(!el) return;
-  el.innerHTML=arr.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px;margin-bottom:5px;font-size:12px">
-    <span style="font-size:16px">${fileIcon(f.name)}</span>
+  el.innerHTML=arr.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px;margin-bottom:5px;font-size:14px">
+    <span style="font-size:18px">${fileIcon(f.name)}</span>
     <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">${f.name}</span>
     <span style="color:var(--text3);flex-shrink:0">${(f.size/1024<1024)?(f.size/1024).toFixed(0)+'KB':((f.size/1024/1024).toFixed(1))+'MB'}</span>
     <span onclick="removePending('${prefix}',${i})" style="cursor:pointer;color:var(--text3);padding:2px 6px;border-radius:4px;flex-shrink:0">✕</span>
@@ -1118,9 +1118,9 @@ async function uploadAll(files,onProgress){ const results=[]; for(let i=0;i<file
 function renderExistingFiles(files,contentId){
   const el=document.getElementById('cd-existing-files'); if(!el) return;
   if(!files||!files.length){ el.innerHTML=''; return; }
-  el.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">기존 첨부파일</div>'+
-    files.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px;margin-bottom:5px;font-size:12px">
-      <span style="font-size:16px">${fileIcon(f.name)}</span>
+  el.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">기존 첨부파일</div>'+
+    files.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px;margin-bottom:5px;font-size:14px">
+      <span style="font-size:18px">${fileIcon(f.name)}</span>
       <a href="${f.url}" target="_blank" style="flex:1;color:var(--accent);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</a>
       <span onclick="removeExistingFile('${contentId}',${i})" style="cursor:pointer;color:var(--text3);padding:2px 6px;border-radius:4px;flex-shrink:0" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color=''">🗑</span>
     </div>`).join('');
@@ -1151,14 +1151,14 @@ function renderContents(){
   grid.innerHTML=contents.map((c,i)=>`
     <div class="content-card drag-item" draggable="true" data-id="${c.id}" data-type="content" onclick="openContentDetail('${c.id}')">
       <div class="content-thumb" style="background:${THUMB_BG[i%THUMB_BG.length]};position:relative">
-        <span style="font-size:36px">🎬</span>
+        <span style="font-size:38px">🎬</span>
         ${c.files&&c.files.length?`<div class="content-type-badge" style="background:rgba(91,74,232,.15);color:#4c1d95">📎 ${c.files.length}</div>`:''}
-        <div class="drag-handle" style="position:absolute;top:6px;left:8px;font-size:14px;color:rgba(255,255,255,.7)" title="드래그하여 순서 변경">⠿</div>
+        <div class="drag-handle" style="position:absolute;top:6px;left:8px;font-size:16px;color:rgba(255,255,255,.7)" title="드래그하여 순서 변경">⠿</div>
       </div>
       <div class="content-body">
         <div class="content-title">${c.title}</div>
         <div class="content-meta">${c.date}${c.duration?' · '+c.duration:''}</div>
-        ${c.note?`<div style="font-size:11px;color:var(--text2);margin-top:5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${c.note}</div>`:''}
+        ${c.note?`<div style="font-size:13px;color:var(--text2);margin-top:5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${c.note}</div>`:''}
       </div>
     </div>`).join('');
   initDrag('content-grid','content');
@@ -1193,7 +1193,7 @@ window.openContentDetail=(id)=>{
     c.files.forEach(f=>{
       const a=document.createElement('a');
       a.href=f.url; a.target='_blank'; a.rel='noopener';
-      a.style.cssText='display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface2);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;margin:4px 4px 0 0';
+      a.style.cssText='display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface2);border-radius:8px;text-decoration:none;color:var(--text);font-size:15px;margin:4px 4px 0 0';
       a.innerHTML='📎 '+f.name;
       filesDiv.appendChild(a);
     });
@@ -1252,13 +1252,13 @@ function renderTools(){
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
             <div style="display:flex;align-items:center;gap:6px">
               <span class="drag-handle" onclick="event.stopPropagation()" title="드래그하여 순서 변경">⠿</span>
-              <div style="font-size:16px;font-weight:700;color:var(--text)">${t.title}</div>
+              <div style="font-size:18px;font-weight:700;color:var(--text)">${t.title}</div>
             </div>
-            <button onclick="event.stopPropagation();openToolDetail('${t.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-size:11px;flex-shrink:0">수정</button>
+            <button onclick="event.stopPropagation();openToolDetail('${t.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-size:13px;flex-shrink:0">수정</button>
           </div>
-          ${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6">${t.desc}</div>`:''}
+          ${t.desc?`<div style="font-size:16px;color:var(--text2);line-height:1.6">${t.desc}</div>`:''}
         </div>
-        <div style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 14px;background:var(--accent);color:#fff;border-radius:20px;font-size:12px;font-weight:700;width:fit-content">바로가기 →</div>
+        <div style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 14px;background:var(--accent);color:#fff;border-radius:20px;font-size:14px;font-weight:700;width:fit-content">바로가기 →</div>
       </div>`).join('')}
   </div>`;
   initDrag('tools-grid','tool');
@@ -1341,9 +1341,9 @@ function refreshChatStats(){
   const sorted=Object.entries(userMap).sort((a,b)=>b[1]-a[1]);
   document.getElementById('stat-top').innerHTML=sorted.map(([n,c],i)=>`
     <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border)">
-      <span style="font-size:10px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
-      <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${n}</span>
-      <span style="font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">${c}</span>
+      <span style="font-size:12px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
+      <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px">${n}</span>
+      <span style="font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0">${c}</span>
     </div>`).join('');
 }
 function saveChatRecord(time,nick,msg, extra={}){
@@ -1372,7 +1372,7 @@ function chatAddMissionProposal(time,nick,amount,msg){
   saveChatRecord(time, safeNick, text, { chatType:'mission_proposal', missionLabel:'미션 제시', amount: toDonationAmount(amount) });
   const log=document.getElementById('chat-log'), div=document.createElement('div');
   div.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
-  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원 미션 제시!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원 미션 제시!</span>${msg?`<div style="color:var(--text2);font-size:14px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
   log.appendChild(div); log.scrollTop=log.scrollHeight;
 }
 function chatAddMissionAddition(time,nick,amount,msg,missionTitle=''){
@@ -1382,7 +1382,7 @@ function chatAddMissionAddition(time,nick,amount,msg,missionTitle=''){
   saveChatRecord(time, safeNick, text, { chatType:'mission_addition', missionLabel:'미션 추가', amount: toDonationAmount(amount), missionTitle });
   const log=document.getElementById('chat-log'), div=document.createElement('div');
   div.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
-  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원${hint} 미션 추가!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원${hint} 미션 추가!</span>${msg?`<div style="color:var(--text2);font-size:14px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
   log.appendChild(div); log.scrollTop=log.scrollHeight;
 }
 function chatAddMissionSettlement(time,nick,amount,msg,missionStatus,missionTitle=''){
@@ -1401,7 +1401,7 @@ function chatAddMissionSettlement(time,nick,amount,msg,missionStatus,missionTitl
   });
   const log=document.getElementById('chat-log'), div=document.createElement('div');
   div.style.cssText='padding:3px 0;border-bottom:0.5px solid var(--border);background:rgba(245,158,11,.08)';
-  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원 미션 ${statusLabel}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+  div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">🎯 ${safeNick}</span><span style="color:var(--text2)"> ${toDonationAmount(amount).toLocaleString()}원 미션 ${statusLabel}!</span>${msg?`<div style="color:var(--text2);font-size:14px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
   log.appendChild(div); log.scrollTop=log.scrollHeight;
 }
 
@@ -1423,11 +1423,11 @@ function renderMission(){
   document.getElementById('stat-mission-list').innerHTML=sorted.length
     ? sorted.map(([nick,amt],i)=>`
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)">
-        <span style="font-size:11px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
+        <span style="font-size:13px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
         <span style="flex:1;color:${nick==='익명의 후원자'?'var(--text2)':'var(--text)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nick}</span>
         <span style="font-weight:700;color:#f59e0b;flex-shrink:0">${toDonationAmount(amt).toLocaleString()}원</span>
       </div>`).join('')
-    : '<div style="color:var(--text3);text-align:center;padding:12px;font-size:12px">미션 없음</div>';
+    : '<div style="color:var(--text3);text-align:center;padding:12px;font-size:14px">미션 없음</div>';
 }
 function toDonationAmount(value){
   if(value===null || value===undefined || value==='') return 0;
@@ -1520,7 +1520,7 @@ function getMissionHistoryLabel(item={}){
 function getMissionOutcomeBadge(missionStatus){
   if(!missionStatus || missionStatus.pending) return '';
   const color = missionStatus.success ? '#10b981' : missionStatus.failed ? '#ef4444' : '#64748b';
-  return `<span style="font-size:10px;font-weight:800;color:#fff;background:${color};border-radius:999px;padding:2px 6px;margin-left:4px;white-space:nowrap">${missionStatus.label}</span>`;
+  return `<span style="font-size:12px;font-weight:800;color:#fff;background:${color};border-radius:999px;padding:2px 6px;margin-left:4px;white-space:nowrap">${missionStatus.label}</span>`;
 }
 function getAmountFromKeys(source, keys){
   for(const key of keys){
@@ -1761,11 +1761,11 @@ function renderDone(){
   document.getElementById('stat-done-list').innerHTML=sorted.length
     ? sorted.map(([nick,amt],i)=>`
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)">
-        <span style="font-size:11px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
+        <span style="font-size:13px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
         <span style="flex:1;color:${nick==='익명의 후원자'?'var(--text2)':'var(--text)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nick}</span>
         <span style="font-weight:700;color:var(--accent);flex-shrink:0">${toDonationAmount(amt).toLocaleString()}원</span>
       </div>`).join('')
-    : '<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">후원 없음</div>';
+    : '<div style="color:var(--text3);text-align:center;padding:20px;font-size:14px">후원 없음</div>';
 }
 
 function handleDonation(donation){
@@ -1881,7 +1881,7 @@ function handleDonation(donation){
       : '';
     const shouldShowInDonationFeed = !isMission || shouldCountMission;
     const shouldShowInChatLog = !isMission || missionStatus.proposal || isMissionAddition || shouldCountMission;
-    div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText}${missionAdditionHint} ${label}!</span>${msg?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
+    div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick||'익명의 후원자'}</span><span style="color:var(--text2)"> ${amountText}${missionAdditionHint} ${label}!</span>${msg?`<div style="color:var(--text2);font-size:14px;padding-left:4px;margin-top:2px">💬 ${msg}</div>`:''}`;
     if(isMission && missionStatus.proposal && !isMissionAddition){
       chatAddMissionProposal(time, nick||'익명의 후원자', rawAmt, msg);
     } else if(isMission && isMissionAddition && missionStatus.pending && !shouldCountMission && !missionAdditionLogged && (missionId || missionEventId)){
@@ -1903,7 +1903,7 @@ function handleDonation(donation){
         const fdiv = document.createElement('div');
         const entryAmountText = `${toDonationAmount(entry.amount).toLocaleString()}원`;
         fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
-        fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${entry.nick||'익명의 후원자'}${isMission?getMissionOutcomeBadge(missionStatus):''}</span><span style="font-weight:700;color:var(--text)">${entryAmountText}</span></div>${msg?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}${isMission && missionMeta.rootAmount>0?` · 총 미션금 ${missionMeta.rootAmount.toLocaleString()}원`:''}</div>`;
+        fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${entry.nick||'익명의 후원자'}${isMission?getMissionOutcomeBadge(missionStatus):''}</span><span style="font-weight:700;color:var(--text)">${entryAmountText}</span></div>${msg?`<div style="color:var(--text2);font-size:13px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:12px;margin-top:3px">${time} · ${label}${isMission && missionMeta.rootAmount>0?` · 총 미션금 ${missionMeta.rootAmount.toLocaleString()}원`:''}</div>`;
         feed.appendChild(fdiv);
       });
       feed.scrollTop = feed.scrollHeight;
@@ -2069,7 +2069,7 @@ function chatLogSystem(text, color='var(--text3)'){
   const log=document.getElementById('chat-log');
   if(!log) return;
   const d=document.createElement('div');
-  d.style.cssText=`color:${color};text-align:center;padding:6px;font-size:12px`;
+  d.style.cssText=`color:${color};text-align:center;padding:6px;font-size:14px`;
   d.textContent=text;
   log.appendChild(d); log.scrollTop=log.scrollHeight;
 }
@@ -2120,7 +2120,7 @@ async function reconnectChat(){
       chatSetStatus(true);
       const log=document.getElementById('chat-log');
       const d=document.createElement('div');
-      d.style.cssText='color:#10b981;text-align:center;padding:6px;font-size:12px';
+      d.style.cssText='color:#10b981;text-align:center;padding:6px;font-size:14px';
       d.textContent=`── 재연결 성공 ${new Date().toLocaleTimeString()} ──`;
       log.appendChild(d); log.scrollTop=log.scrollHeight;
     };
@@ -2149,12 +2149,12 @@ window.openSessionHistory=async()=>{
       return `<div style="padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
           <div style="min-width:0;flex:1">
-            <div style="font-size:13px;font-weight:700;color:var(--text);word-break:break-word">${s.liveTitle||'방송'}</div>
-            <div style="font-size:11px;color:var(--text2);margin-top:2px">${dateStr}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--text);word-break:break-word">${s.liveTitle||'방송'}</div>
+            <div style="font-size:13px;color:var(--text2);margin-top:2px">${dateStr}</div>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0">
-            <button onclick="loadSession('${s.id}')" class="chat-btn" style="background:var(--accent);color:#fff;padding:5px 12px;font-size:11px">불러오기</button>
-            <button onclick="deleteSession('${s.id}',this)" class="chat-btn" style="background:#fee2e2;color:#ef4444;border:1.5px solid #fecaca;padding:5px 12px;font-size:11px">🗑</button>
+            <button onclick="loadSession('${s.id}')" class="chat-btn" style="background:var(--accent);color:#fff;padding:5px 12px;font-size:13px">불러오기</button>
+            <button onclick="deleteSession('${s.id}',this)" class="chat-btn" style="background:#fee2e2;color:#ef4444;border:1.5px solid #fecaca;padding:5px 12px;font-size:13px">🗑</button>
           </div>
         </div>
       </div>`;
@@ -2218,10 +2218,10 @@ window.loadSession=async(sessionId)=>{
         const missionTitle = String(item.missionTitle || '').trim();
         const missionGroupKey = item.missionDonationId || item.missionEventId || '';
         const missionOfferAmount = isMission ? (missionOfferTotals[missionGroupKey] || getMissionOfferAmountFromHistory(item, amt)) : 0;
-        const missionBadge = isMission && label !== '미션' ? `<span style="font-size:10px;font-weight:800;color:#fff;background:${label.includes('성공')?'#10b981':label.includes('실패')?'#ef4444':'#64748b'};border-radius:999px;padding:2px 6px;margin-left:4px;white-space:nowrap">${label.replace('미션 ','')}</span>` : '';
+        const missionBadge = isMission && label !== '미션' ? `<span style="font-size:12px;font-weight:800;color:#fff;background:${label.includes('성공')?'#10b981':label.includes('실패')?'#ef4444':'#64748b'};border-radius:999px;padding:2px 6px;margin-left:4px;white-space:nowrap">${label.replace('미션 ','')}</span>` : '';
         addDonationTotal(nick, amt, isMission);
         div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
-        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick}${missionBadge}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${label}!</span>${message?`<div style="color:var(--text2);font-size:12px;padding-left:4px;margin-top:2px">💬 ${message}</div>`:''}`;
+        div.innerHTML=`<span style="color:var(--text3)">[${time}]</span> <span style="color:#f59e0b;font-weight:700">${icon} ${nick}${missionBadge}</span><span style="color:var(--text2)"> ${amt.toLocaleString()}원 ${label}!</span>${message?`<div style="color:var(--text2);font-size:14px;padding-left:4px;margin-top:2px">💬 ${message}</div>`:''}`;
 
         // done-feed에도 추가
         const feed=document.getElementById('done-feed');
@@ -2229,7 +2229,7 @@ window.loadSession=async(sessionId)=>{
           if(feed.querySelector('[data-empty]')) feed.innerHTML='';
           const fdiv=document.createElement('div');
           fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
-          fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick}${missionBadge}</span><span style="font-weight:700;color:var(--text)">${Number(amt).toLocaleString()}원</span></div>${message?`<div style="color:var(--text2);font-size:11px;margin-top:4px">💬 ${message}</div>`:''}<div style="color:var(--text3);font-size:10px;margin-top:3px">${time} · ${label}${isMission && missionOfferAmount>0?` · 총 미션금 ${missionOfferAmount.toLocaleString()}원`:''}</div>`;
+          fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${nick}${missionBadge}</span><span style="font-weight:700;color:var(--text)">${Number(amt).toLocaleString()}원</span></div>${message?`<div style="color:var(--text2);font-size:13px;margin-top:4px">💬 ${message}</div>`:''}<div style="color:var(--text3);font-size:12px;margin-top:3px">${time} · ${label}${isMission && missionOfferAmount>0?` · 총 미션금 ${missionOfferAmount.toLocaleString()}원`:''}</div>`;
           feed.appendChild(fdiv);
         }
         doneLogs.push({ time, nick, amt: Number(amt), type, msg: message||'', missionTitle: missionTitle || normalizedMessage, missionStatus: item.missionStatus, missionSuccess: item.missionSuccess, missionFailed: item.missionFailed, missionStatusLabel: item.missionStatusLabel });
@@ -2244,9 +2244,9 @@ window.loadSession=async(sessionId)=>{
     const sorted=Object.entries(userMap).sort((a,b)=>b[1]-a[1]);
     document.getElementById('stat-top').innerHTML=sorted.map(([n,c],i)=>`
       <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border)">
-        <span style="font-size:10px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
-        <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${n}</span>
-        <span style="font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">${c}</span>
+        <span style="font-size:12px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${i+1}</span>
+        <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px">${n}</span>
+        <span style="font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0">${c}</span>
       </div>`).join('');
 
     renderDone(); renderMission();
@@ -2318,7 +2318,7 @@ window.chatConnect=async(options={})=>{
       chatWs.send(JSON.stringify({ver:'2',cmd:100,svcid:'game',cid:chatChannelId,bdy:{uid:null,devType:2001,accTkn:finalToken,auth:'READ'},tid:1}));
       chatSetStatus(true);
       const log=document.getElementById('chat-log'); log.innerHTML='';
-      const d=document.createElement('div'); d.style.cssText='color:var(--text3);text-align:center;padding:8px;font-size:12px';
+      const d=document.createElement('div'); d.style.cssText='color:var(--text3);text-align:center;padding:8px;font-size:14px';
       d.textContent=`── 채팅 수집 시작 ${chatSessionStart.toLocaleTimeString()} ──`; log.appendChild(d);
       // chat store session
       try {
@@ -2602,12 +2602,12 @@ function renderClipsPage(){
     const isNew = (now - itemDate) <= threeDays;
     const isHot = hotIds.has(item.id);
     const badges =
-      (isHot ? `<span style="position:absolute;top:6px;right:6px;background:#ef4444;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;box-shadow:0 1px 4px rgba(0,0,0,.4)">🔥HOT</span>` : '') +
-      (isNew ? `<span style="position:absolute;top:${isHot?'30px':'6px'};right:6px;background:#10b981;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;box-shadow:0 1px 4px rgba(0,0,0,.4)">✨NEW</span>` : '');
+      (isHot ? `<span style="position:absolute;top:6px;right:6px;background:#ef4444;color:#fff;font-size:12px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;box-shadow:0 1px 4px rgba(0,0,0,.4)">🔥HOT</span>` : '') +
+      (isNew ? `<span style="position:absolute;top:${isHot?'30px':'6px'};right:6px;background:#10b981;color:#fff;font-size:12px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:.5px;box-shadow:0 1px 4px rgba(0,0,0,.4)">✨NEW</span>` : '');
 
     if(item.type==='chzzk'){
       card.onclick=()=>item.adult?window.open(`https://chzzk.naver.com/clips/${item.id}`,'_blank'):openClipPlayer(item.id,item.title,'chzzk');
-      const thumb=item.thumb?`<img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);font-size:28px">🎞</div>`;
+      const thumb=item.thumb?`<img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface2);font-size:30px">🎞</div>`;
       card.innerHTML=`<div class="clip-thumb-wrap">${thumb}<div class="clip-duration">${formatDuration(item.duration)}</div><img src="data:image/png;base64,${item._chzzk_b64}" style="position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,.4)">${badges}</div><div class="clip-info"><div class="clip-title">${item.title}</div><div class="clip-meta"><span class="clip-views">👁 ${formatViews(item.views)}</span><span>${dateStr}</span></div></div>`;
     } else {
       card.onclick=()=>openClipPlayer(item.id,item.title,'youtube');
