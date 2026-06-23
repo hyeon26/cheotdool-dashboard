@@ -501,7 +501,19 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
             <button onclick="openCookieModal()" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2);white-space:nowrap;flex-shrink:0">🍪 쿠키</button>
           </div>
         </div>
-        <div id="chat-log" style="height:calc(100vh - 230px);min-height:400px;overflow-y:auto;overflow-x:hidden;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;font-size:14.5px;font-family:inherit;line-height:1.7;word-break:break-all">
+        <div id="chat-filter-bar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow)">
+          <input id="chat-filter-query" type="text" placeholder="채팅 내용 검색" oninput="applyChatFilters()" style="flex:1;min-width:160px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none"/>
+          <input id="chat-filter-nick" type="text" placeholder="닉네임" oninput="applyChatFilters()" style="width:120px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none"/>
+          <select id="chat-filter-type" onchange="applyChatFilters()" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 9px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13.5px;outline:none">
+            <option value="all">전체</option>
+            <option value="chat">채팅</option>
+            <option value="donation">후원</option>
+            <option value="mission">미션</option>
+          </select>
+          <button type="button" onclick="clearChatFilters()" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2);white-space:nowrap">초기화</button>
+          <span id="chat-filter-count" style="font-size:12.5px;color:var(--text3);white-space:nowrap">전체 표시</span>
+        </div>
+        <div id="chat-log" style="height:calc(100vh - 280px);min-height:360px;overflow-y:auto;overflow-x:hidden;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;font-size:14.5px;font-family:inherit;line-height:1.7;word-break:break-all">
           <div style="color:var(--text3);text-align:center;padding:40px">채팅 수집 시작 버튼을 눌러주세요</div>
         </div>
         <div style="font-size:12.5px;color:var(--text3)">총 <span id="chat-count">0</span>개 채팅 수집됨</div>
@@ -556,6 +568,18 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
             <div style="font-size:13.5px;font-weight:700;color:#f59e0b">총 <span id="stat-mission-total">0</span>원</div>
           </div>
           <div id="stat-mission-list" style="font-size:13.5px"></div>
+          <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+              <div style="font-size:12.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">📆 월간 후원/미션</div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <select id="monthly-stats-year" onchange="loadMonthlyDonationStats(true)" style="border:1.5px solid var(--border);border-radius:7px;padding:5px 6px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:12.5px;outline:none"></select>
+                <button type="button" onclick="loadMonthlyDonationStats(true)" class="chat-btn" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2);padding:5px 8px;font-size:12.5px">갱신</button>
+              </div>
+            </div>
+            <div id="monthly-stats-list" style="display:flex;flex-direction:column;gap:6px;font-size:13.5px">
+              <div style="color:var(--text3);text-align:center;padding:12px">월간 통계 불러오는 중...</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1346,6 +1370,65 @@ function refreshChatStats(){
       <span style="font-size:12.5px;font-weight:700;color:var(--accent);flex-shrink:0">${c}</span>
     </div>`).join('');
 }
+function markChatRow(row, meta={}){
+  if(!row) return row;
+  row.dataset.chatRow='1';
+  row.dataset.chatKind=meta.kind||'chat';
+  row.dataset.chatNick=meta.nick||'';
+  row.dataset.chatText=meta.text||row.textContent||'';
+  return row;
+}
+function markUntrackedChatRows(log=document.getElementById('chat-log')){
+  if(!log) return;
+  [...log.children].forEach(row=>{
+    if(row.dataset.chatManaged) return;
+    row.dataset.chatManaged='1';
+    const rowText=(row.textContent||'').trim();
+    if(!rowText.startsWith('[')) return;
+    const spans=row.querySelectorAll('span');
+    const rawNick=spans.length>1 ? spans[1].textContent : '';
+    const nick=rawNick.replace(/[🎯💰]/g,'').trim();
+    const kind=rowText.includes('🎯')||rowText.includes('미션') ? 'mission' : rowText.includes('💰')||rowText.includes('후원') ? 'donation' : 'chat';
+    markChatRow(row,{kind,nick,text:rowText});
+  });
+}
+function applyChatFilters(){
+  const log=document.getElementById('chat-log');
+  if(!log) return;
+  markUntrackedChatRows(log);
+  const q=(document.getElementById('chat-filter-query')?.value||'').trim().toLowerCase();
+  const nick=(document.getElementById('chat-filter-nick')?.value||'').trim().toLowerCase();
+  const type=document.getElementById('chat-filter-type')?.value||'all';
+  const rows=[...log.querySelectorAll('[data-chat-row="1"]')];
+  let shown=0;
+  rows.forEach(row=>{
+    const rowText=(row.dataset.chatText||row.textContent||'').toLowerCase();
+    const rowNick=(row.dataset.chatNick||'').toLowerCase();
+    const kind=row.dataset.chatKind||'chat';
+    const visible=(!q||rowText.includes(q))&&(!nick||rowNick.includes(nick)||rowText.includes(nick))&&(type==='all'||kind===type);
+    row.style.display=visible?'':'none';
+    if(visible) shown++;
+  });
+  const count=document.getElementById('chat-filter-count');
+  if(count) count.textContent=rows.length ? `${shown.toLocaleString()} / ${rows.length.toLocaleString()} 표시` : '전체 표시';
+}
+function clearChatFilters(){
+  ['chat-filter-query','chat-filter-nick'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const type=document.getElementById('chat-filter-type');
+  if(type) type.value='all';
+  applyChatFilters();
+}
+let chatFilterObserver=null;
+function initChatFilterObserver(){
+  const log=document.getElementById('chat-log');
+  if(!log||chatFilterObserver) return;
+  chatFilterObserver=new MutationObserver(()=>applyChatFilters());
+  chatFilterObserver.observe(log,{childList:true});
+  applyChatFilters();
+}
+window.applyChatFilters=applyChatFilters;
+window.clearChatFilters=clearChatFilters;
+window.initChatFilterObserver=initChatFilterObserver;
 function saveChatRecord(time,nick,msg, extra={}){
   chatLastRecordAt=Date.now();
   chatOfflineReconnectAttempts=0;
@@ -1768,6 +1851,90 @@ function renderDone(){
     : '<div style="color:var(--text3);text-align:center;padding:20px;font-size:13.5px">후원 없음</div>';
 }
 
+let monthlyStatsLoadedYear='';
+function initMonthlyStatsYear(){
+  const select=document.getElementById('monthly-stats-year');
+  if(!select || select.options.length) return;
+  const year=new Date().getFullYear();
+  select.innerHTML=Array.from({length:4},(_,i)=>year-i).map(y=>`<option value="${y}">${y}년</option>`).join('');
+}
+function getMonthlyStatsRows(json){
+  if(Array.isArray(json?.content?.data)) return json.content.data;
+  if(Array.isArray(json?.data)) return json.data;
+  if(Array.isArray(json?.items)) return json.items;
+  return [];
+}
+function getDonationMonthKey(item){
+  const raw=String(item?.purchaseDate || item?.createdAt || item?.date || '');
+  const m=raw.match(/^(\d{4})-(\d{2})/);
+  if(m) return `${m[1]}-${m[2]}`;
+  const d=new Date(raw);
+  if(Number.isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function isMonthlyMission(item){
+  const type=String(item?.donationType || item?.type || '').toUpperCase();
+  return type.includes('MISSION');
+}
+async function loadMonthlyDonationStats(force=false){
+  initMonthlyStatsYear();
+  const select=document.getElementById('monthly-stats-year');
+  const list=document.getElementById('monthly-stats-list');
+  if(!select || !list) return;
+  const year=select.value || String(new Date().getFullYear());
+  if(!force && monthlyStatsLoadedYear===year && list.dataset.ready==='1') return;
+  list.dataset.ready='0';
+  list.innerHTML='<div style="color:var(--text3);text-align:center;padding:12px">월간 통계 불러오는 중...</div>';
+  try{
+    const response=await fetch(`/api/cheese-history?year=${encodeURIComponent(year)}`);
+    if(!response.ok) throw new Error(response.status);
+    const rows=getMonthlyStatsRows(await response.json());
+    const months={};
+    rows.forEach(item=>{
+      const key=getDonationMonthKey(item);
+      if(!key || !key.startsWith(`${year}-`)) return;
+      const amount=toDonationAmount(item.payAmount ?? item.amount ?? item.amt ?? item.totalPayAmount);
+      if(!amount) return;
+      const slot=months[key] || { total:0, donation:0, mission:0, count:0 };
+      slot.total+=amount;
+      if(isMonthlyMission(item)) slot.mission+=amount;
+      else slot.donation+=amount;
+      slot.count+=1;
+      months[key]=slot;
+    });
+    const entries=Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0]));
+    monthlyStatsLoadedYear=year;
+    list.dataset.ready='1';
+    if(!entries.length){
+      list.innerHTML='<div style="color:var(--text3);text-align:center;padding:12px">이 해의 후원 내역이 없어요</div>';
+      return;
+    }
+    const yearTotal=entries.reduce((sum,[,v])=>sum+v.total,0);
+    const maxTotal=Math.max(...entries.map(([,v])=>v.total),1);
+    list.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface2);border-radius:8px;padding:9px 10px;margin-bottom:2px">
+        <span style="font-weight:700;color:var(--text2)">${year} 합계</span>
+        <span style="font-weight:900;color:var(--accent)">${yearTotal.toLocaleString()}원</span>
+      </div>
+      ${entries.map(([key,value])=>{
+        const month=Number(key.slice(5,7));
+        const width=Math.max(8, Math.round((value.total/maxTotal)*100));
+        return `<div style="padding:8px 0;border-bottom:0.5px solid var(--border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px">
+            <span style="font-weight:800;color:var(--text)">${month}월</span>
+            <span style="font-weight:800;color:var(--text)">${value.total.toLocaleString()}원</span>
+          </div>
+          <div style="height:6px;background:var(--surface2);border-radius:999px;overflow:hidden;margin-bottom:5px"><div style="width:${width}%;height:100%;background:linear-gradient(90deg,var(--accent),#f59e0b)"></div></div>
+          <div style="font-size:12.5px;color:var(--text3)">후원 ${value.donation.toLocaleString()}원 · 미션 ${value.mission.toLocaleString()}원 · ${value.count.toLocaleString()}건</div>
+        </div>`;
+      }).join('')}`;
+  }catch(e){
+    list.dataset.ready='0';
+    list.innerHTML=`<div style="color:#ef4444;text-align:center;padding:12px">월간 통계 불러오기 실패: ${e.message}</div>`;
+  }
+}
+window.initMonthlyStatsYear=initMonthlyStatsYear;
+window.loadMonthlyDonationStats=loadMonthlyDonationStats;
 function handleDonation(donation){
   try {
     const profile = typeof donation.profile==='string' ? JSON.parse(donation.profile) : donation.profile;
@@ -2351,7 +2518,7 @@ window.chatClear=()=>{
   ['chat-count','stat-total','stat-users'].forEach(id=>document.getElementById(id).textContent='0');
   document.getElementById('stat-top').innerHTML='';
   doneMap={}; doneAnon=0; renderDone();
-  missionMap={}; missionAnon=0; missionRecords={}; missionContributionRecords={}; recentMissionEventMap={}; recentMissionSettlement=null; recentMissionAdditionChatMap={}; renderMission();
+  missionMap={}; missionAnon=0; missionRecords={}; missionContributionRecords={}; recentMissionEventMap={}; recentMissionSettlement=null; recentMissionAdditionChatMap={}; renderMission(); clearChatFilters();
 };
 function formatDonationTextLine(item){
   const isMission = item.type === 'mission';
@@ -2780,6 +2947,7 @@ window.switchTab=(name,el)=>{
   if(name==='schedule') loadSchedules();
   if(name==='content') loadContents();
   if(name==='tools') loadTools();
+  if(name==='chat'){ initChatFilterObserver(); loadMonthlyDonationStats(); }
 };
 window.openModal=(id)=>document.getElementById(id).classList.add('open');
 window.closeModal=(id)=>{
@@ -2794,6 +2962,8 @@ document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e
 window.fmtTime=(el)=>{ let v=el.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); el.value=v; };
 
 renderCal();
+initMonthlyStatsYear();
+initChatFilterObserver();
 
 // URL 해시로 초기 탭 설정 + ?open= 파라미터로 모달 자동 오픈
 (function(){
