@@ -318,8 +318,8 @@ textarea:focus {
 }
 .live-banner {
   position: fixed !important;
-  top: 23px !important;
-  right: 154px !important;
+  top: 27px !important;
+  right: 182px !important;
   left: auto !important;
   width: min(520px, calc(100vw - 470px)) !important;
   height: 44px !important;
