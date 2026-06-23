@@ -823,3 +823,33 @@ body.menu-collapsed .tab-icon {
     right: auto !important;
   }
 }
+/* Stable sidebar item positions */
+@media (min-width: 901px) {
+  .tabs,
+  body.menu-collapsed .tabs {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    gap: 9px !important;
+  }
+  .menu-head,
+  body.menu-collapsed .menu-head {
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 0 0 5px !important;
+  }
+  .menu-toggle,
+  body.menu-collapsed .menu-toggle {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    flex: 0 0 34px !important;
+  }
+  .tab,
+  body.menu-collapsed .tab {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+  body.menu-collapsed .tab-icon {
+    height: 46px !important;
+  }
+}
