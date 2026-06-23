@@ -1299,3 +1299,29 @@ body {
     font-size: 12px !important;
   }
 }
+/* Correct chat log sizing without moving side panels */
+@media (min-width: 901px) {
+  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(n+2) {
+    padding-top: 0 !important;
+  }
+  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(2) > div,
+  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(4) > div {
+    height: calc(100vh - 200px) !important;
+    min-height: 300px !important;
+  }
+  #chat-participants-box {
+    height: calc(100vh - 350px) !important;
+    min-height: 200px !important;
+  }
+  #chat-log {
+    height: calc(100vh - 312px) !important;
+    min-height: 300px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1180px) {
+  #chat-log {
+    height: min(430px, calc(100vh - 312px)) !important;
+    min-height: 280px !important;
+  }
+}
