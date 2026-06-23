@@ -1117,3 +1117,17 @@ body {
     max-width: 100% !important;
   }
 }
+/* Compact sidebar height */
+@media (min-width: 901px) {
+  .tabs,
+  body.menu-collapsed .tabs {
+    min-height: 0 !important;
+    height: auto !important;
+    align-self: flex-start !important;
+    margin-bottom: 0 !important;
+  }
+  .page,
+  body.menu-collapsed .page {
+    padding-bottom: 0 !important;
+  }
+}
