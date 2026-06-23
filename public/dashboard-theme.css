@@ -1214,26 +1214,7 @@ body {
     padding: 10px 10px 18px !important;
   }
 }
-/* Align chat dashboard cards with the chat log and trim tablet scroll */
-@media (min-width: 901px) {
-  #tab-chat > div[style*='grid-template-columns'] {
-    align-items: start !important;
-  }
-  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(n+2) {
-    padding-top: 112px !important;
-    box-sizing: border-box !important;
-  }
-  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(2) > div,
-  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(4) > div {
-    height: calc(100vh - 312px) !important;
-    min-height: 300px !important;
-  }
-  #chat-participants-box {
-    height: calc(100vh - 462px) !important;
-    min-height: 180px !important;
-  }
-}
-
+/* Trim tablet chat scroll without moving side panels */
 @media (min-width: 768px) and (max-width: 1180px) {
   .page,
   body.menu-collapsed .page {
@@ -1245,12 +1226,6 @@ body {
   }
   #tab-chat > div[style*='grid-template-columns'] {
     margin-bottom: 0 !important;
-  }
-  #chat-log,
-  #chat-col2 > div,
-  #chat-col3 > div,
-  #chat-participants-box {
-    max-height: none !important;
   }
 }
 
@@ -1299,6 +1274,7 @@ body {
     font-size: 12px !important;
   }
 }
+
 /* Correct chat log sizing without moving side panels */
 @media (min-width: 901px) {
   #tab-chat > div[style*='grid-template-columns'] > div:nth-child(n+2) {
