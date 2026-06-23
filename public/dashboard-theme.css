@@ -853,3 +853,18 @@ body.menu-collapsed .tab-icon {
     height: 46px !important;
   }
 }
+/* Transparent top header */
+.header {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+@media (max-width: 900px) {
+  .header {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+}
