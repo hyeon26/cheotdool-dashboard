@@ -1481,3 +1481,85 @@ body {
     font-size: 11.5px !important;
   }
 }
+/* Stable iPad chat column sizing */
+@media (min-width: 901px) and (max-width: 1366px) {
+  html,
+  body {
+    min-height: 0 !important;
+  }
+  body {
+    overflow-y: auto !important;
+  }
+  .page,
+  body.menu-collapsed .page {
+    padding-bottom: 0 !important;
+  }
+  #tab-chat > div[style*='grid-template-columns'] {
+    align-items: start !important;
+  }
+  #tab-chat > div[style*='grid-template-columns'] > div:first-child,
+  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(2) > div,
+  #tab-chat > div[style*='grid-template-columns'] > div:nth-child(4) > div {
+    height: min(720px, calc(100dvh - 210px)) !important;
+    min-height: 0 !important;
+  }
+  #tab-chat > div[style*='grid-template-columns'] > div:first-child {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #chat-log {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  #chat-col2 {
+    height: min(720px, calc(100dvh - 210px)) !important;
+    min-height: 0 !important;
+  }
+  #chat-col2 > div:first-child {
+    flex: 0 0 auto !important;
+  }
+  #chat-participants-box {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  #chat-filter-bar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 74px 52px 50px 62px !important;
+    align-items: center !important;
+    gap: 5px !important;
+  }
+  #chat-filter-query,
+  #chat-filter-nick,
+  #chat-filter-type,
+  #chat-filter-bar .chat-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  #chat-filter-query,
+  #chat-filter-nick {
+    flex: none !important;
+  }
+  #chat-filter-count {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  #chat-filter-bar {
+    grid-template-columns: minmax(0, 1fr) 64px 48px 46px 56px !important;
+    gap: 4px !important;
+  }
+  #chat-filter-bar .chat-btn,
+  #chat-filter-query,
+  #chat-filter-nick,
+  #chat-filter-type {
+    font-size: 11.5px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+  }
+}
