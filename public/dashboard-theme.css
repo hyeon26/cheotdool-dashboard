@@ -200,11 +200,11 @@ body {
 }
 .cal-cell:hover:not(.empty) {
   transform: translateY(-2px) !important;
-  border-color: rgba(45, 212, 191, .34) !important;
+  border-color: rgba(253, 186, 116, .46) !important;
   box-shadow: var(--shadow) !important;
 }
-.cal-cell.today { background: rgba(204, 251, 241, .58) !important; border-color: rgba(45, 212, 191, .42) !important; }
-.cal-cell.today .date-num { color: #0f766e !important; }
+.cal-cell.today { background: rgba(255, 241, 230, .72) !important; border-color: rgba(253, 186, 116, .58) !important; }
+.cal-cell.today .date-num { color: #c2410c !important; }
 .cal-event { border-radius: 8px !important; padding: 4px 7px !important; font-weight: 900 !important; }
 .ev-stream { background: rgba(232, 222, 255, .92) !important; color: #5b3aa4 !important; }
 .ev-vod,
@@ -220,12 +220,21 @@ body {
   background: rgba(255, 255, 255, .42) !important;
 }
 .up-item { border-radius: 13px !important; }
+.upcoming-card .up-item,
+#day-events-list .up-item {
+  background: rgba(255, 241, 230, .58) !important;
+  border-color: rgba(253, 186, 116, .22) !important;
+}
 .up-item:hover,
 .content-card:hover,
 .clip-card:hover {
   transform: translateY(-4px) !important;
   border-color: rgba(109, 93, 252, .24) !important;
   box-shadow: var(--shadow-md) !important;
+}
+.upcoming-card .up-item:hover,
+#day-events-list .up-item:hover {
+  border-color: rgba(253, 186, 116, .44) !important;
 }
 
 .content-grid,
