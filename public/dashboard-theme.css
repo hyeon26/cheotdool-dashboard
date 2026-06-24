@@ -1624,8 +1624,8 @@ body {
   #chat-log,
   #chat-participants-box {
     flex: none !important;
-    height: 390px !important;
-    max-height: 390px !important;
+    height: 470px !important;
+    max-height: 470px !important;
     min-height: 0 !important;
     overflow-y: auto !important;
   }
@@ -1653,7 +1653,7 @@ body {
 @media (min-width: 901px) and (max-width: 1180px) {
   #chat-log,
   #chat-participants-box {
-    height: 340px !important;
-    max-height: 340px !important;
+    height: 430px !important;
+    max-height: 430px !important;
   }
 }
