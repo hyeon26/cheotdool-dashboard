@@ -1563,3 +1563,50 @@ body {
     padding-right: 5px !important;
   }
 }
+
+/* Direct iPad trim for chat collection and participant list */
+@media (min-width: 901px) and (max-width: 1366px) {
+  #tab-chat > div[style*='grid-template-columns'] {
+    align-items: start !important;
+  }
+  #tab-chat > div[style*='grid-template-columns'] > div:first-child,
+  #chat-col2 {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  #chat-log {
+    flex: none !important;
+    height: clamp(260px, calc(100dvh - 600px), 380px) !important;
+    min-height: 0 !important;
+  }
+  #chat-participants-box {
+    flex: none !important;
+    height: clamp(260px, calc(100dvh - 600px), 380px) !important;
+    min-height: 0 !important;
+  }
+  #chat-filter-bar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 62px 45px 43px 50px !important;
+    gap: 4px !important;
+  }
+  #chat-filter-bar .chat-btn,
+  #chat-filter-query,
+  #chat-filter-nick,
+  #chat-filter-type {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    font-size: 11.5px !important;
+  }
+  #chat-filter-count {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (min-width: 1181px) and (max-width: 1366px) {
+  #chat-log,
+  #chat-participants-box {
+    height: clamp(300px, calc(100dvh - 560px), 420px) !important;
+  }
+}
