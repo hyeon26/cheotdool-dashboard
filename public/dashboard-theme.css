@@ -220,10 +220,9 @@ body {
   background: rgba(255, 255, 255, .42) !important;
 }
 .up-item { border-radius: 13px !important; }
-.upcoming-card .up-item,
-#day-events-list .up-item {
-  background: rgba(255, 241, 230, .58) !important;
-  border-color: rgba(253, 186, 116, .22) !important;
+.upcoming-card .up-item {
+  background: rgba(255, 255, 255, .46) !important;
+  border-color: rgba(74, 57, 100, .11) !important;
 }
 .up-item:hover,
 .content-card:hover,
@@ -232,9 +231,8 @@ body {
   border-color: rgba(109, 93, 252, .24) !important;
   box-shadow: var(--shadow-md) !important;
 }
-.upcoming-card .up-item:hover,
-#day-events-list .up-item:hover {
-  border-color: rgba(253, 186, 116, .44) !important;
+.upcoming-card .up-item:hover {
+  border-color: rgba(253, 186, 116, .46) !important;
 }
 
 .content-grid,
