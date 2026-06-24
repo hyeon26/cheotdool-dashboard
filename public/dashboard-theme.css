@@ -200,10 +200,11 @@ body {
 }
 .cal-cell:hover:not(.empty) {
   transform: translateY(-2px) !important;
-  border-color: rgba(109, 93, 252, .28) !important;
+  border-color: rgba(45, 212, 191, .34) !important;
   box-shadow: var(--shadow) !important;
 }
-.cal-cell.today { background: rgba(237, 233, 254, .70) !important; border-color: rgba(109, 93, 252, .45) !important; }
+.cal-cell.today { background: rgba(204, 251, 241, .58) !important; border-color: rgba(45, 212, 191, .42) !important; }
+.cal-cell.today .date-num { color: #0f766e !important; }
 .cal-event { border-radius: 8px !important; padding: 4px 7px !important; font-weight: 900 !important; }
 .ev-stream { background: rgba(232, 222, 255, .92) !important; color: #5b3aa4 !important; }
 .ev-vod,
