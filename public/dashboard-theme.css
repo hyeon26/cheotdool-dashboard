@@ -1610,3 +1610,50 @@ body {
     height: clamp(300px, calc(100dvh - 560px), 420px) !important;
   }
 }
+
+/* Wider tablet/Desktop Safari fallback: keep chat panels on the same visual baseline */
+@media (min-width: 901px) and (max-width: 1919px) {
+  #tab-chat > div[style*='grid-template-columns'] {
+    align-items: start !important;
+  }
+  #tab-chat > div[style*='grid-template-columns'] > div:first-child,
+  #chat-col2 {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  #chat-log,
+  #chat-participants-box {
+    flex: none !important;
+    height: 390px !important;
+    max-height: 390px !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+  #chat-filter-bar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 60px 44px 42px 48px !important;
+    gap: 4px !important;
+  }
+  #chat-filter-query,
+  #chat-filter-nick,
+  #chat-filter-type,
+  #chat-filter-bar .chat-btn {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    font-size: 11px !important;
+  }
+  #chat-filter-count {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  #chat-log,
+  #chat-participants-box {
+    height: 340px !important;
+    max-height: 340px !important;
+  }
+}
