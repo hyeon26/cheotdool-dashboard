@@ -1657,3 +1657,45 @@ body {
     max-height: clamp(500px, calc(100dvh - 230px), 700px) !important;
   }
 }
+
+/* Document-wide background and balanced responsive chat height */
+html {
+  min-height: 100% !important;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(109, 93, 252, .18), transparent 27rem),
+    radial-gradient(circle at 92% 14%, rgba(225, 91, 56, .16), transparent 26rem),
+    radial-gradient(circle at 48% 0%, rgba(15, 143, 130, .16), transparent 30rem),
+    linear-gradient(135deg, #f8f2e8 0%, #f4f1ff 45%, #eef7f3 100%) !important;
+}
+body {
+  min-height: 100dvh !important;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(109, 93, 252, .18), transparent 27rem),
+    radial-gradient(circle at 92% 14%, rgba(225, 91, 56, .16), transparent 26rem),
+    radial-gradient(circle at 48% 0%, rgba(15, 143, 130, .16), transparent 30rem),
+    linear-gradient(135deg, #f8f2e8 0%, #f4f1ff 45%, #eef7f3 100%) !important;
+  background-attachment: fixed !important;
+}
+
+@media (min-width: 901px) and (max-width: 1919px) {
+  .page,
+  body.menu-collapsed .page,
+  #tab-chat,
+  #tab-chat > div[style*='grid-template-columns'] {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  #chat-log,
+  #chat-participants-box {
+    height: clamp(520px, calc(100dvh - 300px), 650px) !important;
+    max-height: clamp(520px, calc(100dvh - 300px), 650px) !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  #chat-log,
+  #chat-participants-box {
+    height: clamp(500px, calc(100dvh - 300px), 620px) !important;
+    max-height: clamp(500px, calc(100dvh - 300px), 620px) !important;
+  }
+}
