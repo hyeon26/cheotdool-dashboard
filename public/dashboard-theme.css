@@ -1624,8 +1624,8 @@ body {
   #chat-log,
   #chat-participants-box {
     flex: none !important;
-    height: 470px !important;
-    max-height: 470px !important;
+    height: clamp(520px, calc(100dvh - 230px), 760px) !important;
+    max-height: clamp(520px, calc(100dvh - 230px), 760px) !important;
     min-height: 0 !important;
     overflow-y: auto !important;
   }
@@ -1653,7 +1653,7 @@ body {
 @media (min-width: 901px) and (max-width: 1180px) {
   #chat-log,
   #chat-participants-box {
-    height: 430px !important;
-    max-height: 430px !important;
+    height: clamp(500px, calc(100dvh - 230px), 700px) !important;
+    max-height: clamp(500px, calc(100dvh - 230px), 700px) !important;
   }
 }
