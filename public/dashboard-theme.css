@@ -205,11 +205,11 @@ body {
 }
 .cal-cell.today { background: rgba(237, 233, 254, .70) !important; border-color: rgba(109, 93, 252, .45) !important; }
 .cal-event { border-radius: 8px !important; padding: 4px 7px !important; font-weight: 900 !important; }
-.ev-stream { background: rgba(191, 244, 219, .90) !important; color: #075745 !important; }
+.ev-stream { background: rgba(232, 222, 255, .92) !important; color: #5b3aa4 !important; }
 .ev-vod,
 .ev-edit { background: rgba(219, 234, 254, .92) !important; color: #1d4ed8 !important; }
 .ev-plan { background: rgba(255, 240, 191, .94) !important; color: #8a4a00 !important; }
-.ev-info { background: rgba(255, 225, 213, .92) !important; color: #a33a1d !important; }
+.ev-info { background: rgba(224, 242, 254, .94) !important; color: #0369a1 !important; }
 
 .up-title,
 .section-title { font-size: 18px !important; font-weight: 900 !important; color: #211434 !important; }
@@ -371,17 +371,24 @@ textarea:focus {
   }
 }
 /* Preview adjustment: broadcast records and modal glass */
-.ev-stream,
 .ev-vod,
 .ev-edit,
-.cal-event.ev-stream,
 .cal-event.ev-vod,
 .cal-event.ev-edit,
-.up-tag.ev-stream,
 .up-tag.ev-vod,
 .up-tag.ev-edit {
   background: rgba(190, 246, 211, .92) !important;
   color: #076243 !important;
+}
+.cal-event.ev-stream,
+.up-tag.ev-stream {
+  background: rgba(232, 222, 255, .92) !important;
+  color: #5b3aa4 !important;
+}
+.cal-event.ev-info,
+.up-tag.ev-info {
+  background: rgba(224, 242, 254, .94) !important;
+  color: #0369a1 !important;
 }
 
 .modal-bg {
