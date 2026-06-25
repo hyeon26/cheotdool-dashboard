@@ -31,6 +31,7 @@ const recentDonationEventMap = new Map();
 const missionRecords = new Map();
 const DONATION_DEDUPE_MS = 2500;
 const DONATION_DEDUPE_TTL_MS = 60000;
+const CHAT_TIME_ZONE = 'Asia/Seoul';
 
 function numberEnv(name, fallback) {
   const parsed = Number(process.env[name]);
@@ -177,11 +178,26 @@ function parseMaybeJson(value) {
 
 function formatChatTime(date = new Date()) {
   return date.toLocaleTimeString('ko-KR', {
+    timeZone: CHAT_TIME_ZONE,
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
     hour12: false
   });
+}
+
+function formatKstDateTime(date = new Date()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: CHAT_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(date).map(part => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+09:00`;
 }
 
 function toDonationAmount(value) {
@@ -393,7 +409,7 @@ function saveDonationRow(data) {
   if (!sessionId) return;
   lastRecordAt = Date.now();
   reconnectAttemptsAfterOffline = 0;
-  store.addDonation(sessionId, { time: data.time || formatChatTime(), nick: data.nick || ANON_DONOR, type: data.type || 'donation', amt: toDonationAmount(data.amt), message: data.message || '', documentId: data.documentId, createdAt: new Date().toISOString(), ...data });
+  store.addDonation(sessionId, { time: data.time || formatChatTime(), nick: data.nick || ANON_DONOR, type: data.type || 'donation', amt: toDonationAmount(data.amt), message: data.message || '', documentId: data.documentId, createdAt: formatKstDateTime(), ...data });
   log(`${data.type === 'mission' ? 'mission' : 'donation'} saved: ${data.nick || ANON_DONOR}: ${toDonationAmount(data.amt).toLocaleString()}원`);
 }
 
@@ -476,7 +492,7 @@ async function saveChat(chat) {
     time: formatChatTime(),
     nick,
     msg,
-    createdAt: new Date().toISOString()
+    createdAt: formatKstDateTime()
   });
 
   log(`chat saved: ${nick}: ${msg.slice(0, 80)}`);

@@ -4,6 +4,17 @@ import { randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 
 const DEFAULT_DB_PATH = path.join(process.cwd(), 'data', 'chat.db');
+const KST_TIME_ZONE = 'Asia/Seoul';
+const KST_DATE_FORMATTER = new Intl.DateTimeFormat('en-CA', {
+  timeZone: KST_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23'
+});
 
 export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PATH) {
   mkdirSync(path.dirname(dbPath), { recursive: true });
@@ -101,7 +112,7 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
 
   function createSession(data = {}) {
     const id = data.id || randomUUID();
-    const startedAt = normalizeDate(data.startedAt) || new Date().toISOString();
+    const startedAt = normalizeDate(data.startedAt) || kstISOString();
     createSessionStmt.run(
       id,
       startedAt,
@@ -113,12 +124,12 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
   }
 
   function finishSession(id, reason = 'stopped') {
-    finishSessionStmt.run(new Date().toISOString(), stringValue(reason), id);
+    finishSessionStmt.run(kstISOString(), stringValue(reason), id);
     return getSession(id);
   }
 
   function addChat(sessionId, data = {}) {
-    const createdAt = normalizeDate(data.createdAt) || new Date().toISOString();
+    const createdAt = normalizeDate(data.createdAt) || kstISOString();
     insertChatStmt.run(
       sessionId,
       stringValue(data.time),
@@ -135,7 +146,7 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
 
   function addDonation(sessionId, data = {}) {
     const id = data.id || data.documentId || randomUUID();
-    const createdAt = normalizeDate(data.createdAt) || new Date().toISOString();
+    const createdAt = normalizeDate(data.createdAt) || kstISOString();
     upsertDonationStmt.run(
       id,
       sessionId,
@@ -202,11 +213,16 @@ function numberOrNull(value) {
   return Number.isFinite(number) ? number : null;
 }
 
+function kstISOString(date = new Date()) {
+  const parts = Object.fromEntries(KST_DATE_FORMATTER.formatToParts(date).map(part => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+09:00`;
+}
+
 function normalizeDate(value) {
   if (!value) return '';
-  if (value instanceof Date) return value.toISOString();
+  if (value instanceof Date) return kstISOString(value);
   if (typeof value === 'string') return value;
-  if (typeof value === 'object' && value.seconds) return new Date(value.seconds * 1000).toISOString();
+  if (typeof value === 'object' && value.seconds) return kstISOString(new Date(value.seconds * 1000));
   return '';
 }
 
