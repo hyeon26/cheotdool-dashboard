@@ -1391,7 +1391,10 @@ function markUntrackedChatRows(log=document.getElementById('chat-log')){
     const rawNick=spans.length>1 ? spans[1].textContent : '';
     const nick=rawNick.replace(/[🎯💰]/g,'').trim();
     const kind=rowText.includes('🎯')||rowText.includes('미션') ? 'mission' : rowText.includes('💰')||rowText.includes('후원') ? 'donation' : 'chat';
-    markChatRow(row,{kind,nick,text:rowText});
+    let searchText=rowText.replace(/^\[[^\]]+\]\s*/,'');
+    if(rawNick) searchText=searchText.replace(rawNick,'').trim();
+    searchText=searchText.replace(/^[:：!\s]+/,'').trim();
+    markChatRow(row,{kind,nick,text:searchText||rowText});
   });
 }
 function applyChatFilters(){
