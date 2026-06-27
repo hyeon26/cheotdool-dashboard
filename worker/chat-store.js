@@ -147,15 +147,16 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
   function addDonation(sessionId, data = {}) {
     const id = data.id || data.documentId || randomUUID();
     const createdAt = normalizeDate(data.createdAt) || kstISOString();
+    const nick = normalizeDonorNick(data.nick);
     upsertDonationStmt.run(
       id,
       sessionId,
       stringValue(data.time),
-      stringValue(data.nick || '익명의 후원자'),
+      stringValue(nick),
       stringValue(data.type),
       numberOrNull(data.amt),
       stringValue(data.message || data.msg),
-      JSON.stringify({ ...data, id }),
+      JSON.stringify({ ...data, id, nick }),
       createdAt
     );
   }
@@ -205,6 +206,12 @@ export function openChatStore(dbPath = process.env.CHAT_DB_PATH || DEFAULT_DB_PA
 
 function stringValue(value) {
   return value == null ? '' : String(value);
+}
+
+function normalizeDonorNick(nick) {
+  const text = String(nick || '').trim();
+  if (!text || /^anonymous donor$/i.test(text) || /^anonymous$/i.test(text)) return '익명의 후원자';
+  return text;
 }
 
 function numberOrNull(value) {

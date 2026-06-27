@@ -1576,6 +1576,20 @@ function addMissionAmount(nick, delta){
     if(missionMap[key] <= 0) delete missionMap[key];
   }
 }
+function normalizeDonorNick(nick){
+  const text = String(nick || '').trim();
+  if(!text || /^anonymous donor$/i.test(text) || /^anonymous$/i.test(text)) return '익명의 후원자';
+  return text;
+}
+function normalizeMissionStatusLabel(label){
+  const text = String(label || '').trim().replace(/^미션\s+/, '');
+  const key = text.toUpperCase().replace(/[\s-]+/g, '_');
+  if(['성공','SUCCESS','SUCCEEDED','SUCCESSFUL','COMPLETED','COMPLETE','DONE'].includes(key)) return '성공';
+  if(['실패','FAIL','FAILED','CANCELED','CANCELLED','EXPIRED','REJECTED'].includes(key)) return '실패';
+  if(['제시','PROPOSAL','PENDING','WAITING','OPEN'].includes(key)) return '제시';
+  if(['진행','IN_PROGRESS','ONGOING','APPROVED','ACCEPTED','STARTED','RUNNING'].includes(key)) return '진행';
+  return text;
+}
 function getMissionStatusInfo(extras, donation={}){
   const status = String(getMissionStatusValue(extras, donation) || '').toUpperCase();
   const successStatuses = ['SUCCESS','SUCCEEDED','SUCCESSFUL','COMPLETED','COMPLETE','DONE'];
@@ -1596,13 +1610,18 @@ function getMissionStatusInfo(extras, donation={}){
   return { status, success, failed, pending, proposal, label };
 }
 function getMissionHistoryLabel(item={}){
-  if(item.missionStatusLabel) return `미션 ${item.missionStatusLabel}`;
   if(item.missionSuccess === true || item.missionSuccess === 'true') return '미션 성공';
   if(item.missionFailed === true || item.missionFailed === 'true') return '미션 실패';
+  const normalizedLabel = normalizeMissionStatusLabel(item.missionStatusLabel);
+  if(normalizedLabel === '성공' || normalizedLabel === '실패') return `미션 ${normalizedLabel}`;
   const status = String(item.missionStatus || '').toUpperCase();
   if(['SUCCESS','SUCCEEDED','SUCCESSFUL','COMPLETED','COMPLETE','DONE'].includes(status)) return '미션 성공';
   if(['FAIL','FAILED','CANCELED','CANCELLED','EXPIRED','REJECTED'].includes(status)) return '미션 실패';
   return '미션';
+}
+function isFinalMissionHistory(item={}){
+  const label = getMissionHistoryLabel(item);
+  return label === '미션 성공' || label === '미션 실패';
 }
 function getMissionOutcomeBadge(missionStatus){
   if(!missionStatus || missionStatus.pending) return '';
@@ -1956,7 +1975,7 @@ function handleDonation(donation){
     const extras  = typeof donation.extras==='string'  ? JSON.parse(donation.extras)  : donation.extras;
     if(!extras || typeof extras!=='object') return;
     console.log('도네 extras 전체:', JSON.stringify(extras));
-    const nick = profile?.nickname || extras?.nickname || '';
+    const nick = normalizeDonorNick(profile?.nickname || extras?.nickname || '');
     // donationType: CHAT=일반후원, MISSION=미션
     const dtype = extras?.donationType||'';
     const dtypeUpper = dtype.toUpperCase();
@@ -2045,9 +2064,9 @@ function handleDonation(donation){
       : previousMissionRecord;
     const settlementEntries = isMission && shouldCountMission
       ? isMissionAddition
-        ? [{ key: settlementContributionKey || missionEventId || 'single', nick: nick||'익명의 후원자', amount: rawAmt, rawAmount: contributionTarget || getDonationAmount(extras, donation) || rawAmt }]
-        : getMissionSettlementEntries(settlementRecord, nick||'익명의 후원자', rawAmt, missionStatus)
-      : [{ key:'single', nick: nick||'익명의 후원자', amount: countedAmt, rawAmount: rawAmt }];
+        ? [{ key: settlementContributionKey || missionEventId || 'single', nick: normalizeDonorNick(nick), amount: rawAmt, rawAmount: contributionTarget || getDonationAmount(extras, donation) || rawAmt }]
+        : getMissionSettlementEntries(settlementRecord, normalizeDonorNick(nick), rawAmt, missionStatus)
+      : [{ key:'single', nick: normalizeDonorNick(nick), amount: countedAmt, rawAmount: rawAmt }];
     const log=document.getElementById('chat-log'), div=document.createElement('div');
     div.style.cssText=`padding:3px 0;border-bottom:0.5px solid var(--border);background:${isMission?'rgba(245,158,11,.08)':'rgba(255,200,0,.06)'}`;
     const icon = isMission ? '🎯' : '💰';
@@ -2070,7 +2089,7 @@ function handleDonation(donation){
       chatAddMissionAddition(time, nick||'익명의 후원자', eventAmt, msg, missionMeta.title || msg);
     } else if(isMission && shouldCountMission){
       settlementEntries.forEach(entry=>{
-        chatAddMissionSettlement(time, entry.nick||'익명의 후원자', entry.amount, msg, missionStatus, missionMeta.title || msg);
+        chatAddMissionSettlement(time, normalizeDonorNick(entry.nick), entry.amount, msg, missionStatus, missionMeta.title || msg);
       });
     } else if(shouldShowInChatLog){
       log.appendChild(div);
@@ -2085,7 +2104,7 @@ function handleDonation(donation){
         const fdiv = document.createElement('div');
         const entryAmountText = `${toDonationAmount(entry.amount).toLocaleString()}원`;
         fdiv.style.cssText=`padding:8px 10px;border-radius:8px;background:${isMission?'rgba(245,158,11,.1)':'rgba(91,74,232,.07)'};border:1px solid ${isMission?'rgba(245,158,11,.2)':'var(--border)'}`;
-        fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${entry.nick||'익명의 후원자'}${isMission?getMissionOutcomeBadge(missionStatus):''}</span><span style="font-weight:700;color:var(--text)">${entryAmountText}</span></div>${msg?`<div style="color:var(--text2);font-size:12.5px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:11.5px;margin-top:3px">${time} · ${label}${isMission && missionMeta.rootAmount>0?` · 총 미션금 ${missionMeta.rootAmount.toLocaleString()}원`:''}</div>`;
+        fdiv.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><span style="font-weight:700;color:${isMission?'#f59e0b':'var(--accent)'}">${icon} ${normalizeDonorNick(entry.nick)}${isMission?getMissionOutcomeBadge(missionStatus):''}</span><span style="font-weight:700;color:var(--text)">${entryAmountText}</span></div>${msg?`<div style="color:var(--text2);font-size:12.5px;margin-top:4px">💬 ${msg}</div>`:''}<div style="color:var(--text3);font-size:11.5px;margin-top:3px">${time} · ${label}${isMission && missionMeta.rootAmount>0?` · 총 미션금 ${missionMeta.rootAmount.toLocaleString()}원`:''}</div>`;
         feed.appendChild(fdiv);
       });
       feed.scrollTop = feed.scrollHeight;
@@ -2093,7 +2112,7 @@ function handleDonation(donation){
 
     if(shouldShowInDonationFeed){
       settlementEntries.forEach(entry=>{
-        doneLogs.push({ time, nick: entry.nick||'익명의 후원자', amt: toDonationAmount(entry.amount), rawAmt: toDonationAmount(entry.rawAmount || entry.amount), type: isMission?'mission':'donation', msg, missionTitle: missionMeta.title, missionStatus: missionStatus.status, missionSuccess: missionStatus.success, missionDonationId: missionId, missionContributionKey: entry.key });
+        doneLogs.push({ time, nick: normalizeDonorNick(entry.nick), amt: toDonationAmount(entry.amount), rawAmt: toDonationAmount(entry.rawAmount || entry.amount), type: isMission?'mission':'donation', msg, missionTitle: missionMeta.title, missionStatus: missionStatus.status, missionSuccess: missionStatus.success, missionDonationId: missionId, missionContributionKey: entry.key });
       });
     }
     if(isMission){
@@ -2136,7 +2155,7 @@ function handleDonation(donation){
       settlementEntries.forEach(entry=>{
         const payload = {
           time,
-          nick: entry.nick||'익명의 후원자', amt: toDonationAmount(entry.amount), rawAmt: toDonationAmount(entry.rawAmount || entry.amount), type: isMission?'mission':'donation',
+          nick: normalizeDonorNick(entry.nick), amt: toDonationAmount(entry.amount), rawAmt: toDonationAmount(entry.rawAmount || entry.amount), type: isMission?'mission':'donation',
           message: msg, missionTitle: missionMeta.title, donationType: dtype, missionDonationId: missionId, missionEventId, missionContributionKey: entry.key,
           missionStatus: missionStatus.status, missionSuccess: missionStatus.success,
           missionFailed: missionStatus.failed, missionStatusLabel: missionStatus.label,
@@ -2381,7 +2400,8 @@ window.loadSession=async(sessionId)=>{
     allItems.forEach(item=>{
       const div=document.createElement('div');
       if(item._type==='chat'){
-        const {time,nick,msg}=item;
+        const {time,msg}=item;
+        const nick = normalizeDonorNick(item.nick);
         const isMissionProposal = item.chatType === 'mission_proposal';
         const isMissionAddition = item.chatType === 'mission_addition';
         const isMissionSettlement = item.chatType === 'mission_settlement';
@@ -2391,9 +2411,11 @@ window.loadSession=async(sessionId)=>{
         chatLogs.push({time,nick,msg,chatType:item.chatType,missionLabel:item.missionLabel,amount:item.amount,missionTitle:item.missionTitle});
         userMap[nick]=(userMap[nick]||0)+1;
       } else {
-        const {nick,type,time,message}=item;
+        const {type,time,message}=item;
+        const nick = normalizeDonorNick(item.nick);
         const amt = toDonationAmount(item.amt);
         const isMission = type==='mission';
+        if(isMission && !isFinalMissionHistory(item)) return;
         const icon = isMission?'🎯':'💰';
         const label = isMission?getMissionHistoryLabel(item):'후원';
         const normalizedMessage = String(message || '').trim();
@@ -2467,8 +2489,9 @@ window.downloadSession=async(sessionId, title)=>{
     const detail=await chatStoreRequest(`/sessions/${encodeURIComponent(sessionId)}`);
     const chats=detail.chats||[];
     const donations=detail.donations||[];
-    const lines=[`[${title}] 채팅 기록`,'',...chats.map(item=>{const {time,nick,msg}=item;return `[${time}] ${nick}: ${msg}`;}),
-      '','=== 후원/미션 ===',...donations.map(item=>{const {time,nick,amt,type}=item;const label=type==='mission'?`[${getMissionHistoryLabel(item)}]`:'[후원]';return `[${time}] ${label} ${nick}: ${toDonationAmount(amt).toLocaleString()}원`;})];
+    const visibleDonations = donations.filter(item=>item.type!=='mission' || isFinalMissionHistory(item));
+    const lines=[`[${title}] 채팅 기록`,'',...chats.map(item=>{const {time,msg}=item;return `[${time}] ${normalizeDonorNick(item.nick)}: ${msg}`;}),
+      '','=== 후원/미션 ===',...visibleDonations.map(item=>{const {time,amt,type}=item;const label=type==='mission'?`[${getMissionHistoryLabel(item)}]`:'[후원]';return `[${time}] ${label} ${normalizeDonorNick(item.nick)}: ${toDonationAmount(amt).toLocaleString()}원`;})];
     const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
     a.download=`첫째와둘째_${title}_기록.txt`; a.click();
@@ -2538,7 +2561,7 @@ window.chatClear=()=>{
 function formatDonationTextLine(item){
   const isMission = item.type === 'mission';
   const label = isMission ? `[${getMissionHistoryLabel(item)}]` : '[후원]';
-  const nick = item.nick || '익명의 후원자';
+  const nick = normalizeDonorNick(item.nick);
   const amount = toDonationAmount(item.amt).toLocaleString();
   const msg = String(item.msg || item.message || '').trim();
   const missionTitle = String(item.missionTitle || '').trim();
@@ -2555,7 +2578,7 @@ window.chatDownload=()=>{
     `[첫째와둘째 ${ds} 기록]`,
     '',
     '=== 채팅 ===',
-    ...(chatLogs.length ? chatLogs.map(l=>`[${l.time}] ${l.nick}: ${l.msg}`) : ['채팅 기록 없음']),
+    ...(chatLogs.length ? chatLogs.map(l=>`[${l.time}] ${normalizeDonorNick(l.nick)}: ${l.msg}`) : ['채팅 기록 없음']),
     '',
     '=== 후원/미션 ===',
     ...(doneLogs.length ? doneLogs.map(formatDonationTextLine) : ['후원/미션 기록 없음'])

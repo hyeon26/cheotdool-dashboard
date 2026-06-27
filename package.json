@@ -6,6 +6,7 @@
     "collector": "node worker/chat-collector.js",
     "chat-api": "node worker/chat-api.js",
     "migrate:kst": "node worker/migrate-kst-timestamps.js",
+    "normalize:chat": "node worker/normalize-chat-history.js",
     "import:firebase": "node worker/import-firebase-export.js"
   },
   "dependencies": {

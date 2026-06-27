@@ -26,7 +26,7 @@ let reconnectAttemptsAfterOffline = 0;
 let connecting = false;
 let stopped = false;
 
-const ANON_DONOR = 'Anonymous donor';
+const ANON_DONOR = '익명의 후원자';
 const recentDonationEventMap = new Map();
 const missionRecords = new Map();
 const DONATION_DEDUPE_MS = 2500;
@@ -263,7 +263,7 @@ function getMissionStatusInfo(extras, donation = {}) {
   const failed = (explicitFail && !statusIsPending) || statusIsFailed;
   const pending = statusIsPending || (!success && !failed);
   const proposal = ['PENDING', 'WAITING', 'OPEN'].includes(status) || (!status && !success && !failed);
-  const label = proposal ? 'proposal' : pending ? 'pending' : success ? 'success' : failed ? 'failed' : 'unknown';
+  const label = proposal ? '제시' : pending ? '진행' : success ? '성공' : failed ? '실패' : '대기';
   return { status, success, failed, pending, proposal, label };
 }
 
@@ -402,15 +402,22 @@ function isRecentDonationDuplicate(key) {
 
 function getCandidateNick(donation, extras) {
   const profile = parseMaybeJson(donation?.profile) || {};
-  return firstTextValue(profile.nickname, donation?.nickname, extras?.nickname, extras?.userNickname, ANON_DONOR);
+  return normalizeDonorNick(firstTextValue(profile.nickname, donation?.nickname, extras?.nickname, extras?.userNickname, ANON_DONOR));
+}
+
+function normalizeDonorNick(nick) {
+  const text = String(nick || '').trim();
+  if (!text || /^anonymous donor$/i.test(text) || /^anonymous$/i.test(text)) return ANON_DONOR;
+  return text;
 }
 
 function saveDonationRow(data) {
   if (!sessionId) return;
   lastRecordAt = Date.now();
   reconnectAttemptsAfterOffline = 0;
-  store.addDonation(sessionId, { time: data.time || formatChatTime(), nick: data.nick || ANON_DONOR, type: data.type || 'donation', amt: toDonationAmount(data.amt), message: data.message || '', documentId: data.documentId, createdAt: formatKstDateTime(), ...data });
-  log(`${data.type === 'mission' ? 'mission' : 'donation'} saved: ${data.nick || ANON_DONOR}: ${toDonationAmount(data.amt).toLocaleString()}원`);
+  const nick = normalizeDonorNick(data.nick);
+  store.addDonation(sessionId, { time: data.time || formatChatTime(), nick, type: data.type || 'donation', amt: toDonationAmount(data.amt), message: data.message || '', documentId: data.documentId, createdAt: formatKstDateTime(), ...data, nick });
+  log(`${data.type === 'mission' ? 'mission' : 'donation'} saved: ${nick}: ${toDonationAmount(data.amt).toLocaleString()}원`);
 }
 
 function handleDonationCandidate(donation) {
@@ -443,11 +450,11 @@ function handleDonationCandidate(donation) {
   if (incomingAmount > 0) record = rememberMissionRecord(resolved.key || missionKey, { nick, amount: incomingAmount, msg, eventId: missionEventId, isAddition: isMissionAddition, extras, donation }) || record;
 
   const shouldCountMission = !missionStatus.pending && missionStatus.status !== 'REJECTED';
-  if (!shouldCountMission && !settlementAmount) return;
+  if (!shouldCountMission) return;
 
   const amountForSettlement = settlementAmount || incomingAmount || toDonationAmount(record?.rawAmt);
   if (!amountForSettlement && !record) return;
-  const finalStatus = settlementAmount && missionStatus.pending ? { ...missionStatus, pending: false, proposal: false, success: true, failed: false, label: 'success' } : missionStatus;
+  const finalStatus = missionStatus;
   const entries = getMissionEntries(record, nick, amountForSettlement, finalStatus);
   if (!entries.length) return;
 
