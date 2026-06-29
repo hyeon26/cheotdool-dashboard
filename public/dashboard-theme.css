@@ -1526,3 +1526,28 @@ body {
     gap: 4px !important;
   }
 }
+
+/* Followers page glass polish */
+.followers-panel,
+.followers-table-wrap {
+  border: 1px solid rgba(255, 255, 255, .78) !important;
+  background: rgba(255, 255, 255, .56) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(22px) saturate(1.18) !important;
+}
+.followers-title { color: #211434 !important; }
+.followers-sub,
+.followers-table th,
+.follower-muted,
+.followers-pager { color: #746897 !important; }
+.followers-table th { background: rgba(255, 255, 255, .34) !important; }
+.followers-table td { border-color: rgba(74, 57, 100, .12) !important; }
+.follower-name { color: #211434 !important; }
+.followers-badge {
+  background: rgba(15, 143, 130, .12) !important;
+  color: #0f8f82 !important;
+}
+body.menu-collapsed .followers-panel { max-width: 1160px !important; }
+@media (max-width: 900px) {
+  .followers-panel { max-width: none !important; }
+}
