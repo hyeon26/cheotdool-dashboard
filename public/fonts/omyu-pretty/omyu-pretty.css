@@ -3,7 +3,7 @@
   src: url('/fonts/omyu-pretty/omyu-pretty.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -11,7 +11,7 @@
   src: url('/fonts/omyu-pretty/omyu-pretty.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -19,7 +19,7 @@
   src: url('/fonts/omyu-pretty/omyu-pretty.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -27,7 +27,7 @@
   src: url('/fonts/omyu-pretty/omyu-pretty.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -35,7 +35,7 @@
   src: url('/fonts/omyu-pretty/omyu-pretty.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -43,5 +43,5 @@
   src: url('/fonts/omyu-pretty/omyu-pretty.ttf') format('truetype');
   font-weight: 900;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
