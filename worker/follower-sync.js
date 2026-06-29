@@ -48,6 +48,18 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { ...getStatus(), events: store.listFollowerEvents(url.searchParams.get('limit') || 100) });
     }
 
+    if (req.method === 'GET' && url.pathname === '/followers') {
+      return sendJson(res, 200, {
+        code: 200,
+        message: null,
+        content: store.listFollowers({
+          page: url.searchParams.get('page') || 0,
+          size: url.searchParams.get('size') || 50,
+          query: url.searchParams.get('userNickname') || url.searchParams.get('nickname') || ''
+        })
+      });
+    }
+
     if (req.method === 'POST' && url.pathname === '/sync') {
       runSync('manual');
       return sendJson(res, 202, { accepted: true, ...getStatus() });

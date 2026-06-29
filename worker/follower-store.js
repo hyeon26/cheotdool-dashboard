@@ -78,6 +78,11 @@ export function openFollowerStore(dbPath = process.env.FOLLOWER_DB_PATH || proce
       COALESCE(SUM(CASE WHEN following = 0 THEN 1 ELSE 0 END), 0) AS unfollowedTotal
     FROM followers
   `);
+  const listCurrentFollowersStmt = db.prepare(`
+    SELECT * FROM followers
+    WHERE following = 1
+    ORDER BY followDate DESC, lastSeenAt DESC, nickname ASC
+  `);
 
   function syncFollowers(items = []) {
     const now = kstISOString();
@@ -159,6 +164,35 @@ export function openFollowerStore(dbPath = process.env.FOLLOWER_DB_PATH || proce
     return listFollowerEventsStmt.all(safeLimit);
   }
 
+  function listFollowers({ page = 0, size = 50, query = '' } = {}) {
+    const safePage = Math.max(0, Number(page) || 0);
+    const safeSize = Math.max(1, Math.min(100, Number(size) || 50));
+    const keyword = normalizeSearchText(query);
+    const rows = listCurrentFollowersStmt.all();
+    const filtered = keyword
+      ? rows.filter(row => normalizeSearchText(row.nickname).includes(keyword))
+      : rows;
+    const start = safePage * safeSize;
+    return {
+      page: safePage,
+      size: safeSize,
+      totalCount: filtered.length,
+      totalPages: Math.max(1, Math.ceil(filtered.length / safeSize)),
+      data: filtered.slice(start, start + safeSize).map(row => ({
+        user: {
+          userIdHash: row.userId,
+          nickname: row.nickname,
+          profileImageUrl: row.profileImageUrl
+        },
+        userIdHash: row.userId,
+        nickname: row.nickname,
+        profileImageUrl: row.profileImageUrl,
+        followDate: row.followDate,
+        notification: Boolean(row.notification)
+      }))
+    };
+  }
+
   function getFollowerStats() {
     return followerStatsStmt.get();
   }
@@ -166,6 +200,7 @@ export function openFollowerStore(dbPath = process.env.FOLLOWER_DB_PATH || proce
   return {
     db,
     syncFollowers,
+    listFollowers,
     listFollowerEvents,
     getFollowerStats
   };
@@ -185,6 +220,10 @@ function normalizeFollowerItem(item = {}) {
 
 function stringValue(value) {
   return value == null ? '' : String(value);
+}
+
+function normalizeSearchText(value) {
+  return stringValue(value).trim().toLocaleLowerCase('ko-KR').replace(/\s+/g, '');
 }
 
 function kstISOString(date = new Date()) {

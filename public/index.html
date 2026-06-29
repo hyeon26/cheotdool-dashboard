@@ -3190,10 +3190,7 @@ function renderFollowersPager() {
 
 async function fetchFollowersPage(page, size = followersSize, query = followersQuery) {
   const params = new URLSearchParams({ page: String(page), size: String(size), userNickname: query || '' });
-  const res = await fetch(`/api/cheese-history?type=followers&${params.toString()}`);
-  const data = await res.json();
-  if (!res.ok || data?.code !== 200) throw new Error(data?.message || data?.error || '팔로워를 불러오지 못했어요');
-  return data;
+  return followerSyncRequest(`/followers?${params.toString()}`);
 }
 
 async function loadFollowers(reset = false, silent = false) {
