@@ -3,15 +3,19 @@ import { URL } from 'node:url';
 import { openFollowerStore } from './follower-store.js';
 
 const CHANNEL_ID = process.env.CHZZK_CHANNEL_ID || '48070f8882233efa7aee52519fee8fca';
+const SITE_URL = trimTrailingSlash(process.env.PUBLIC_SITE_URL || 'https://firstandsecond.vercel.app');
 const PORT = Number(process.env.FOLLOWER_SYNC_PORT || process.env.PORT || 8788);
 const TOKEN = process.env.FOLLOWER_SYNC_TOKEN || process.env.CHAT_API_TOKEN || '';
 const INTERVAL_MS = Math.max(60_000, Number(process.env.FOLLOWER_SYNC_INTERVAL_MS || 600_000));
 const PAGE_SIZE = Math.max(1, Math.min(100, Number(process.env.FOLLOWER_SYNC_PAGE_SIZE || 100)));
 const PAGE_DELAY_MS = Math.max(0, Number(process.env.FOLLOWER_SYNC_PAGE_DELAY_MS || 150));
 const BOOT_DELAY_MS = Math.max(0, Number(process.env.FOLLOWER_SYNC_BOOT_DELAY_MS || 15_000));
+const COOKIE_CACHE_MS = Math.max(30_000, Number(process.env.FOLLOWER_COOKIE_CACHE_MS || 300_000));
 const AUTO_SYNC = process.env.FOLLOWER_SYNC_DISABLED !== '1';
 
 const store = openFollowerStore();
+let cachedNidCookie = '';
+let cachedNidCookieAt = 0;
 const syncState = {
   running: false,
   lastStartedAt: '',
@@ -109,7 +113,7 @@ async function fetchAllFollowers() {
 }
 
 async function fetchFollowerPage(page) {
-  const cookie = getNidCookie();
+  const cookie = await getNidCookie();
   if (!cookie) throw new Error('CHZZK cookie missing');
   const params = new URLSearchParams({ page: String(page), size: String(PAGE_SIZE), userNickname: '' });
   return fetchJson(`https://api.chzzk.naver.com/manage/v1/channels/${CHANNEL_ID}/followers?${params.toString()}`, {
@@ -136,11 +140,31 @@ async function fetchJson(url, headers) {
   return data;
 }
 
-function getNidCookie() {
-  return [
+async function getNidCookie() {
+  const envCookie = [
     process.env.CHZZK_NID_AUT ? `NID_AUT=${process.env.CHZZK_NID_AUT}` : '',
     process.env.CHZZK_NID_SES ? `NID_SES=${process.env.CHZZK_NID_SES}` : ''
   ].filter(Boolean).join('; ');
+  if (envCookie) return envCookie;
+
+  const now = Date.now();
+  if (cachedNidCookie && now - cachedNidCookieAt < COOKIE_CACHE_MS) return cachedNidCookie;
+
+  try {
+    const data = await fetchJson(`${SITE_URL}/api/get-cookies`, {
+      'Accept': 'application/json',
+      'User-Agent': 'cheotdool-follower-sync/1.0'
+    });
+    cachedNidCookie = [
+      data?.nidAut ? `NID_AUT=${data.nidAut}` : '',
+      data?.nidSes ? `NID_SES=${data.nidSes}` : ''
+    ].filter(Boolean).join('; ');
+    cachedNidCookieAt = Date.now();
+    return cachedNidCookie;
+  } catch (error) {
+    log(`cookie sync failed: ${error.message}`);
+    return '';
+  }
 }
 
 function getStatus() {
@@ -172,6 +196,10 @@ function sendJson(res, status, data) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function trimTrailingSlash(value) {
+  return String(value).replace(/\/+$/, '');
 }
 
 function isoAfter(ms) {
