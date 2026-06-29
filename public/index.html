@@ -3282,7 +3282,7 @@ function updateFollowerSyncStatus(result = {}) {
   const status = document.getElementById('followers-sync-status');
   if (!status) return;
   if (result.running) {
-    status.textContent = 'Oracle follower-sync가 백그라운드에서 동기화 중...';
+    status.textContent = '동기화 중...';
     return;
   }
   if (result.lastError) {
@@ -3311,7 +3311,7 @@ async function syncFollowersWithOracle(force = false) {
   if (followersSyncing) return;
   followersSyncing = true;
   const status = document.getElementById('followers-sync-status');
-  if (status) status.textContent = 'Oracle follower-sync에 동기화를 요청했어요...';
+  if (status) status.textContent = '동기화 요청 중...';
   try {
     const result = await followerSyncRequest('/sync', { method: 'POST', body: { force } });
     updateFollowerSyncStatus(result);
