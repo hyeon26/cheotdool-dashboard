@@ -58,7 +58,9 @@ export default async function handler(req, res) {
 function buildTargetUrl(origin, path) {
   const target = new URL(origin);
   const basePath = target.pathname.replace(/\/+$/, '');
-  const nextPath = String(path).replace(/^\/+/, '');
+  const next = new URL(String(path), 'http://local');
+  const nextPath = next.pathname.replace(/^\/+/, '');
   target.pathname = [basePath, nextPath].filter(Boolean).join('/') || '/';
+  next.searchParams.forEach((value, key) => target.searchParams.append(key, value));
   return target;
 }
