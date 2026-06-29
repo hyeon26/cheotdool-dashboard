@@ -354,11 +354,15 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
 .active-sort { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 
-/* 팔로워 */
-.followers-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;max-width:1100px}
-.followers-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-.followers-title{font-size:21px;font-weight:900;color:var(--text)}
+/* Followers */
+.followers-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+.followers-panel,.followers-changes-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;min-width:0}
+.followers-panel{max-width:none}
+.followers-head,.followers-change-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.followers-title,.followers-change-title{font-size:21px;font-weight:900;color:var(--text)}
+.followers-change-title{font-size:18px}
 .followers-sub{font-size:14px;color:var(--text2);margin-top:4px;font-weight:700}
+.followers-sync-status{font-size:13px;color:var(--text3);font-weight:700;margin:-4px 0 12px}
 .followers-search{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
 .followers-search input{flex:1;min-width:220px;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:14.5px;outline:none}
 .followers-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.34)}
@@ -372,8 +376,22 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .follower-muted{color:var(--text2);font-size:13px}
 .followers-empty{text-align:center!important;color:var(--text3)!important;padding:42px 16px!important}
 .followers-badge{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;background:var(--accent-light);color:var(--accent);font-size:12.5px;font-weight:900}
-.followers-pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;color:var(--text2);font-size:14px;font-weight:800}
-@media(max-width:768px){.followers-panel{padding:14px}.followers-head{align-items:flex-start}.followers-search{display:grid;grid-template-columns:1fr auto auto}.followers-search input{min-width:0}.followers-table{min-width:620px}}
+.followers-pager{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;color:var(--text2);font-size:14px;font-weight:800;flex-wrap:wrap}
+.followers-page-buttons{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
+.followers-page-btn{min-width:32px;height:32px;border:1.5px solid var(--border2);border-radius:9px;background:var(--surface2);color:var(--text2);font-family:inherit;font-size:13px;font-weight:900;cursor:pointer}
+.followers-page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.followers-page-info{color:var(--text3);font-size:13px;min-width:54px;text-align:center}
+.followers-change-list{display:flex;flex-direction:column;gap:8px;max-height:640px;overflow:auto;padding-right:3px}
+.followers-change-item{display:flex;align-items:center;gap:10px;border:1px solid var(--border);background:rgba(255,255,255,.38);border-radius:12px;padding:10px 11px;min-width:0}
+.followers-change-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--surface2);flex-shrink:0}
+.followers-change-body{min-width:0;flex:1}
+.followers-change-name{font-size:14px;font-weight:900;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.followers-change-meta{font-size:12.5px;color:var(--text3);font-weight:700;margin-top:2px}
+.followers-change-type{font-size:12px;font-weight:900;border-radius:999px;padding:4px 8px;white-space:nowrap}
+.followers-change-type.follow{background:#dcfce7;color:#15803d}
+.followers-change-type.unfollow{background:#fee2e2;color:#b91c1c}
+@media(max-width:1180px){.followers-layout{grid-template-columns:1fr}.followers-change-list{max-height:300px}}
+@media(max-width:768px){.followers-panel,.followers-changes-panel{padding:14px}.followers-head{align-items:flex-start}.followers-search{display:grid;grid-template-columns:1fr auto auto}.followers-search input{min-width:0}.followers-table{min-width:620px}.followers-pager{gap:6px}.followers-page-btn{min-width:30px;height:30px}}
 </style>
 <link rel="stylesheet" href="/dashboard-theme.css?v=39"/>
 
@@ -506,38 +524,49 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 
 
   <div id="tab-followers" class="tab-content">
-    <div class="followers-panel">
-      <div class="followers-head">
-        <div>
-          <div class="followers-title">팔로워</div>
-          <div class="followers-sub">총 <span id="followers-total">0</span>명</div>
+    <div class="followers-layout">
+      <div class="followers-panel">
+        <div class="followers-head">
+          <div>
+            <div class="followers-title">팔로워</div>
+            <div class="followers-sub">총 <span id="followers-total">0</span>명</div>
+          </div>
+          <button type="button" class="chat-btn followers-refresh" onclick="refreshFollowers()">갱신</button>
         </div>
-        <button type="button" class="chat-btn followers-refresh" onclick="loadFollowers(true)">갱신</button>
+        <div class="followers-search">
+          <input id="followers-search" type="text" placeholder="닉네임 검색" onkeydown="if(event.key==='Enter') searchFollowers()"/>
+          <button type="button" class="chat-btn" onclick="searchFollowers()" style="background:var(--accent);color:#fff">검색</button>
+          <button type="button" class="chat-btn" onclick="clearFollowersSearch()" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2)">초기화</button>
+        </div>
+        <div class="followers-table-wrap">
+          <table class="followers-table">
+            <thead>
+              <tr>
+                <th>닉네임</th>
+                <th>팔로우 등록일</th>
+                <th>기간</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody id="followers-list">
+              <tr><td colspan="4" class="followers-empty">불러오는 중...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="followers-pager">
+          <button type="button" class="chat-btn" onclick="moveFollowersPage(-1)">이전</button>
+          <div id="followers-page-buttons" class="followers-page-buttons"></div>
+          <button type="button" class="chat-btn" onclick="moveFollowersPage(1)">다음</button>
+          <span id="followers-page-info" class="followers-page-info">1 / 1</span>
+        </div>
       </div>
-      <div class="followers-search">
-        <input id="followers-search" type="text" placeholder="닉네임 검색" onkeydown="if(event.key==='Enter') searchFollowers()"/>
-        <button type="button" class="chat-btn" onclick="searchFollowers()" style="background:var(--accent);color:#fff">검색</button>
-        <button type="button" class="chat-btn" onclick="clearFollowersSearch()" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2)">초기화</button>
-      </div>
-      <div class="followers-table-wrap">
-        <table class="followers-table">
-          <thead>
-            <tr>
-              <th>닉네임</th>
-              <th>팔로우 등록일</th>
-              <th>기간</th>
-              <th>상태</th>
-            </tr>
-          </thead>
-          <tbody id="followers-list">
-            <tr><td colspan="4" class="followers-empty">불러오는 중...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="followers-pager">
-        <button type="button" class="chat-btn" onclick="moveFollowersPage(-1)">이전</button>
-        <span id="followers-page-info">1 / 1</span>
-        <button type="button" class="chat-btn" onclick="moveFollowersPage(1)">다음</button>
+      <div class="followers-changes-panel">
+        <div class="followers-change-head">
+          <div class="followers-change-title">최근 변경 내역</div>
+          <button type="button" class="chat-btn" onclick="syncFollowersWithOracle(true)">동기화</button>
+        </div>
+        <div id="followers-sync-status" class="followers-sync-status">변경 내역을 불러오는 중...</div>
+        <div id="followers-changes-list" class="followers-change-list"></div>
       </div>
     </div>
   </div>
@@ -3059,6 +3088,8 @@ let followersTotalPages = 1;
 let followersQuery = '';
 let followersLoading = false;
 let followersRefreshTimer = null;
+let followersSyncing = false;
+let followersLastSyncAt = 0;
 
 function escapeFollowerHtml(value) {
   return String(value ?? '').replace(/[&<>'"]/g, ch => ({
@@ -3086,6 +3117,18 @@ function formatFollowerDuration(followDate) {
   return `${Math.floor(months / 12)}년 ${months % 12}개월`;
 }
 
+function extractFollowerRecord(item = {}) {
+  const user = item.user || item;
+  const following = item.following || item;
+  return {
+    userId: user.userIdHash || user.userId || item.userIdHash || item.userId || '',
+    nickname: user.nickname || item.nickname || '',
+    profileImageUrl: user.profileImageUrl || item.profileImageUrl || '',
+    followDate: following.followDate || item.followDate || '',
+    notification: Boolean(following.notification ?? item.notification)
+  };
+}
+
 function renderFollowers(data) {
   const content = data?.content || {};
   const rows = Array.isArray(content.data) ? content.data : [];
@@ -3097,29 +3140,49 @@ function renderFollowers(data) {
   const list = document.getElementById('followers-list');
   if (totalEl) totalEl.textContent = total.toLocaleString('ko-KR');
   if (pageEl) pageEl.textContent = `${followersPage + 1} / ${followersTotalPages}`;
+  renderFollowersPager();
   if (!list) return;
   if (!rows.length) {
     list.innerHTML = '<tr><td colspan="4" class="followers-empty">팔로워가 없어요</td></tr>';
     return;
   }
   list.innerHTML = rows.map(item => {
-    const user = item.user || {};
-    const following = item.following || {};
-    const name = escapeFollowerHtml(user.nickname || '이름 없음');
-    const image = user.profileImageUrl || '';
-    const date = following.followDate || '-';
+    const follower = extractFollowerRecord(item);
+    const name = escapeFollowerHtml(follower.nickname || '이름 없음');
+    const image = follower.profileImageUrl || '';
+    const date = follower.followDate || '-';
     const duration = formatFollowerDuration(date);
-    const status = following.notification ? '알림 켬' : '팔로우';
+    const status = follower.notification ? '알림 켬' : '팔로우';
     const avatar = image
       ? `<img class="follower-avatar" src="${escapeFollowerHtml(image)}" alt="" loading="lazy"/>`
       : '<div class="follower-avatar"></div>';
     return `<tr>
-      <td><div class="follower-user">${avatar}<div><div class="follower-name">${name}</div><div class="follower-muted">${escapeFollowerHtml(user.userIdHash || '')}</div></div></div></td>
+      <td><div class="follower-user">${avatar}<div><div class="follower-name">${name}</div><div class="follower-muted">${escapeFollowerHtml(follower.userId)}</div></div></div></td>
       <td>${escapeFollowerHtml(date)}</td>
       <td>${escapeFollowerHtml(duration)}</td>
       <td><span class="followers-badge">${escapeFollowerHtml(status)}</span></td>
     </tr>`;
   }).join('');
+}
+
+function renderFollowersPager() {
+  const holder = document.getElementById('followers-page-buttons');
+  if (!holder) return;
+  const blockStart = Math.floor(followersPage / 10) * 10;
+  const blockEnd = Math.min(followersTotalPages, blockStart + 10);
+  holder.innerHTML = Array.from({ length: Math.max(0, blockEnd - blockStart) }, (_, i) => {
+    const page = blockStart + i;
+    const active = page === followersPage ? ' active' : '';
+    return `<button type="button" class="followers-page-btn${active}" onclick="goFollowersPage(${page})">${page + 1}</button>`;
+  }).join('');
+}
+
+async function fetchFollowersPage(page, size = followersSize, query = followersQuery) {
+  const params = new URLSearchParams({ page: String(page), size: String(size), userNickname: query || '' });
+  const res = await fetch(`/api/cheese-history?type=followers&${params.toString()}`);
+  const data = await res.json();
+  if (!res.ok || data?.code !== 200) throw new Error(data?.message || data?.error || '팔로워를 불러오지 못했어요');
+  return data;
 }
 
 async function loadFollowers(reset = false, silent = false) {
@@ -3129,11 +3192,7 @@ async function loadFollowers(reset = false, silent = false) {
   const list = document.getElementById('followers-list');
   if (list && !silent) list.innerHTML = '<tr><td colspan="4" class="followers-empty">불러오는 중...</td></tr>';
   try {
-    const params = new URLSearchParams({ page: String(followersPage), size: String(followersSize), userNickname: followersQuery });
-    const res = await fetch(`/api/cheese-history?type=followers&${params.toString()}`);
-    const data = await res.json();
-    if (!res.ok || data?.code !== 200) throw new Error(data?.message || data?.error || '팔로워를 불러오지 못했어요');
-    renderFollowers(data);
+    renderFollowers(await fetchFollowersPage(followersPage));
   } catch (e) {
     if (list) list.innerHTML = `<tr><td colspan="4" class="followers-empty">${escapeFollowerHtml(e.message)}</td></tr>`;
   } finally {
@@ -3155,22 +3214,115 @@ function clearFollowersSearch() {
   loadFollowers();
 }
 
-function moveFollowersPage(delta) {
-  const next = Math.max(0, Math.min(followersTotalPages - 1, followersPage + delta));
+function goFollowersPage(page) {
+  const next = Math.max(0, Math.min(followersTotalPages - 1, Number(page) || 0));
   if (next === followersPage) return;
   followersPage = next;
   loadFollowers();
 }
 
+function moveFollowersPage(delta) {
+  goFollowersPage(followersPage + delta);
+}
+
+function formatFollowerEventTime(value) {
+  if (!value) return '-';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return String(value).replace('T', ' ').slice(0, 16);
+  return date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function renderFollowerChangeEvents(events = []) {
+  const list = document.getElementById('followers-changes-list');
+  if (!list) return;
+  if (!events.length) {
+    list.innerHTML = '<div class="followers-empty">아직 기록된 변경 내역이 없어요</div>';
+    return;
+  }
+  list.innerHTML = events.map(event => {
+    const type = event.type === 'unfollow' ? 'unfollow' : 'follow';
+    const label = type === 'unfollow' ? '팔로우 취소' : '새 팔로우';
+    const image = event.profileImageUrl || '';
+    const avatar = image
+      ? `<img class="followers-change-avatar" src="${escapeFollowerHtml(image)}" alt="" loading="lazy"/>`
+      : '<div class="followers-change-avatar"></div>';
+    return `<div class="followers-change-item ${type}">
+      ${avatar}
+      <div class="followers-change-body">
+        <div class="followers-change-name">${escapeFollowerHtml(event.nickname || '이름 없음')}</div>
+        <div class="followers-change-meta">${escapeFollowerHtml(formatFollowerEventTime(event.createdAt))}</div>
+      </div>
+      <span class="followers-change-type ${type}">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+async function loadFollowerChangeEvents() {
+  const status = document.getElementById('followers-sync-status');
+  try {
+    const result = await chatStoreRequest('/followers/events?limit=100');
+    renderFollowerChangeEvents(result.events || []);
+    if (status) status.textContent = 'Oracle 서버 DB에 변경 내역 저장 중';
+  } catch (e) {
+    renderFollowerChangeEvents([]);
+    if (status) status.textContent = `변경 내역 로드 실패: ${e.message}`;
+  }
+}
+
+async function fetchAllFollowersForSync() {
+  const size = 100;
+  const first = await fetchFollowersPage(0, size, '');
+  const content = first?.content || {};
+  const pages = Math.max(1, Number(content.totalPages || 1));
+  const followers = (Array.isArray(content.data) ? content.data : []).map(extractFollowerRecord);
+  for (let page = 1; page < pages; page += 1) {
+    const data = await fetchFollowersPage(page, size, '');
+    followers.push(...((data?.content?.data || []).map(extractFollowerRecord)));
+  }
+  return followers;
+}
+
+async function syncFollowersWithOracle(force = false) {
+  if (followersSyncing) return;
+  const status = document.getElementById('followers-sync-status');
+  if (followersQuery) {
+    if (status) status.textContent = '검색 중에는 전체 동기화를 건너뛰어요';
+    return;
+  }
+  if (!force && Date.now() - followersLastSyncAt < 300000) return;
+  followersSyncing = true;
+  if (status) status.textContent = '전체 팔로워를 Oracle 서버 DB와 동기화 중...';
+  try {
+    const followers = await fetchAllFollowersForSync();
+    const result = await chatStoreRequest('/followers/sync', { method: 'POST', body: { followers } });
+    followersLastSyncAt = Date.now();
+    renderFollowerChangeEvents(result.events || []);
+    if (status) status.textContent = `동기화 완료 · 총 ${Number(result.total || followers.length).toLocaleString('ko-KR')}명 · 추가 ${result.added || 0}명 · 취소 ${result.removed || 0}명`;
+  } catch (e) {
+    if (status) status.textContent = `동기화 실패: ${e.message}`;
+  } finally {
+    followersSyncing = false;
+  }
+}
+
+async function refreshFollowers() {
+  await loadFollowers(true);
+  syncFollowersWithOracle(true);
+}
+
 window.loadFollowers = loadFollowers;
+window.refreshFollowers = refreshFollowers;
 window.searchFollowers = searchFollowers;
 window.clearFollowersSearch = clearFollowersSearch;
 window.moveFollowersPage = moveFollowersPage;
+window.goFollowersPage = goFollowersPage;
+window.syncFollowersWithOracle = syncFollowersWithOracle;
 function startFollowersAutoRefresh() {
   stopFollowersAutoRefresh();
   followersRefreshTimer = setInterval(() => {
     if (document.getElementById('tab-followers')?.classList.contains('active')) {
       loadFollowers(false, true);
+      syncFollowersWithOracle(false);
     }
   }, 60000);
 }
@@ -3190,7 +3342,7 @@ window.switchTab=(name,el)=>{
   if(name==='content') loadContents();
   if(name==='tools') loadTools();
   if(name==='chat'){ initChatFilterObserver(); loadMonthlyDonationStats(); }
-  if(name==='followers'){ loadFollowers(); startFollowersAutoRefresh(); } else { stopFollowersAutoRefresh(); }
+  if(name==='followers'){ loadFollowers(); loadFollowerChangeEvents(); syncFollowersWithOracle(false); startFollowersAutoRefresh(); } else { stopFollowersAutoRefresh(); }
 };
 window.openModal=(id)=>document.getElementById(id).classList.add('open');
 window.closeModal=(id)=>{
