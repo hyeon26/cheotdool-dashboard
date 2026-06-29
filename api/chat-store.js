@@ -10,7 +10,13 @@ export default async function handler(req, res) {
   const path = Array.isArray(req.query.path) ? req.query.path[0] : (req.query.path || '/health');
   if (!String(path).startsWith('/')) return res.status(400).json({ error: 'invalid path' });
 
-  const target = new URL(path, origin);
+  let target;
+  try {
+    target = new URL(path, origin);
+  } catch {
+    return res.status(500).json({ error: `invalid ${isFollowerService ? 'FOLLOWER_SYNC_ORIGIN' : 'CHAT_STORE_ORIGIN'}` });
+  }
+
   for (const [key, value] of Object.entries(req.query)) {
     if (key === 'path' || key === 'service') continue;
     if (Array.isArray(value)) value.forEach(item => target.searchParams.append(key, item));
@@ -24,14 +30,28 @@ export default async function handler(req, res) {
     : process.env.CHAT_API_TOKEN;
   if (token) headers['X-Chat-Api-Token'] = token;
 
-  const response = await fetch(target, {
-    method: req.method,
-    headers,
-    body: ['GET', 'HEAD'].includes(req.method) ? undefined : JSON.stringify(req.body || {})
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
-  const text = await response.text();
-  res.status(response.status);
-  res.setHeader('Content-Type', response.headers.get('content-type') || 'application/json; charset=utf-8');
-  res.send(text);
+  try {
+    const response = await fetch(target, {
+      method: req.method,
+      headers,
+      signal: controller.signal,
+      body: ['GET', 'HEAD'].includes(req.method) ? undefined : JSON.stringify(req.body || {})
+    });
+
+    const text = await response.text();
+    res.status(response.status);
+    res.setHeader('Content-Type', response.headers.get('content-type') || 'application/json; charset=utf-8');
+    res.send(text);
+  } catch (error) {
+    const serviceName = isFollowerService ? 'follower-sync' : 'chat-api';
+    const message = error.name === 'AbortError'
+      ? `${serviceName} request timed out`
+      : `${serviceName} request failed: ${error.message}`;
+    res.status(502).json({ error: message, service: serviceName, origin });
+  } finally {
+    clearTimeout(timeout);
+  }
 }
