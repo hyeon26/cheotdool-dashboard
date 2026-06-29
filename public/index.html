@@ -3233,7 +3233,9 @@ function goFollowersPage(page) {
 }
 
 function moveFollowersPage(delta) {
-  goFollowersPage(followersPage + delta);
+  const blockStart = Math.floor(followersPage / 10) * 10;
+  const target = delta > 0 ? blockStart + 10 : blockStart - 10;
+  goFollowersPage(target);
 }
 
 function formatFollowerEventTime(value) {
