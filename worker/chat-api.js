@@ -29,15 +29,6 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { year: String(year), months: store.getMonthlyDonationStats(year) });
     }
 
-    if (req.method === 'GET' && url.pathname === '/followers/events') {
-      return sendJson(res, 200, { events: store.listFollowerEvents(url.searchParams.get('limit') || 100) });
-    }
-
-    if (req.method === 'POST' && url.pathname === '/followers/sync') {
-      const body = await readJson(req);
-      return sendJson(res, 200, store.syncFollowers(body.followers || []));
-    }
-
     if (req.method === 'POST' && url.pathname === '/sessions') {
       const body = await readJson(req);
       return sendJson(res, 201, { session: store.createSession(body) });

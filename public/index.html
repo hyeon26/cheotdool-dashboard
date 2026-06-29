@@ -982,7 +982,18 @@ async function chatStoreRequest(path, options={}){
   }
   return res.json();
 }
-
+async function followerSyncRequest(path, options={}){
+  const res = await fetch(`/api/chat-store?service=follower&path=${encodeURIComponent(path)}`, {
+    method: options.method || 'GET',
+    headers: options.body ? {'Content-Type':'application/json'} : undefined,
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+  if(!res.ok){
+    const text = await res.text().catch(()=>'');
+    throw new Error(text || res.status);
+  }
+  return res.json();
+}
 function toDateValue(value){
   if(!value) return null;
   if(value.toDate) return value.toDate();
@@ -3257,49 +3268,57 @@ function renderFollowerChangeEvents(events = []) {
   }).join('');
 }
 
+async function loadFollowerSyncStatus() {
+  const status = document.getElementById('followers-sync-status');
+  if (!status) return;
+  try {
+    const result = await followerSyncRequest('/status');
+    updateFollowerSyncStatus(result);
+  } catch (e) {
+    status.textContent = `follower-sync 상태 확인 실패: ${e.message}`;
+  }
+}
+
+function updateFollowerSyncStatus(result = {}) {
+  const status = document.getElementById('followers-sync-status');
+  if (!status) return;
+  if (result.running) {
+    status.textContent = 'Oracle follower-sync가 백그라운드에서 동기화 중...';
+    return;
+  }
+  if (result.lastError) {
+    status.textContent = `마지막 동기화 실패: ${result.lastError}`;
+    return;
+  }
+  const last = result.lastFinishedAt ? formatFollowerEventTime(result.lastFinishedAt) : '아직 없음';
+  const sync = result.lastResult || {};
+  const total = Number(sync.total || result.stats?.followingTotal || 0).toLocaleString('ko-KR');
+  status.textContent = `마지막 동기화 ${last} · 총 ${total}명 · 추가 ${sync.added || 0}명 · 취소 ${sync.removed || 0}명`;
+}
+
 async function loadFollowerChangeEvents() {
   const status = document.getElementById('followers-sync-status');
   try {
-    const result = await chatStoreRequest('/followers/events?limit=100');
+    const result = await followerSyncRequest('/events?limit=100');
     renderFollowerChangeEvents(result.events || []);
-    if (status) status.textContent = 'Oracle 서버 DB에 변경 내역 저장 중';
+    updateFollowerSyncStatus(result);
   } catch (e) {
     renderFollowerChangeEvents([]);
     if (status) status.textContent = `변경 내역 로드 실패: ${e.message}`;
   }
 }
 
-async function fetchAllFollowersForSync() {
-  const size = 100;
-  const first = await fetchFollowersPage(0, size, '');
-  const content = first?.content || {};
-  const pages = Math.max(1, Number(content.totalPages || 1));
-  const followers = (Array.isArray(content.data) ? content.data : []).map(extractFollowerRecord);
-  for (let page = 1; page < pages; page += 1) {
-    const data = await fetchFollowersPage(page, size, '');
-    followers.push(...((data?.content?.data || []).map(extractFollowerRecord)));
-  }
-  return followers;
-}
-
 async function syncFollowersWithOracle(force = false) {
   if (followersSyncing) return;
-  const status = document.getElementById('followers-sync-status');
-  if (followersQuery) {
-    if (status) status.textContent = '검색 중에는 전체 동기화를 건너뛰어요';
-    return;
-  }
-  if (!force && Date.now() - followersLastSyncAt < 300000) return;
   followersSyncing = true;
-  if (status) status.textContent = '전체 팔로워를 Oracle 서버 DB와 동기화 중...';
+  const status = document.getElementById('followers-sync-status');
+  if (status) status.textContent = 'Oracle follower-sync에 동기화를 요청했어요...';
   try {
-    const followers = await fetchAllFollowersForSync();
-    const result = await chatStoreRequest('/followers/sync', { method: 'POST', body: { followers } });
-    followersLastSyncAt = Date.now();
-    renderFollowerChangeEvents(result.events || []);
-    if (status) status.textContent = `동기화 완료 · 총 ${Number(result.total || followers.length).toLocaleString('ko-KR')}명 · 추가 ${result.added || 0}명 · 취소 ${result.removed || 0}명`;
+    const result = await followerSyncRequest('/sync', { method: 'POST', body: { force } });
+    updateFollowerSyncStatus(result);
+    setTimeout(loadFollowerChangeEvents, 2500);
   } catch (e) {
-    if (status) status.textContent = `동기화 실패: ${e.message}`;
+    if (status) status.textContent = `동기화 요청 실패: ${e.message}`;
   } finally {
     followersSyncing = false;
   }
@@ -3307,9 +3326,8 @@ async function syncFollowersWithOracle(force = false) {
 
 async function refreshFollowers() {
   await loadFollowers(true);
-  syncFollowersWithOracle(true);
+  await loadFollowerChangeEvents();
 }
-
 window.loadFollowers = loadFollowers;
 window.refreshFollowers = refreshFollowers;
 window.searchFollowers = searchFollowers;
@@ -3322,7 +3340,7 @@ function startFollowersAutoRefresh() {
   followersRefreshTimer = setInterval(() => {
     if (document.getElementById('tab-followers')?.classList.contains('active')) {
       loadFollowers(false, true);
-      syncFollowersWithOracle(false);
+      loadFollowerChangeEvents();
     }
   }, 60000);
 }
@@ -3342,7 +3360,7 @@ window.switchTab=(name,el)=>{
   if(name==='content') loadContents();
   if(name==='tools') loadTools();
   if(name==='chat'){ initChatFilterObserver(); loadMonthlyDonationStats(); }
-  if(name==='followers'){ loadFollowers(); loadFollowerChangeEvents(); syncFollowersWithOracle(false); startFollowersAutoRefresh(); } else { stopFollowersAutoRefresh(); }
+  if(name==='followers'){ loadFollowers(); loadFollowerChangeEvents(); loadFollowerSyncStatus(); startFollowersAutoRefresh(); } else { stopFollowersAutoRefresh(); }
 };
 window.openModal=(id)=>document.getElementById(id).classList.add('open');
 window.closeModal=(id)=>{
