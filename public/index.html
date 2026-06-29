@@ -3058,6 +3058,7 @@ let followersSize = 50;
 let followersTotalPages = 1;
 let followersQuery = '';
 let followersLoading = false;
+let followersRefreshTimer = null;
 
 function escapeFollowerHtml(value) {
   return String(value ?? '').replace(/[&<>'"]/g, ch => ({
@@ -3121,15 +3122,15 @@ function renderFollowers(data) {
   }).join('');
 }
 
-async function loadFollowers(reset = false) {
+async function loadFollowers(reset = false, silent = false) {
   if (followersLoading) return;
   if (reset) followersPage = 0;
   followersLoading = true;
   const list = document.getElementById('followers-list');
-  if (list) list.innerHTML = '<tr><td colspan="4" class="followers-empty">불러오는 중...</td></tr>';
+  if (list && !silent) list.innerHTML = '<tr><td colspan="4" class="followers-empty">불러오는 중...</td></tr>';
   try {
     const params = new URLSearchParams({ page: String(followersPage), size: String(followersSize), userNickname: followersQuery });
-    const res = await fetch(`/api/followers?${params.toString()}`);
+    const res = await fetch(`/api/cheese-history?type=followers&${params.toString()}`);
     const data = await res.json();
     if (!res.ok || data?.code !== 200) throw new Error(data?.message || data?.error || '팔로워를 불러오지 못했어요');
     renderFollowers(data);
@@ -3165,6 +3166,19 @@ window.loadFollowers = loadFollowers;
 window.searchFollowers = searchFollowers;
 window.clearFollowersSearch = clearFollowersSearch;
 window.moveFollowersPage = moveFollowersPage;
+function startFollowersAutoRefresh() {
+  stopFollowersAutoRefresh();
+  followersRefreshTimer = setInterval(() => {
+    if (document.getElementById('tab-followers')?.classList.contains('active')) {
+      loadFollowers(false, true);
+    }
+  }, 60000);
+}
+
+function stopFollowersAutoRefresh() {
+  if (followersRefreshTimer) clearInterval(followersRefreshTimer);
+  followersRefreshTimer = null;
+}
 window.switchTab=(name,el)=>{
   if(name==='clips'){ allClipsCache=[]; clipsPage=0; loadClips(true); }
   history.replaceState(null, '', '/' + name);
@@ -3176,7 +3190,7 @@ window.switchTab=(name,el)=>{
   if(name==='content') loadContents();
   if(name==='tools') loadTools();
   if(name==='chat'){ initChatFilterObserver(); loadMonthlyDonationStats(); }
-  if(name==='followers') loadFollowers();
+  if(name==='followers'){ loadFollowers(); startFollowersAutoRefresh(); } else { stopFollowersAutoRefresh(); }
 };
 window.openModal=(id)=>document.getElementById(id).classList.add('open');
 window.closeModal=(id)=>{
