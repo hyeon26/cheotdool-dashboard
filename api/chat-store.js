@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   let target;
   try {
-    target = new URL(path, origin);
+    target = buildTargetUrl(origin, path);
   } catch {
     return res.status(500).json({ error: `invalid ${isFollowerService ? 'FOLLOWER_SYNC_ORIGIN' : 'CHAT_STORE_ORIGIN'}` });
   }
@@ -54,4 +54,11 @@ export default async function handler(req, res) {
   } finally {
     clearTimeout(timeout);
   }
+}
+function buildTargetUrl(origin, path) {
+  const target = new URL(origin);
+  const basePath = target.pathname.replace(/\/+$/, '');
+  const nextPath = String(path).replace(/^\/+/, '');
+  target.pathname = [basePath, nextPath].filter(Boolean).join('/') || '/';
+  return target;
 }

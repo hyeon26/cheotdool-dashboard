@@ -4,6 +4,8 @@ import { openChatStore } from './chat-store.js';
 
 const PORT = Number(process.env.CHAT_API_PORT || process.env.PORT || 8787);
 const TOKEN = process.env.CHAT_API_TOKEN || '';
+const FOLLOWER_SYNC_ORIGIN = trimTrailingSlash(process.env.FOLLOWER_SYNC_INTERNAL_ORIGIN || 'http://127.0.0.1:8788');
+const FOLLOWER_SYNC_TOKEN = process.env.FOLLOWER_SYNC_TOKEN || TOKEN;
 const store = openChatStore();
 
 const server = http.createServer(async (req, res) => {
@@ -19,6 +21,10 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === 'GET' && url.pathname === '/health') {
       return sendJson(res, 200, { ok: true });
+    }
+
+    if (parts[0] === 'follower-sync') {
+      return proxyFollowerSync(req, res, parts.slice(1), url.search);
     }
 
     if (req.method === 'GET' && url.pathname === '/sessions') {
@@ -78,6 +84,24 @@ function setCors(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Chat-Api-Token');
 }
 
+async function proxyFollowerSync(req, res, pathParts, search) {
+  const safePath = pathParts.map(part => encodeURIComponent(decodeURIComponent(part))).join('/');
+  const target = new URL(`/${safePath}${search || ''}`, FOLLOWER_SYNC_ORIGIN);
+  const headers = { Accept: 'application/json' };
+  if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
+  if (FOLLOWER_SYNC_TOKEN) headers['X-Chat-Api-Token'] = FOLLOWER_SYNC_TOKEN;
+
+  const response = await fetch(target, {
+    method: req.method,
+    headers,
+    body: ['GET', 'HEAD'].includes(req.method) ? undefined : JSON.stringify(await readJson(req))
+  });
+
+  const text = await response.text();
+  res.statusCode = response.status;
+  res.setHeader('Content-Type', response.headers.get('content-type') || 'application/json; charset=utf-8');
+  res.end(text);
+}
 async function readJson(req) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -90,4 +114,7 @@ function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(status === 204 ? '' : JSON.stringify(data));
+}
+function trimTrailingSlash(value) {
+  return String(value).replace(/\/+$/, '');
 }
