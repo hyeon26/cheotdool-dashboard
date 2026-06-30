@@ -1,11 +1,5 @@
 const CHANNEL_ID = '48070f8882233efa7aee52519fee8fca';
 
-function toInt(value, fallback, min, max) {
-  const n = Number.parseInt(String(value ?? ''), 10);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.max(min, Math.min(max, n));
-}
-
 function getNidCookie() {
   return [
     process.env.CHZZK_NID_AUT ? `NID_AUT=${process.env.CHZZK_NID_AUT}` : '',
@@ -33,31 +27,12 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'method not allowed' });
 
-  const { year = new Date().getFullYear(), type = 'cheese' } = req.query;
+  const { year = new Date().getFullYear() } = req.query;
   const nidCookie = getNidCookie();
 
   if (!nidCookie) return res.status(401).json({ error: 'cookie missing' });
 
   try {
-    if (type === 'followers') {
-      const page = toInt(req.query.page, 0, 0, 10000);
-      const size = toInt(req.query.size, 50, 1, 100);
-      const userNickname = String(req.query.userNickname || req.query.nickname || '').trim();
-      const params = new URLSearchParams({ page: String(page), size: String(size), userNickname });
-      const data = await fetchJson(
-        `https://api.chzzk.naver.com/manage/v1/channels/${CHANNEL_ID}/followers?${params.toString()}`,
-        {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-          'Accept': 'application/json',
-          'Accept-Language': 'ko-KR,ko;q=0.9',
-          'Referer': `https://studio.chzzk.naver.com/${CHANNEL_ID}/follower`,
-          'Origin': 'https://studio.chzzk.naver.com',
-          'Cookie': nidCookie,
-        }
-      );
-      return res.status(200).json(data);
-    }
-
     const data = await fetchJson(
       `https://api.chzzk.naver.com/commercial/v1/product/purchase/history?page=0&size=10000&searchYear=${year}`,
       {
