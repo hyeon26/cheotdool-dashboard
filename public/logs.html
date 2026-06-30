@@ -85,6 +85,28 @@ const app = initializeApp({
 });
 const db = getFirestore(app);
 
+function escapeHTML(value){
+  return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+}
+
+function formatLogAction(log){
+  const action = log.action || 'visit';
+  const labels = { visit:'방문', click:'클릭', change:'변경' };
+  const label = labels[action] || action;
+  if(action === 'visit') return label;
+  return [label, log.target].filter(Boolean).join(' · ');
+}
+
+function formatLogDetail(log){
+  if(!log.detail) return '';
+  try {
+    const detail = typeof log.detail === 'string' ? JSON.parse(log.detail) : log.detail;
+    return [detail.tab, detail.modal, detail.text].filter(Boolean).join(' / ');
+  } catch(e) {
+    return String(log.detail || '');
+  }
+}
+
 async function loadLogs(){
   const days = parseInt(document.getElementById('log-filter-days').value);
   const tableEl = document.getElementById('table-wrap');
@@ -118,7 +140,7 @@ async function loadLogs(){
 
     tableEl.innerHTML = `<table>
       <thead><tr>
-        <th>시간</th><th>IP</th><th>국가/도시</th><th>페이지</th><th>브라우저</th>
+        <th>시간</th><th>IP</th><th>국가/도시</th><th>페이지</th><th>작업</th><th>상세</th><th>브라우저</th>
       </tr></thead>
       <tbody>${logs.map(l=>{
         const t = new Date(l.time);
@@ -130,7 +152,9 @@ async function loadLogs(){
           <td style="color:var(--text2);white-space:nowrap">${timeStr}</td>
           <td style="font-family:monospace;color:var(--text)">${l.ip}</td>
           <td style="color:var(--text2)">${l.country}${l.city&&l.city!=='unknown'?' · '+l.city:''}</td>
-          <td style="color:var(--accent)">${l.page||'/'}</td>
+          <td style="color:var(--accent)">${escapeHTML(l.page||'/')}</td>
+          <td style="color:var(--text);font-weight:700">${escapeHTML(formatLogAction(l))}</td>
+          <td style="color:var(--text2);max-width:260px;white-space:normal">${escapeHTML(formatLogDetail(l))}</td>
           <td style="color:var(--text2)">${device} ${browser}</td>
         </tr>`;
       }).join('')}</tbody>

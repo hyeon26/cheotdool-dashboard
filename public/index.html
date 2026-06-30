@@ -3025,10 +3025,57 @@ window.saveCookies = async() => {
     }
   } catch(e){ status.textContent='❌ 오류: '+e.message; status.style.color='var(--red)'; }
 };
-(function(){
-  const page = location.pathname || '/';
-  fetch(`/api/log-visit?page=${encodeURIComponent(page)}`).catch(()=>{});
-})();
+function trackAction(action, target='', detail={}) {
+  try {
+    const payload = { page: location.pathname || '/', action, target, detail };
+    fetch('/api/log-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(()=>{});
+  } catch(e) {}
+}
+window.trackAction = trackAction;
+trackAction('visit', 'page');
+
+function getActiveTabName() {
+  const active = document.querySelector('.tab-content.active');
+  return active?.id?.replace(/^tab-/, '') || '';
+}
+
+function compactActionText(value, limit=80) {
+  return String(value || '').replace(/\s+/g, ' ').trim().slice(0, limit);
+}
+
+function describeActionElement(el) {
+  const modal = el.closest('.modal-bg')?.id || '';
+  const tab = getActiveTabName();
+  const id = el.id || '';
+  const text = compactActionText(el.innerText || el.getAttribute('aria-label') || el.title || el.getAttribute('for') || el.tagName);
+  const classes = compactActionText([...el.classList].slice(0, 3).join('.'), 60);
+  return {
+    target: id || text || el.tagName.toLowerCase(),
+    detail: { tab, modal, tag: el.tagName.toLowerCase(), text, id, classes }
+  };
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('button,a,.tab,label[for],.content-card,.calendar-day,.up-item,[onclick]');
+  if (!el) return;
+  const info = describeActionElement(el);
+  trackAction('click', info.target, info.detail);
+}, true);
+
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement)) return;
+  if (!el.id && !el.name) return;
+  const detail = { tab: getActiveTabName(), tag: el.tagName.toLowerCase(), id: el.id || '', name: el.name || '' };
+  if (el.type === 'file') detail.fileCount = el.files?.length || 0;
+  else if (el.tagName === 'SELECT') detail.value = compactActionText(el.value, 80);
+  trackAction('change', el.id || el.name, detail);
+}, true);
 window.addEventListener('load', () => {
   if(window.Kakao && !Kakao.isInitialized()) Kakao.init('c4ce415a886b59c7828a0fac44057c94');
 });
