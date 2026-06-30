@@ -870,7 +870,12 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   <div class="modal">
     <h3>🎬 컨텐츠 추가</h3>
     <label>컨텐츠 제목</label><input id="c-title" type="text" placeholder="예: 보드게임 배틀 아이디어"/>
-    <label>날짜</label><input id="c-date" type="date"/>
+    <label>날짜</label>
+    <div class="pretty-date-wrap" id="c-date-wrap">
+      <input id="c-date" type="hidden"/>
+      <button type="button" class="pretty-date-btn" id="c-date-display" onclick="openScheduleDatePicker('c-date')"><span class="pretty-date-icon">📅</span><span class="pretty-date-value">날짜 선택</span><span>⌄</span></button>
+      <div class="schedule-date-picker" id="c-date-picker"></div>
+    </div>
     <label>진행 시간 (선택)</label><input id="c-duration" type="text" placeholder="예: 2시간 30분"/>
     <label>세부내용 (선택)</label><textarea id="c-note" placeholder="컨텐츠 세부 내용을 입력하세요"></textarea>
     <label>첨부파일 (선택)</label>
@@ -914,7 +919,12 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   <div class="modal">
     <h3>✏️ 컨텐츠 수정</h3>
     <label>컨텐츠 제목</label><input id="cd-title" type="text"/>
-    <label>날짜</label><input id="cd-date" type="date"/>
+    <label>날짜</label>
+    <div class="pretty-date-wrap" id="cd-date-wrap">
+      <input id="cd-date" type="hidden"/>
+      <button type="button" class="pretty-date-btn" id="cd-date-display" onclick="openScheduleDatePicker('cd-date')"><span class="pretty-date-icon">📅</span><span class="pretty-date-value">날짜 선택</span><span>⌄</span></button>
+      <div class="schedule-date-picker" id="cd-date-picker"></div>
+    </div>
     <label>진행 시간 (선택)</label><input id="cd-duration" type="text"/>
     <label>세부내용 (선택)</label><textarea id="cd-note" placeholder="컨텐츠 세부 내용을 입력하세요"></textarea>
     <label>첨부파일</label>
@@ -1068,19 +1078,19 @@ function getDateFromInputValue(value){
   const date = value ? new Date(value+'T00:00:00') : new Date();
   return Number.isNaN(date.getTime()) ? new Date() : date;
 }
-function setScheduleDateValue(id, value){
+window.setScheduleDateValue=function setScheduleDateValue(id, value){
   const input=document.getElementById(id);
   if(!input) return;
   input.value=value||'';
   updateScheduleDateDisplay(id);
   if(document.getElementById(`${id}-wrap`)?.classList.contains('open')) renderScheduleDatePicker(id);
 }
-function updateScheduleDateDisplay(id){
+window.updateScheduleDateDisplay=function updateScheduleDateDisplay(id){
   const input=document.getElementById(id), btn=document.getElementById(`${id}-display`);
   if(!input||!btn) return;
   const value=btn.querySelector('.pretty-date-value');
   if(value) value.textContent=input.value ? formatDate(input.value) : '날짜 선택';
-}
+};
 const scheduleDatePickerState={};
 window.openScheduleDatePicker=(id)=>{
   document.querySelectorAll('.pretty-date-wrap.open').forEach(el=>{ if(el.id!==`${id}-wrap`) el.classList.remove('open'); });
@@ -1422,7 +1432,7 @@ window.saveContent=async()=>{
     if(cPendingFiles.length){ saveBtn.textContent=`업로드 중 (0/${cPendingFiles.length})...`; files=await uploadAll(cPendingFiles,(cur,tot)=>{saveBtn.textContent=`업로드 중 (${cur}/${tot})...`;}); }
     await addDoc(collection(db,'contents'),{ title,date, duration:document.getElementById('c-duration').value.trim(), note:document.getElementById('c-note').value.trim(), files, createdAt:serverTimestamp() });
     closeModal('content-modal');
-    ['c-title','c-date','c-duration','c-note'].forEach(id=>document.getElementById(id).value='');
+    ['c-title','c-duration','c-note'].forEach(id=>document.getElementById(id).value=''); setScheduleDateValue('c-date','');
     cPendingFiles=[]; renderPending('c'); loadContents();
   } catch(e){ alert('저장 실패: '+e.message); }
   finally { saveBtn.textContent='저장'; saveBtn.disabled=false; }
@@ -1454,7 +1464,7 @@ window.openContentEditFromView=()=>{
   const c=contents.find(x=>x.id===currentContentId); if(!c) return;
   closeModal('content-view-modal');
   document.getElementById('cd-title').value=c.title;
-  document.getElementById('cd-date').value=c.date;
+  setScheduleDateValue('cd-date',c.date);
   document.getElementById('cd-duration').value=c.duration||'';
   document.getElementById('cd-note').value=c.note||'';
   cdPendingFiles=[]; renderPending('cd');
@@ -3549,7 +3559,7 @@ document.addEventListener('click',e=>{
   if(e.target.closest('.pretty-date-wrap')) return;
   document.querySelectorAll('.pretty-date-wrap.open').forEach(el=>el.classList.remove('open'));
 });
-['s-date','sd-date'].forEach(updateScheduleDateDisplay);
+['s-date','sd-date','c-date','cd-date'].forEach(updateScheduleDateDisplay);
 ['s-type','sd-type'].forEach(syncScheduleType);
 window.fmtTime=(el)=>{ let v=el.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); el.value=v; };
 
