@@ -71,6 +71,14 @@ export function openFollowerStore(dbPath = process.env.FOLLOWER_DB_PATH || proce
     ORDER BY createdAt DESC, id DESC
     LIMIT ?
   `);
+  const followerDailyStatsStmt = db.prepare(`
+    SELECT
+      COALESCE(SUM(CASE WHEN type = 'follow' THEN 1 ELSE 0 END), 0) AS added,
+      COALESCE(SUM(CASE WHEN type = 'unfollow' THEN 1 ELSE 0 END), 0) AS removed,
+      COUNT(*) AS changes
+    FROM follower_events
+    WHERE createdAt >= ?
+  `);
   const followerStatsStmt = db.prepare(`
     SELECT
       COUNT(*) AS knownTotal,
@@ -100,7 +108,8 @@ export function openFollowerStore(dbPath = process.env.FOLLOWER_DB_PATH || proce
         removed: 0,
         changes: 0,
         skipped: true,
-        events: listFollowerEvents(100)
+        events: listFollowerEvents(100),
+        dailyStats: getFollowerDailyStats()
       };
     }
 
@@ -155,7 +164,8 @@ export function openFollowerStore(dbPath = process.env.FOLLOWER_DB_PATH || proce
       added,
       removed,
       changes: added + removed,
-      events: listFollowerEvents(100)
+      events: listFollowerEvents(100),
+      dailyStats: getFollowerDailyStats()
     };
   }
 
@@ -197,12 +207,24 @@ export function openFollowerStore(dbPath = process.env.FOLLOWER_DB_PATH || proce
     return followerStatsStmt.get();
   }
 
+  function getFollowerDailyStats(date = new Date()) {
+    const since = kstDateStartISOString(date);
+    const row = followerDailyStatsStmt.get(since) || {};
+    return {
+      since,
+      added: Number(row.added || 0),
+      removed: Number(row.removed || 0),
+      changes: Number(row.changes || 0)
+    };
+  }
+
   return {
     db,
     syncFollowers,
     listFollowers,
     listFollowerEvents,
-    getFollowerStats
+    getFollowerStats,
+    getFollowerDailyStats
   };
 }
 
@@ -224,6 +246,11 @@ function stringValue(value) {
 
 function normalizeSearchText(value) {
   return stringValue(value).trim().toLocaleLowerCase('ko-KR').replace(/\s+/g, '');
+}
+
+function kstDateStartISOString(date = new Date()) {
+  const parts = Object.fromEntries(KST_DATE_FORMATTER.formatToParts(date).map(part => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T00:00:00+09:00`;
 }
 
 function kstISOString(date = new Date()) {

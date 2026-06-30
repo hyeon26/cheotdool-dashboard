@@ -190,7 +190,8 @@ function getStatus() {
     lastReason: syncState.lastReason,
     lastResult: syncState.lastResult,
     nextRunAt: syncState.nextRunAt,
-    stats: store.getFollowerStats()
+    stats: store.getFollowerStats(),
+    dailyStats: store.getFollowerDailyStats()
   };
 }
 

@@ -3292,8 +3292,11 @@ function updateFollowerSyncStatus(result = {}) {
   }
   const last = result.lastFinishedAt ? formatFollowerEventTime(result.lastFinishedAt) : '아직 없음';
   const sync = result.lastResult || {};
+  const daily = result.dailyStats || sync.dailyStats || {};
   const total = Number(sync.total || result.stats?.followingTotal || 0).toLocaleString('ko-KR');
-  status.textContent = `마지막 동기화 ${last} · 총 ${total}명 · 추가 ${sync.added || 0}명 · 취소 ${sync.removed || 0}명`;
+  const added = Number(daily.added ?? sync.added ?? 0).toLocaleString('ko-KR');
+  const removed = Number(daily.removed ?? sync.removed ?? 0).toLocaleString('ko-KR');
+  status.textContent = `마지막 동기화 ${last} · 오늘 0시 기준 추가 ${added}명 · 취소 ${removed}명 · 총 ${total}명`;
 }
 
 async function loadFollowerChangeEvents() {
