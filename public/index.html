@@ -74,7 +74,36 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
 .btn-save{padding:9px 20px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:14.5px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;box-shadow:0 2px 8px rgba(91,74,232,.3)}
 .btn-del{padding:9px 16px;border-radius:var(--radius-sm);border:none;background:#fee2e2;color:#991b1b;cursor:pointer;font-size:14.5px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
 .btn-share{padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#FEE500;color:#3C1E1E;cursor:pointer;font-size:14.5px;font-weight:700;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px}
-
+.pretty-date-wrap{position:relative}
+.pretty-date-btn{width:100%;min-height:42px;padding:10px 14px;border:1.5px solid var(--border2);border-radius:14px;background:rgba(255,255,255,.64);color:var(--text);font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:14.5px;font-weight:800;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);transition:border-color .15s,box-shadow .15s,background .15s}
+.pretty-date-btn:hover,.pretty-date-wrap.open .pretty-date-btn{border-color:rgba(245,158,11,.45);box-shadow:0 8px 24px rgba(245,158,11,.12);background:rgba(255,255,255,.82)}
+.pretty-date-icon{width:28px;height:28px;border-radius:10px;background:#fff7ed;color:#f59e0b;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pretty-date-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schedule-date-picker{display:none;position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:160;background:rgba(255,255,255,.96);border:1.5px solid var(--border2);border-radius:18px;box-shadow:0 18px 48px rgba(91,74,232,.18);padding:13px;backdrop-filter:blur(14px)}
+.pretty-date-wrap.open .schedule-date-picker{display:block}
+.date-picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.date-picker-month{font-size:16.5px;font-weight:900;color:var(--text)}
+.date-picker-nav{display:flex;gap:6px}
+.date-picker-nav button,.date-picker-today{border:1.5px solid var(--border2);background:rgba(255,255,255,.72);color:var(--text2);border-radius:10px;cursor:pointer;font-family:inherit;font-size:14.5px;font-weight:900}
+.date-picker-nav button{width:32px;height:32px}
+.date-picker-nav button:hover,.date-picker-today:hover{border-color:rgba(245,158,11,.45);color:#d97706}
+.date-picker-weekdays,.date-picker-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.date-picker-weekdays{margin-bottom:5px}
+.date-picker-weekdays div{text-align:center;font-size:12.5px;font-weight:900;color:var(--text3)}
+.date-picker-day{height:32px;border:none;border-radius:10px;background:transparent;color:var(--text);font-family:inherit;font-size:14.5px;font-weight:800;cursor:pointer}
+.date-picker-day:hover{background:#fff7ed;color:#d97706}
+.date-picker-day.out{color:var(--text3);opacity:.5}
+.date-picker-day.today{box-shadow:inset 0 0 0 1.5px rgba(245,158,11,.35)}
+.date-picker-day.selected{background:#fed7aa;color:#7c2d12;box-shadow:0 6px 16px rgba(251,146,60,.22)}
+.date-picker-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.date-picker-clear{border:none;background:transparent;color:var(--text3);font-family:inherit;font-size:13.5px;font-weight:800;cursor:pointer}
+.date-picker-today{padding:7px 11px}
+.pretty-type-group{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pretty-type-btn{min-height:44px;border:1.5px solid var(--border2);border-radius:14px;background:rgba(255,255,255,.62);color:var(--text2);cursor:pointer;font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:14.5px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);transition:transform .15s,border-color .15s,background .15s,color .15s,box-shadow .15s}
+.pretty-type-btn:hover{transform:translateY(-1px);border-color:var(--border2);background:#fff}
+.pretty-type-btn.active{color:#4c1d95;border-color:rgba(91,74,232,.38);background:linear-gradient(135deg,#f5f3ff,#fff);box-shadow:0 10px 24px rgba(91,74,232,.13)}
+.pretty-type-btn[data-type-value="schedule"].active{color:#92400e;border-color:rgba(245,158,11,.36);background:linear-gradient(135deg,#fff7ed,#fff)}
+.pretty-type-btn[data-type-value="info"].active{color:#0369a1;border-color:rgba(56,189,248,.36);background:linear-gradient(135deg,#f0f9ff,#fff)}
 /* 엑셀 업로드 */
 .excel-upload{display:none}
 .excel-upload-bar{display:flex;align-items:center;gap:10px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface);margin-bottom:12px;cursor:pointer;transition:all .2s;width:fit-content}
@@ -732,14 +761,20 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   <div class="modal">
     <h3>📅 일정 추가</h3>
     <label>일정 이름</label><input id="s-name" type="text" placeholder="예: 로스트아크 방송"/>
-    <label>날짜</label><input id="s-date" type="date"/>
+    <label>날짜</label>
+    <div class="pretty-date-wrap" id="s-date-wrap">
+      <input id="s-date" type="hidden"/>
+      <button type="button" class="pretty-date-btn" id="s-date-display" onclick="openScheduleDatePicker('s-date')"><span class="pretty-date-icon">📅</span><span class="pretty-date-value">날짜 선택</span><span>⌄</span></button>
+      <div class="schedule-date-picker" id="s-date-picker"></div>
+    </div>
     <label>시간 (선택)</label><input id="s-time-text" type="text" placeholder="예: 20:00" maxlength="5" oninput="fmtTime(this)" style="letter-spacing:2px"/>
     <label>종류</label>
-    <select id="s-type">
-      <option value="content">🎬 컨텐츠</option>
-      <option value="schedule">📋 일정</option>
-      <option value="info">ℹ️ 정보</option>
-    </select>
+    <input id="s-type" type="hidden" value="content"/>
+    <div class="pretty-type-group" data-type-group="s-type">
+      <button type="button" class="pretty-type-btn active" data-type-value="content" onclick="setScheduleType('s-type','content')">🎬 컨텐츠</button>
+      <button type="button" class="pretty-type-btn" data-type-value="schedule" onclick="setScheduleType('s-type','schedule')">📋 일정</button>
+      <button type="button" class="pretty-type-btn" data-type-value="info" onclick="setScheduleType('s-type','info')">ℹ️ 정보</button>
+    </div>
     <label>세부내용 (선택)</label>
     <textarea id="s-note" placeholder="세부 내용을 입력하세요"></textarea>
     <div class="modal-btns">
@@ -754,14 +789,20 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   <div class="modal">
     <h3>📅 일정 수정</h3>
     <label>일정 이름</label><input id="sd-name" type="text"/>
-    <label>날짜</label><input id="sd-date" type="date"/>
+    <label>날짜</label>
+    <div class="pretty-date-wrap" id="sd-date-wrap">
+      <input id="sd-date" type="hidden"/>
+      <button type="button" class="pretty-date-btn" id="sd-date-display" onclick="openScheduleDatePicker('sd-date')"><span class="pretty-date-icon">📅</span><span class="pretty-date-value">날짜 선택</span><span>⌄</span></button>
+      <div class="schedule-date-picker" id="sd-date-picker"></div>
+    </div>
     <label>시간</label><input id="sd-time-text" type="text" placeholder="예: 20:00" maxlength="5" oninput="fmtTime(this)" style="letter-spacing:2px"/>
     <label>종류</label>
-    <select id="sd-type">
-      <option value="content">🎬 컨텐츠</option>
-      <option value="schedule">📋 일정</option>
-      <option value="info">ℹ️ 정보</option>
-    </select>
+    <input id="sd-type" type="hidden" value="content"/>
+    <div class="pretty-type-group" data-type-group="sd-type">
+      <button type="button" class="pretty-type-btn active" data-type-value="content" onclick="setScheduleType('sd-type','content')">🎬 컨텐츠</button>
+      <button type="button" class="pretty-type-btn" data-type-value="schedule" onclick="setScheduleType('sd-type','schedule')">📋 일정</button>
+      <button type="button" class="pretty-type-btn" data-type-value="info" onclick="setScheduleType('sd-type','info')">ℹ️ 정보</button>
+    </div>
     <label>세부내용 (선택)</label>
     <textarea id="sd-note" placeholder="세부 내용을 입력하세요"></textarea>
     <div class="modal-btns">
@@ -1020,6 +1061,88 @@ let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 let schedules=[], currentScheduleId=null, currentDayStr='';
 
 function formatDate(d){ const dt=new Date(d+'T00:00:00'); return `${dt.getMonth()+1}월 ${dt.getDate()}일 (${DAYS_KR[dt.getDay()]})`; }
+function toISODate(date){
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+function getDateFromInputValue(value){
+  const date = value ? new Date(value+'T00:00:00') : new Date();
+  return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+function setScheduleDateValue(id, value){
+  const input=document.getElementById(id);
+  if(!input) return;
+  input.value=value||'';
+  updateScheduleDateDisplay(id);
+  if(document.getElementById(`${id}-wrap`)?.classList.contains('open')) renderScheduleDatePicker(id);
+}
+function updateScheduleDateDisplay(id){
+  const input=document.getElementById(id), btn=document.getElementById(`${id}-display`);
+  if(!input||!btn) return;
+  const value=btn.querySelector('.pretty-date-value');
+  if(value) value.textContent=input.value ? formatDate(input.value) : '날짜 선택';
+}
+const scheduleDatePickerState={};
+window.openScheduleDatePicker=(id)=>{
+  document.querySelectorAll('.pretty-date-wrap.open').forEach(el=>{ if(el.id!==`${id}-wrap`) el.classList.remove('open'); });
+  const wrap=document.getElementById(`${id}-wrap`);
+  if(!wrap) return;
+  const base=getDateFromInputValue(document.getElementById(id)?.value);
+  scheduleDatePickerState[id]={year:base.getFullYear(),month:base.getMonth()};
+  wrap.classList.toggle('open');
+  renderScheduleDatePicker(id);
+};
+window.moveScheduleDatePicker=(id,dir)=>{
+  const state=scheduleDatePickerState[id]||{};
+  const next=new Date(state.year||new Date().getFullYear(),(state.month??new Date().getMonth())+dir,1);
+  scheduleDatePickerState[id]={year:next.getFullYear(),month:next.getMonth()};
+  renderScheduleDatePicker(id);
+};
+window.closeScheduleDatePicker=(id)=>document.getElementById(`${id}-wrap`)?.classList.remove('open');
+window.clearScheduleDate=(id)=>{ setScheduleDateValue(id,''); closeScheduleDatePicker(id); };
+window.pickScheduleToday=(id)=>{ setScheduleDateValue(id,toISODate(new Date())); closeScheduleDatePicker(id); };
+function renderScheduleDatePicker(id){
+  const picker=document.getElementById(`${id}-picker`), input=document.getElementById(id);
+  if(!picker||!input) return;
+  const todayStr=toISODate(new Date());
+  const selected=input.value;
+  const state=scheduleDatePickerState[id]||{};
+  const year=state.year||new Date().getFullYear(), month=state.month??new Date().getMonth();
+  const firstDay=new Date(year,month,1).getDay();
+  const currentDays=new Date(year,month+1,0).getDate();
+  const prevDays=new Date(year,month,0).getDate();
+  let cells='';
+  for(let i=0;i<42;i++){
+    const day=i-firstDay+1;
+    let cellDate, label, out=false;
+    if(day<1){ label=prevDays+day; cellDate=new Date(year,month-1,label); out=true; }
+    else if(day>currentDays){ label=day-currentDays; cellDate=new Date(year,month+1,label); out=true; }
+    else { label=day; cellDate=new Date(year,month,label); }
+    const dateStr=toISODate(cellDate);
+    const classes=['date-picker-day',out?'out':'',dateStr===todayStr?'today':'',dateStr===selected?'selected':''].filter(Boolean).join(' ');
+    cells+=`<button type="button" class="${classes}" onclick="setScheduleDateValue('${id}','${dateStr}');closeScheduleDatePicker('${id}')">${label}</button>`;
+  }
+  picker.innerHTML=`
+    <div class="date-picker-head">
+      <div class="date-picker-month">${year}년 ${MONTHS_KR[month]}</div>
+      <div class="date-picker-nav">
+        <button type="button" onclick="moveScheduleDatePicker('${id}',-1)">‹</button>
+        <button type="button" onclick="moveScheduleDatePicker('${id}',1)">›</button>
+      </div>
+    </div>
+    <div class="date-picker-weekdays">${DAYS_KR.map(day=>`<div>${day}</div>`).join('')}</div>
+    <div class="date-picker-grid">${cells}</div>
+    <div class="date-picker-foot"><button type="button" class="date-picker-clear" onclick="clearScheduleDate('${id}')">비우기</button><button type="button" class="date-picker-today" onclick="pickScheduleToday('${id}')">오늘</button></div>`;
+}
+window.setScheduleType=(id,value)=>{
+  const input=document.getElementById(id);
+  if(input) input.value=value;
+  document.querySelectorAll(`[data-type-group="${id}"] .pretty-type-btn`).forEach(btn=>btn.classList.toggle('active',btn.dataset.typeValue===value));
+};
+function syncScheduleType(id){
+  const input=document.getElementById(id);
+  setScheduleType(id,input?.value||'content');
+}
+
 
 function renderCal(){
   document.getElementById('cal-title-text').textContent=`${calYear}년 ${MONTHS_KR[calMonth]}`;
@@ -1079,7 +1202,7 @@ window.onDayClick=(dateStr)=>{
     : '<div class="empty-state" style="padding:24px"><div class="empty-icon" style="font-size:25.5px;margin-bottom:8px">📭</div>이 날 일정이 없어요</div>';
   openModal('day-events-modal');
 };
-window.addFromDayModal=()=>{ closeModal('day-events-modal'); document.getElementById('s-date').value=currentDayStr; openModal('schedule-modal'); };
+window.addFromDayModal=()=>{ closeModal('day-events-modal'); setScheduleDateValue('s-date',currentDayStr); openModal('schedule-modal'); };
 window.moveMonth=(dir)=>{ calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;} renderCal(); };
 
 // 월 피커
@@ -1112,7 +1235,7 @@ window.saveSchedule=async()=>{
   if(!name||!date) return alert('이름과 날짜를 입력해주세요');
   await addDoc(collection(db,'schedules'),{ name,date, time:document.getElementById('s-time-text').value.trim(), type:document.getElementById('s-type').value, note:document.getElementById('s-note').value.trim(), createdAt:serverTimestamp() });
   closeModal('schedule-modal');
-  ['s-name','s-time-text','s-note'].forEach(id=>document.getElementById(id).value='');
+  ['s-name','s-time-text','s-note'].forEach(id=>document.getElementById(id).value=''); setScheduleDateValue('s-date',''); setScheduleType('s-type','content');
   loadSchedules();
 };
 window.openScheduleView=(id)=>{
@@ -1131,9 +1254,9 @@ window.openScheduleDetail=(id)=>{
   const s=schedules.find(x=>x.id===id); if(!s) return;
   currentScheduleId=id;
   document.getElementById('sd-name').value=s.name;
-  document.getElementById('sd-date').value=s.date;
+  setScheduleDateValue('sd-date',s.date);
   document.getElementById('sd-time-text').value=s.time||'';
-  document.getElementById('sd-type').value=s.type||'content';
+  setScheduleType('sd-type',s.type||'content');
   document.getElementById('sd-note').value=s.note||'';
   openModal('schedule-detail-modal');
 };
@@ -3422,6 +3545,12 @@ window.closeModal=(id)=>{
   }
 };
 document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');}));
+document.addEventListener('click',e=>{
+  if(e.target.closest('.pretty-date-wrap')) return;
+  document.querySelectorAll('.pretty-date-wrap.open').forEach(el=>el.classList.remove('open'));
+});
+['s-date','sd-date'].forEach(updateScheduleDateDisplay);
+['s-type','sd-type'].forEach(syncScheduleType);
 window.fmtTime=(el)=>{ let v=el.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.slice(0,2)+':'+v.slice(2,4); el.value=v; };
 
 renderCal();
