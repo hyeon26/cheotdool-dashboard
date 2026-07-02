@@ -166,14 +166,17 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
       size: safeSize,
       totalCount: filtered.length,
       totalPages: Math.max(1, Math.ceil(filtered.length / safeSize)),
-      data: filtered.slice(start, start + safeSize).map(row => ({
-        user: { userIdHash: row.userId, nickname: row.nickname, profileImageUrl: row.profileImageUrl },
-        userIdHash: row.userId,
-        nickname: row.nickname,
-        profileImageUrl: row.profileImageUrl,
-        subscribeDate: row.subscribeDate,
-        tier: row.tier
-      }))
+      data: filtered.slice(start, start + safeSize).map(row => {
+        const subscribeDate = row.subscribeDate || extractSubscriberDateFromRaw(row.rawJson);
+        return {
+          user: { userIdHash: row.userId, nickname: row.nickname, profileImageUrl: row.profileImageUrl },
+          userIdHash: row.userId,
+          nickname: row.nickname,
+          profileImageUrl: row.profileImageUrl,
+          subscribeDate,
+          tier: row.tier
+        };
+      })
     };
   }
 
@@ -197,7 +200,19 @@ function normalizeSubscriberItem(item = {}) {
     userId: firstString(user.userIdHash, item.userIdHash, user.userId, item.userId, user.memberNo, item.memberNo, user.channelId, item.channelId, user.id, item.id),
     nickname: firstString(user.nickname, user.nickName, item.nickname, item.nickName, user.channelName, item.channelName),
     profileImageUrl: firstString(user.profileImageUrl, item.profileImageUrl, user.profileImage, item.profileImage, user.imageUrl, item.imageUrl),
-    subscribeDate: firstString(subscription.subscribeDate, item.subscribeDate, subscription.subscriptionDate, item.subscriptionDate, subscription.createdAt, item.createdAt, subscription.startDate, item.startDate),
+    subscribeDate: firstString(
+      subscription.subscribeDate,
+      item.subscribeDate,
+      subscription.subscriptionDate,
+      item.subscriptionDate,
+      subscription.createdAt,
+      item.createdAt,
+      subscription.createdDate,
+      item.createdDate,
+      subscription.startDate,
+      item.startDate,
+      findSubscriberDate(item)
+    ),
     tier: firstString(subscription.tier, item.tier, subscription.grade, item.grade, subscription.productName, item.productName, subscription.name, item.name),
     rawJson: safeJson(item)
   };
@@ -215,6 +230,60 @@ function firstString(...values) {
 function safeJson(value) {
   try { return JSON.stringify(value).slice(0, 8000); }
   catch { return ''; }
+}
+
+function extractSubscriberDateFromRaw(rawJson) {
+  if (!rawJson) return '';
+  try { return findSubscriberDate(JSON.parse(rawJson)); }
+  catch { return ''; }
+}
+
+function findSubscriberDate(value) {
+  const candidates = [];
+  visitDateCandidates(value, '', candidates, 0);
+  return firstString(...candidates);
+}
+
+function visitDateCandidates(value, keyPath, candidates, depth) {
+  if (value == null || depth > 8 || candidates.length > 6) return;
+  if (Array.isArray(value)) {
+    for (const item of value) visitDateCandidates(item, keyPath, candidates, depth + 1);
+    return;
+  }
+  if (typeof value !== 'object') {
+    const normalized = isLikelySubscriberDateKey(keyPath) ? normalizeDateValue(value) : '';
+    if (normalized) candidates.push(normalized);
+    return;
+  }
+  for (const [key, child] of Object.entries(value)) {
+    const nextPath = keyPath ? `${keyPath}.${key}` : key;
+    const normalized = isLikelySubscriberDateKey(nextPath) ? normalizeDateValue(child) : '';
+    if (normalized) candidates.push(normalized);
+    visitDateCandidates(child, nextPath, candidates, depth + 1);
+  }
+}
+
+function isLikelySubscriberDateKey(keyPath) {
+  const key = String(keyPath).toLowerCase();
+  const domainHint = /subscribe|subscription|membership|member|sponsor|support|created|registered|joined|start/.test(key);
+  const dateHint = /date|time|created|registered|joined|start|at$/.test(key);
+  return domainHint && dateHint;
+}
+
+function normalizeDateValue(value) {
+  if (value == null) return '';
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    if (value > 1_000_000_000_000) return kstISOString(new Date(value));
+    if (value > 1_000_000_000) return kstISOString(new Date(value * 1000));
+    return '';
+  }
+  const text = String(value).trim();
+  if (!text || text.length < 8) return '';
+  if (/^\d{4}[-./]\d{1,2}[-./]\d{1,2}/.test(text)) return text;
+  if (/^\d{8}$/.test(text)) return `${text.slice(0, 4)}-${text.slice(4, 6)}-${text.slice(6, 8)}`;
+  const parsed = new Date(text);
+  if (!Number.isNaN(parsed.getTime()) && /\d{4}|\d{13}/.test(text)) return kstISOString(parsed);
+  return '';
 }
 
 function stringValue(value) {
