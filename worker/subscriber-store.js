@@ -25,6 +25,7 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
       nickname TEXT DEFAULT '',
       profileImageUrl TEXT DEFAULT '',
       subscribeDate TEXT DEFAULT '',
+      recentSubscribeDate TEXT DEFAULT '',
       tier TEXT DEFAULT '',
       subscribing INTEGER DEFAULT 1,
       firstSeenAt TEXT NOT NULL,
@@ -40,20 +41,24 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
       profileImageUrl TEXT DEFAULT '',
       type TEXT NOT NULL,
       subscribeDate TEXT DEFAULT '',
+      recentSubscribeDate TEXT DEFAULT '',
       tier TEXT DEFAULT '',
       createdAt TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_subscriber_events_created ON subscriber_events(createdAt DESC, id DESC);
   `);
+  addColumnIfMissing(db, 'subscribers', 'recentSubscribeDate TEXT DEFAULT \'\'');
+  addColumnIfMissing(db, 'subscriber_events', 'recentSubscribeDate TEXT DEFAULT \'\'');
 
   const listAllSubscribersStmt = db.prepare('SELECT * FROM subscribers');
   const upsertSubscriberStmt = db.prepare(`
-    INSERT INTO subscribers (userId, nickname, profileImageUrl, subscribeDate, tier, subscribing, firstSeenAt, lastSeenAt, unsubscribedAt, rawJson)
-    VALUES (?, ?, ?, ?, ?, 1, ?, ?, '', ?)
+    INSERT INTO subscribers (userId, nickname, profileImageUrl, subscribeDate, recentSubscribeDate, tier, subscribing, firstSeenAt, lastSeenAt, unsubscribedAt, rawJson)
+    VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, '', ?)
     ON CONFLICT(userId) DO UPDATE SET
       nickname = excluded.nickname,
       profileImageUrl = excluded.profileImageUrl,
       subscribeDate = excluded.subscribeDate,
+      recentSubscribeDate = excluded.recentSubscribeDate,
       tier = excluded.tier,
       subscribing = 1,
       lastSeenAt = excluded.lastSeenAt,
@@ -66,8 +71,8 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
     WHERE userId = ?
   `);
   const insertSubscriberEventStmt = db.prepare(`
-    INSERT INTO subscriber_events (userId, nickname, profileImageUrl, type, subscribeDate, tier, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO subscriber_events (userId, nickname, profileImageUrl, type, subscribeDate, recentSubscribeDate, tier, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const listSubscriberEventsStmt = db.prepare(`
     SELECT * FROM subscriber_events
@@ -124,17 +129,17 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
     for (const subscriber of incoming.values()) {
       const previous = existing.get(subscriber.userId);
       if (!isInitialSync && (!previous || Number(previous.subscribing) === 0)) {
-        insertSubscriberEventStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, 'subscribe', subscriber.subscribeDate, subscriber.tier, now);
+        insertSubscriberEventStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, 'subscribe', subscriber.subscribeDate, subscriber.recentSubscribeDate, subscriber.tier, now);
         added += 1;
       }
-      upsertSubscriberStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, subscriber.subscribeDate, subscriber.tier, now, now, subscriber.rawJson);
+      upsertSubscriberStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, subscriber.subscribeDate, subscriber.recentSubscribeDate, subscriber.tier, now, now, subscriber.rawJson);
     }
 
     if (!isInitialSync) {
       for (const row of existingRows) {
         if (Number(row.subscribing) !== 1 || incoming.has(row.userId)) continue;
         markSubscriberUnsubscribedStmt.run(now, now, row.userId);
-        insertSubscriberEventStmt.run(row.userId, stringValue(row.nickname), stringValue(row.profileImageUrl), 'unsubscribe', stringValue(row.subscribeDate), stringValue(row.tier), now);
+        insertSubscriberEventStmt.run(row.userId, stringValue(row.nickname), stringValue(row.profileImageUrl), 'unsubscribe', stringValue(row.subscribeDate), stringValue(row.recentSubscribeDate), stringValue(row.tier), now);
         removed += 1;
       }
     }
@@ -168,12 +173,14 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
       totalPages: Math.max(1, Math.ceil(filtered.length / safeSize)),
       data: filtered.slice(start, start + safeSize).map(row => {
         const subscribeDate = row.subscribeDate || extractSubscriberDateFromRaw(row.rawJson);
+        const recentSubscribeDate = row.recentSubscribeDate || extractRecentSubscriberDateFromRaw(row.rawJson);
         return {
           user: { userIdHash: row.userId, nickname: row.nickname, profileImageUrl: row.profileImageUrl },
           userIdHash: row.userId,
           nickname: row.nickname,
           profileImageUrl: row.profileImageUrl,
           subscribeDate,
+          recentSubscribeDate,
           tier: row.tier
         };
       })
@@ -213,6 +220,25 @@ function normalizeSubscriberItem(item = {}) {
       item.startDate,
       findSubscriberDate(item)
     ),
+    recentSubscribeDate: firstString(
+      subscription.recentSubscribeDate,
+      item.recentSubscribeDate,
+      subscription.recentSubscriptionDate,
+      item.recentSubscriptionDate,
+      subscription.latestSubscribeDate,
+      item.latestSubscribeDate,
+      subscription.lastSubscribeDate,
+      item.lastSubscribeDate,
+      subscription.lastSubscriptionDate,
+      item.lastSubscriptionDate,
+      subscription.renewalDate,
+      item.renewalDate,
+      subscription.renewedAt,
+      item.renewedAt,
+      subscription.lastPaymentDate,
+      item.lastPaymentDate,
+      findRecentSubscriberDate(item)
+    ),
     tier: firstString(subscription.tier, item.tier, subscription.grade, item.grade, subscription.productName, item.productName, subscription.name, item.name),
     rawJson: safeJson(item)
   };
@@ -238,28 +264,40 @@ function extractSubscriberDateFromRaw(rawJson) {
   catch { return ''; }
 }
 
+function extractRecentSubscriberDateFromRaw(rawJson) {
+  if (!rawJson) return '';
+  try { return findRecentSubscriberDate(JSON.parse(rawJson)); }
+  catch { return ''; }
+}
+
 function findSubscriberDate(value) {
   const candidates = [];
-  visitDateCandidates(value, '', candidates, 0);
+  visitDateCandidates(value, '', candidates, 0, isLikelySubscriberDateKey);
   return firstString(...candidates);
 }
 
-function visitDateCandidates(value, keyPath, candidates, depth) {
+function findRecentSubscriberDate(value) {
+  const candidates = [];
+  visitDateCandidates(value, '', candidates, 0, isLikelyRecentSubscriberDateKey);
+  return firstString(...candidates);
+}
+
+function visitDateCandidates(value, keyPath, candidates, depth, matcher) {
   if (value == null || depth > 8 || candidates.length > 6) return;
   if (Array.isArray(value)) {
-    for (const item of value) visitDateCandidates(item, keyPath, candidates, depth + 1);
+    for (const item of value) visitDateCandidates(item, keyPath, candidates, depth + 1, matcher);
     return;
   }
   if (typeof value !== 'object') {
-    const normalized = isLikelySubscriberDateKey(keyPath) ? normalizeDateValue(value) : '';
+    const normalized = matcher(keyPath) ? normalizeDateValue(value) : '';
     if (normalized) candidates.push(normalized);
     return;
   }
   for (const [key, child] of Object.entries(value)) {
     const nextPath = keyPath ? `${keyPath}.${key}` : key;
-    const normalized = isLikelySubscriberDateKey(nextPath) ? normalizeDateValue(child) : '';
+    const normalized = matcher(nextPath) ? normalizeDateValue(child) : '';
     if (normalized) candidates.push(normalized);
-    visitDateCandidates(child, nextPath, candidates, depth + 1);
+    visitDateCandidates(child, nextPath, candidates, depth + 1, matcher);
   }
 }
 
@@ -268,6 +306,22 @@ function isLikelySubscriberDateKey(keyPath) {
   const domainHint = /subscribe|subscription|membership|member|sponsor|support|created|registered|joined|start/.test(key);
   const dateHint = /date|time|created|registered|joined|start|at$/.test(key);
   return domainHint && dateHint;
+}
+
+function isLikelyRecentSubscriberDateKey(keyPath) {
+  const key = String(keyPath).toLowerCase();
+  const recencyHint = /recent|latest|last|renew|renewal|payment|paid|billing/.test(key);
+  const domainHint = /subscribe|subscription|membership|member|sponsor|support|fan|payment|paid|billing/.test(key);
+  const dateHint = /date|time|created|registered|joined|start|at$/.test(key);
+  return recencyHint && domainHint && dateHint;
+}
+
+function addColumnIfMissing(db, table, definition) {
+  try {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${definition}`);
+  } catch (error) {
+    if (!/duplicate column name/i.test(String(error.message))) throw error;
+  }
 }
 
 function normalizeDateValue(value) {

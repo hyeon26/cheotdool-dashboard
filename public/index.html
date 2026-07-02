@@ -623,11 +623,12 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
                 <th>&#45769;&#45348;&#51076;</th>
                 <th>&#44396;&#46021; &#46321;&#47197;&#51068;</th>
                 <th>&#44592;&#44036;</th>
+                <th>&#52572;&#44540; &#44396;&#46021;&#51068;</th>
                 <th>&#46321;&#44553;</th>
               </tr>
             </thead>
             <tbody id="subscribers-list">
-              <tr><td colspan="4" class="followers-empty">&#48520;&#47084;&#50724;&#45716; &#51473;...</td></tr>
+              <tr><td colspan="5" class="followers-empty">&#48520;&#47084;&#50724;&#45716; &#51473;...</td></tr>
             </tbody>
           </table>
         </div>
@@ -3610,6 +3611,7 @@ function extractSubscriberRecord(item = {}) {
     nickname: user.nickname || item.nickname || '',
     profileImageUrl: user.profileImageUrl || item.profileImageUrl || '',
     subscribeDate: item.subscribeDate || item.subscriptionDate || item.createdAt || '',
+    recentSubscribeDate: item.recentSubscribeDate || item.recentSubscriptionDate || item.latestSubscribeDate || item.lastSubscribeDate || item.lastSubscriptionDate || item.renewalDate || item.renewedAt || item.lastPaymentDate || '',
     tier: item.tier || item.grade || item.productName || ''
   };
 }
@@ -3628,7 +3630,7 @@ function renderSubscribers(data) {
   renderSubscribersPager();
   if (!list) return;
   if (!rows.length) {
-    list.innerHTML = '<tr><td colspan="4" class="followers-empty">\uad6c\ub3c5\uc790\uac00 \uc5c6\uc5b4\uc694</td></tr>';
+    list.innerHTML = '<tr><td colspan="5" class="followers-empty">\uad6c\ub3c5\uc790\uac00 \uc5c6\uc5b4\uc694</td></tr>';
     return;
   }
   list.innerHTML = rows.map(item => {
@@ -3637,6 +3639,7 @@ function renderSubscribers(data) {
     const image = subscriber.profileImageUrl || '';
     const date = subscriber.subscribeDate || '-';
     const duration = formatFollowerDuration(date);
+    const recentDate = subscriber.recentSubscribeDate || '-';
     const tier = subscriber.tier || '\uad6c\ub3c5';
     const avatar = image
       ? `<img class="follower-avatar" src="${escapeFollowerHtml(image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;follower-avatar&quot;></div>'"/>`
@@ -3645,6 +3648,7 @@ function renderSubscribers(data) {
       <td><div class="follower-user">${avatar}<div><div class="follower-name">${name}</div><div class="follower-muted">${escapeFollowerHtml(subscriber.userId)}</div></div></div></td>
       <td>${escapeFollowerHtml(date)}</td>
       <td>${escapeFollowerHtml(duration)}</td>
+      <td>${escapeFollowerHtml(recentDate)}</td>
       <td><span class="followers-badge">${escapeFollowerHtml(tier)}</span></td>
     </tr>`;
   }).join('');
@@ -3672,11 +3676,11 @@ async function loadSubscribers(reset = false, silent = false) {
   if (reset) subscribersPage = 0;
   subscribersLoading = true;
   const list = document.getElementById('subscribers-list');
-  if (list && !silent) list.innerHTML = '<tr><td colspan="4" class="followers-empty">\ubd88\ub7ec\uc624\ub294 \uc911...</td></tr>';
+  if (list && !silent) list.innerHTML = '<tr><td colspan="5" class="followers-empty">\ubd88\ub7ec\uc624\ub294 \uc911...</td></tr>';
   try {
     renderSubscribers(await fetchSubscribersPage(subscribersPage));
   } catch (err) {
-    if (list) list.innerHTML = `<tr><td colspan="4" class="followers-empty">${escapeFollowerHtml(err.message)}</td></tr>`;
+    if (list) list.innerHTML = `<tr><td colspan="5" class="followers-empty">${escapeFollowerHtml(err.message)}</td></tr>`;
   } finally {
     subscribersLoading = false;
   }
@@ -3762,7 +3766,7 @@ function updateSubscriberSyncStatus(result = {}) {
   const total = Number(sync.total || result.stats?.subscribingTotal || 0).toLocaleString('ko-KR');
   const added = Number(daily.added ?? sync.added ?? 0).toLocaleString('ko-KR');
   const removed = Number(daily.removed ?? sync.removed ?? 0).toLocaleString('ko-KR');
-  status.textContent = `\ub9c8\uc9c0\ub9c9 \ub3d9\uae30\ud654 ${last} - \uc624\ub298 0\uc2dc \uae30\uc900 \ucd94\uac00 ${added}\uba85 - \ucde8\uc18c ${removed}\uba85 - \ucd1d ${total}\uba85`;
+  status.textContent = `\ub9c8\uc9c0\ub9c9 \ub3d9\uae30\ud654 ${last} \u00b7 \uc624\ub298 0\uc2dc \uae30\uc900 \ucd94\uac00 ${added}\uba85 \u00b7 \ucde8\uc18c ${removed}\uba85 \u00b7 \ucd1d ${total}\uba85`;
 }
 
 async function loadSubscriberChangeEvents() {
