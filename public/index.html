@@ -3612,8 +3612,17 @@ function extractSubscriberRecord(item = {}) {
     profileImageUrl: user.profileImageUrl || item.profileImageUrl || '',
     subscribeDate: item.subscribeDate || item.subscriptionDate || item.createdAt || '',
     recentSubscribeDate: item.recentSubscribeDate || item.recentSubscriptionDate || item.latestSubscribeDate || item.lastSubscribeDate || item.lastSubscriptionDate || item.renewalDate || item.renewedAt || item.lastPaymentDate || '',
+    duration: item.duration || item.period || item.subscribePeriod || item.subscriptionPeriod || item.subscribeMonth || item.subscriptionMonth || item.month || item.months || item.totalMonth || item.accumulatedMonth || item.consecutiveMonth || '',
     tier: item.tier || item.grade || item.productName || ''
   };
+}
+
+function formatSubscriberDuration(value) {
+  if (value == null || value === '') return '-';
+  const text = String(value).trim();
+  if (!text) return '-';
+  if (/^\d+$/.test(text)) return `${Number(text).toLocaleString('ko-KR')}\uac1c\uc6d4`;
+  return text;
 }
 
 function renderSubscribers(data) {
@@ -3638,7 +3647,7 @@ function renderSubscribers(data) {
     const name = escapeFollowerHtml(subscriber.nickname || '\uc774\ub984 \uc5c6\uc74c');
     const image = subscriber.profileImageUrl || '';
     const date = subscriber.subscribeDate || '-';
-    const duration = formatFollowerDuration(date);
+    const duration = formatSubscriberDuration(subscriber.duration);
     const recentDate = subscriber.recentSubscribeDate || '-';
     const tier = subscriber.tier || '\uad6c\ub3c5';
     const avatar = image

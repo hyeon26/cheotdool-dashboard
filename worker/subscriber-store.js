@@ -26,6 +26,7 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
       profileImageUrl TEXT DEFAULT '',
       subscribeDate TEXT DEFAULT '',
       recentSubscribeDate TEXT DEFAULT '',
+      duration TEXT DEFAULT '',
       tier TEXT DEFAULT '',
       subscribing INTEGER DEFAULT 1,
       firstSeenAt TEXT NOT NULL,
@@ -48,17 +49,19 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
     CREATE INDEX IF NOT EXISTS idx_subscriber_events_created ON subscriber_events(createdAt DESC, id DESC);
   `);
   addColumnIfMissing(db, 'subscribers', 'recentSubscribeDate TEXT DEFAULT \'\'');
+  addColumnIfMissing(db, 'subscribers', 'duration TEXT DEFAULT \'\'');
   addColumnIfMissing(db, 'subscriber_events', 'recentSubscribeDate TEXT DEFAULT \'\'');
 
   const listAllSubscribersStmt = db.prepare('SELECT * FROM subscribers');
   const upsertSubscriberStmt = db.prepare(`
-    INSERT INTO subscribers (userId, nickname, profileImageUrl, subscribeDate, recentSubscribeDate, tier, subscribing, firstSeenAt, lastSeenAt, unsubscribedAt, rawJson)
-    VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, '', ?)
+    INSERT INTO subscribers (userId, nickname, profileImageUrl, subscribeDate, recentSubscribeDate, duration, tier, subscribing, firstSeenAt, lastSeenAt, unsubscribedAt, rawJson)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, '', ?)
     ON CONFLICT(userId) DO UPDATE SET
       nickname = excluded.nickname,
       profileImageUrl = excluded.profileImageUrl,
       subscribeDate = excluded.subscribeDate,
       recentSubscribeDate = excluded.recentSubscribeDate,
+      duration = excluded.duration,
       tier = excluded.tier,
       subscribing = 1,
       lastSeenAt = excluded.lastSeenAt,
@@ -132,7 +135,7 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
         insertSubscriberEventStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, 'subscribe', subscriber.subscribeDate, subscriber.recentSubscribeDate, subscriber.tier, now);
         added += 1;
       }
-      upsertSubscriberStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, subscriber.subscribeDate, subscriber.recentSubscribeDate, subscriber.tier, now, now, subscriber.rawJson);
+      upsertSubscriberStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, subscriber.subscribeDate, subscriber.recentSubscribeDate, subscriber.duration, subscriber.tier, now, now, subscriber.rawJson);
     }
 
     if (!isInitialSync) {
@@ -174,6 +177,7 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
       data: filtered.slice(start, start + safeSize).map(row => {
         const subscribeDate = row.subscribeDate || extractSubscriberDateFromRaw(row.rawJson);
         const recentSubscribeDate = row.recentSubscribeDate || extractRecentSubscriberDateFromRaw(row.rawJson);
+        const duration = row.duration || extractSubscriberDurationFromRaw(row.rawJson);
         return {
           user: { userIdHash: row.userId, nickname: row.nickname, profileImageUrl: row.profileImageUrl },
           userIdHash: row.userId,
@@ -181,6 +185,7 @@ export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || p
           profileImageUrl: row.profileImageUrl,
           subscribeDate,
           recentSubscribeDate,
+          duration,
           tier: row.tier
         };
       })
@@ -221,6 +226,16 @@ function normalizeSubscriberItem(item = {}) {
       findSubscriberDate(item)
     ),
     recentSubscribeDate: firstString(
+      subscription.recentSubscribeAt,
+      item.recentSubscribeAt,
+      subscription.recentSubscribedAt,
+      item.recentSubscribedAt,
+      subscription.latestSubscribeAt,
+      item.latestSubscribeAt,
+      subscription.lastSubscribeAt,
+      item.lastSubscribeAt,
+      subscription.lastSubscribedAt,
+      item.lastSubscribedAt,
       subscription.recentSubscribeDate,
       item.recentSubscribeDate,
       subscription.recentSubscriptionDate,
@@ -238,6 +253,31 @@ function normalizeSubscriberItem(item = {}) {
       subscription.lastPaymentDate,
       item.lastPaymentDate,
       findRecentSubscriberDate(item)
+    ),
+    duration: firstString(
+      normalizeDurationValue(subscription.duration),
+      normalizeDurationValue(item.duration),
+      normalizeDurationValue(subscription.period),
+      normalizeDurationValue(item.period),
+      normalizeDurationValue(subscription.subscribePeriod),
+      normalizeDurationValue(item.subscribePeriod),
+      normalizeDurationValue(subscription.subscriptionPeriod),
+      normalizeDurationValue(item.subscriptionPeriod),
+      normalizeDurationValue(subscription.subscribeMonth),
+      normalizeDurationValue(item.subscribeMonth),
+      normalizeDurationValue(subscription.subscriptionMonth),
+      normalizeDurationValue(item.subscriptionMonth),
+      normalizeDurationValue(subscription.month),
+      normalizeDurationValue(item.month),
+      normalizeDurationValue(subscription.months),
+      normalizeDurationValue(item.months),
+      normalizeDurationValue(subscription.totalMonth),
+      normalizeDurationValue(item.totalMonth),
+      normalizeDurationValue(subscription.accumulatedMonth),
+      normalizeDurationValue(item.accumulatedMonth),
+      normalizeDurationValue(subscription.consecutiveMonth),
+      normalizeDurationValue(item.consecutiveMonth),
+      extractSubscriberDurationFromRaw(safeJson(item))
     ),
     tier: firstString(subscription.tier, item.tier, subscription.grade, item.grade, subscription.productName, item.productName, subscription.name, item.name),
     rawJson: safeJson(item)
@@ -270,6 +310,12 @@ function extractRecentSubscriberDateFromRaw(rawJson) {
   catch { return ''; }
 }
 
+function extractSubscriberDurationFromRaw(rawJson) {
+  if (!rawJson) return '';
+  try { return findSubscriberDuration(JSON.parse(rawJson)); }
+  catch { return ''; }
+}
+
 function findSubscriberDate(value) {
   const candidates = [];
   visitDateCandidates(value, '', candidates, 0, isLikelySubscriberDateKey);
@@ -279,6 +325,12 @@ function findSubscriberDate(value) {
 function findRecentSubscriberDate(value) {
   const candidates = [];
   visitDateCandidates(value, '', candidates, 0, isLikelyRecentSubscriberDateKey);
+  return firstString(...candidates);
+}
+
+function findSubscriberDuration(value) {
+  const candidates = [];
+  visitDurationCandidates(value, '', candidates, 0);
   return firstString(...candidates);
 }
 
@@ -310,7 +362,7 @@ function isLikelySubscriberDateKey(keyPath) {
 
 function isLikelyRecentSubscriberDateKey(keyPath) {
   const key = String(keyPath).toLowerCase();
-  const recencyHint = /recent|latest|last|renew|renewal|payment|paid|billing/.test(key);
+  const recencyHint = /recent|latest|last|renew|renewal|payment|paid|billing|subscribeat|subscribedat/.test(key);
   const domainHint = /subscribe|subscription|membership|member|sponsor|support|fan|payment|paid|billing/.test(key);
   const dateHint = /date|time|created|registered|joined|start|at$/.test(key);
   return recencyHint && domainHint && dateHint;
@@ -322,6 +374,50 @@ function addColumnIfMissing(db, table, definition) {
   } catch (error) {
     if (!/duplicate column name/i.test(String(error.message))) throw error;
   }
+}
+
+function visitDurationCandidates(value, keyPath, candidates, depth) {
+  if (value == null || depth > 8 || candidates.length > 6) return;
+  if (Array.isArray(value)) {
+    for (const item of value) visitDurationCandidates(item, keyPath, candidates, depth + 1);
+    return;
+  }
+  if (typeof value !== 'object') {
+    if (isLikelySubscriberDurationKey(keyPath)) {
+      const normalized = normalizeDurationValue(value);
+      if (normalized) candidates.push(normalized);
+    }
+    return;
+  }
+  for (const [key, child] of Object.entries(value)) {
+    const nextPath = keyPath ? `${keyPath}.${key}` : key;
+    if (isLikelySubscriberDurationKey(nextPath)) {
+      const normalized = normalizeDurationValue(child);
+      if (normalized) candidates.push(normalized);
+    }
+    visitDurationCandidates(child, nextPath, candidates, depth + 1);
+  }
+}
+
+function isLikelySubscriberDurationKey(keyPath) {
+  const key = String(keyPath).toLowerCase();
+  const domainHint = /subscribe|subscription|membership|member|sponsor|support|fan/.test(key);
+  const durationHint = /duration|period|month|months|term|count|round|cycle/.test(key);
+  return domainHint && durationHint;
+}
+
+function normalizeDurationValue(value) {
+  if (value == null) return '';
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value > 0 && value < 1000 ? `${Math.trunc(value)}\uac1c\uc6d4` : '';
+  }
+  const text = String(value).trim();
+  if (!text) return '';
+  if (/^\d+$/.test(text)) {
+    const num = Number(text);
+    return num > 0 && num < 1000 ? `${num}\uac1c\uc6d4` : '';
+  }
+  return text;
 }
 
 function normalizeDateValue(value) {
