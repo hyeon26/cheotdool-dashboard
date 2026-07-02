@@ -14,6 +14,7 @@
     { "source": "/tools", "destination": "/index.html" },
     { "source": "/chat", "destination": "/index.html" },
     { "source": "/followers", "destination": "/index.html" },
+    { "source": "/subscribers", "destination": "/index.html" },
     { "source": "/clips", "destination": "/index.html" },
     { "source": "/vote", "destination": "/vote.html" },
     { "source": "/logs", "destination": "/logs.html" },
