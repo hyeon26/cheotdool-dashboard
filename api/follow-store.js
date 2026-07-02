@@ -1,8 +1,10 @@
 export default async function handler(req, res) {
-  const origin = process.env.CHAT_STORE_ORIGIN;
-  if (!origin) {
-    return res.status(500).json({ error: 'CHAT_STORE_ORIGIN is not set' });
-  }
+  const service = Array.isArray(req.query.service) ? req.query.service[0] : (req.query.service || 'follower');
+  const serviceConfig = getServiceConfig(service);
+  if (!serviceConfig) return res.status(400).json({ error: 'invalid service' });
+
+  const origin = serviceConfig.origin;
+  if (!origin) return res.status(500).json({ error: `${serviceConfig.envName} is not set` });
 
   const path = Array.isArray(req.query.path) ? req.query.path[0] : (req.query.path || '/health');
   if (!String(path).startsWith('/')) return res.status(400).json({ error: 'invalid path' });
@@ -11,18 +13,18 @@ export default async function handler(req, res) {
   try {
     target = buildTargetUrl(origin, path);
   } catch {
-    return res.status(500).json({ error: 'invalid CHAT_STORE_ORIGIN' });
+    return res.status(500).json({ error: `invalid ${serviceConfig.envName}` });
   }
 
   for (const [key, value] of Object.entries(req.query)) {
-    if (key === 'path') continue;
+    if (key === 'path' || key === 'service') continue;
     if (Array.isArray(value)) value.forEach(item => target.searchParams.append(key, item));
     else if (value != null) target.searchParams.set(key, value);
   }
 
   const headers = { 'Accept': 'application/json' };
   if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
-  if (process.env.CHAT_API_TOKEN) headers['X-Chat-Api-Token'] = process.env.CHAT_API_TOKEN;
+  if (serviceConfig.token) headers['X-Chat-Api-Token'] = serviceConfig.token;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
@@ -41,13 +43,34 @@ export default async function handler(req, res) {
     res.send(text);
   } catch (error) {
     const message = error.name === 'AbortError'
-      ? 'chat-api request timed out'
-      : `chat-api request failed: ${error.message}`;
-    res.status(502).json({ error: message, service: 'chat-api', origin });
+      ? `${serviceConfig.name} request timed out`
+      : `${serviceConfig.name} request failed: ${error.message}`;
+    res.status(502).json({ error: message, service: serviceConfig.name, origin });
   } finally {
     clearTimeout(timeout);
   }
 }
+
+function getServiceConfig(service) {
+  if (service === 'follower') {
+    return {
+      name: 'follower-sync',
+      envName: 'FOLLOWER_SYNC_ORIGIN',
+      origin: process.env.FOLLOWER_SYNC_ORIGIN,
+      token: process.env.FOLLOWER_SYNC_TOKEN || process.env.CHAT_API_TOKEN
+    };
+  }
+  if (service === 'subscriber') {
+    return {
+      name: 'subscriber-sync',
+      envName: 'SUBSCRIBER_SYNC_ORIGIN',
+      origin: process.env.SUBSCRIBER_SYNC_ORIGIN,
+      token: process.env.SUBSCRIBER_SYNC_TOKEN || process.env.CHAT_API_TOKEN
+    };
+  }
+  return null;
+}
+
 function buildTargetUrl(origin, path) {
   const target = new URL(origin);
   const basePath = target.pathname.replace(/\/+$/, '');

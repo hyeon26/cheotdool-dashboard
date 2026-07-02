@@ -8,7 +8,8 @@
     "follower-sync": "node worker/follower-sync.js",
     "migrate:kst": "node worker/migrate-kst-timestamps.js",
     "normalize:chat": "node worker/normalize-chat-history.js",
-    "import:firebase": "node worker/import-firebase-export.js"
+    "import:firebase": "node worker/import-firebase-export.js",
+    "subscriber-sync": "node worker/subscriber-sync.js"
   },
   "dependencies": {
     "ws": "^8.18.3"

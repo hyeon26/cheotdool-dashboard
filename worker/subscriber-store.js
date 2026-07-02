@@ -1,0 +1,236 @@
+import { mkdirSync } from 'node:fs';
+import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+
+const DEFAULT_DB_PATH = path.join(process.cwd(), 'data', 'chat.db');
+const KST_TIME_ZONE = 'Asia/Seoul';
+const KST_DATE_FORMATTER = new Intl.DateTimeFormat('en-CA', {
+  timeZone: KST_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23'
+});
+
+export function openSubscriberStore(dbPath = process.env.SUBSCRIBER_DB_PATH || process.env.CHAT_DB_PATH || DEFAULT_DB_PATH) {
+  mkdirSync(path.dirname(dbPath), { recursive: true });
+  const db = new DatabaseSync(dbPath);
+  db.exec('PRAGMA journal_mode = WAL');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS subscribers (
+      userId TEXT PRIMARY KEY,
+      nickname TEXT DEFAULT '',
+      profileImageUrl TEXT DEFAULT '',
+      subscribeDate TEXT DEFAULT '',
+      tier TEXT DEFAULT '',
+      subscribing INTEGER DEFAULT 1,
+      firstSeenAt TEXT NOT NULL,
+      lastSeenAt TEXT NOT NULL,
+      unsubscribedAt TEXT DEFAULT '',
+      rawJson TEXT DEFAULT ''
+    );
+    CREATE INDEX IF NOT EXISTS idx_subscribers_subscribing_seen ON subscribers(subscribing, lastSeenAt);
+    CREATE TABLE IF NOT EXISTS subscriber_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId TEXT NOT NULL,
+      nickname TEXT DEFAULT '',
+      profileImageUrl TEXT DEFAULT '',
+      type TEXT NOT NULL,
+      subscribeDate TEXT DEFAULT '',
+      tier TEXT DEFAULT '',
+      createdAt TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_subscriber_events_created ON subscriber_events(createdAt DESC, id DESC);
+  `);
+
+  const listAllSubscribersStmt = db.prepare('SELECT * FROM subscribers');
+  const upsertSubscriberStmt = db.prepare(`
+    INSERT INTO subscribers (userId, nickname, profileImageUrl, subscribeDate, tier, subscribing, firstSeenAt, lastSeenAt, unsubscribedAt, rawJson)
+    VALUES (?, ?, ?, ?, ?, 1, ?, ?, '', ?)
+    ON CONFLICT(userId) DO UPDATE SET
+      nickname = excluded.nickname,
+      profileImageUrl = excluded.profileImageUrl,
+      subscribeDate = excluded.subscribeDate,
+      tier = excluded.tier,
+      subscribing = 1,
+      lastSeenAt = excluded.lastSeenAt,
+      unsubscribedAt = '',
+      rawJson = excluded.rawJson
+  `);
+  const markSubscriberUnsubscribedStmt = db.prepare(`
+    UPDATE subscribers
+    SET subscribing = 0, lastSeenAt = ?, unsubscribedAt = ?
+    WHERE userId = ?
+  `);
+  const insertSubscriberEventStmt = db.prepare(`
+    INSERT INTO subscriber_events (userId, nickname, profileImageUrl, type, subscribeDate, tier, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+  const listSubscriberEventsStmt = db.prepare(`
+    SELECT * FROM subscriber_events
+    ORDER BY createdAt DESC, id DESC
+    LIMIT ?
+  `);
+  const subscriberDailyStatsStmt = db.prepare(`
+    SELECT
+      COALESCE(SUM(CASE WHEN type = 'subscribe' THEN 1 ELSE 0 END), 0) AS added,
+      COALESCE(SUM(CASE WHEN type = 'unsubscribe' THEN 1 ELSE 0 END), 0) AS removed,
+      COUNT(*) AS changes
+    FROM subscriber_events
+    WHERE createdAt >= ?
+  `);
+  const subscriberStatsStmt = db.prepare(`
+    SELECT
+      COUNT(*) AS knownTotal,
+      COALESCE(SUM(CASE WHEN subscribing = 1 THEN 1 ELSE 0 END), 0) AS subscribingTotal,
+      COALESCE(SUM(CASE WHEN subscribing = 0 THEN 1 ELSE 0 END), 0) AS unsubscribedTotal
+    FROM subscribers
+  `);
+  const listCurrentSubscribersStmt = db.prepare(`
+    SELECT * FROM subscribers
+    WHERE subscribing = 1
+    ORDER BY subscribeDate DESC, lastSeenAt DESC, nickname ASC
+  `);
+
+  function syncSubscribers(items = []) {
+    const now = kstISOString();
+    const incoming = new Map();
+    for (const item of Array.isArray(items) ? items : []) {
+      const subscriber = normalizeSubscriberItem(item);
+      if (subscriber.userId) incoming.set(subscriber.userId, subscriber);
+    }
+
+    const existingRows = listAllSubscribersStmt.all();
+    if (incoming.size === 0 && existingRows.length > 0) {
+      return {
+        total: 0,
+        added: 0,
+        removed: 0,
+        changes: 0,
+        skipped: true,
+        events: listSubscriberEvents(100),
+        dailyStats: getSubscriberDailyStats()
+      };
+    }
+
+    const existing = new Map(existingRows.map(row => [row.userId, row]));
+    const isInitialSync = existingRows.length === 0;
+    let added = 0;
+    let removed = 0;
+
+    for (const subscriber of incoming.values()) {
+      const previous = existing.get(subscriber.userId);
+      if (!isInitialSync && (!previous || Number(previous.subscribing) === 0)) {
+        insertSubscriberEventStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, 'subscribe', subscriber.subscribeDate, subscriber.tier, now);
+        added += 1;
+      }
+      upsertSubscriberStmt.run(subscriber.userId, subscriber.nickname, subscriber.profileImageUrl, subscriber.subscribeDate, subscriber.tier, now, now, subscriber.rawJson);
+    }
+
+    if (!isInitialSync) {
+      for (const row of existingRows) {
+        if (Number(row.subscribing) !== 1 || incoming.has(row.userId)) continue;
+        markSubscriberUnsubscribedStmt.run(now, now, row.userId);
+        insertSubscriberEventStmt.run(row.userId, stringValue(row.nickname), stringValue(row.profileImageUrl), 'unsubscribe', stringValue(row.subscribeDate), stringValue(row.tier), now);
+        removed += 1;
+      }
+    }
+
+    return {
+      total: incoming.size,
+      added,
+      removed,
+      changes: added + removed,
+      events: listSubscriberEvents(100),
+      dailyStats: getSubscriberDailyStats()
+    };
+  }
+
+  function listSubscriberEvents(limit = 100) {
+    const safeLimit = Math.max(1, Math.min(300, Number(limit) || 100));
+    return listSubscriberEventsStmt.all(safeLimit);
+  }
+
+  function listSubscribers({ page = 0, size = 50, query = '' } = {}) {
+    const safePage = Math.max(0, Number(page) || 0);
+    const safeSize = Math.max(1, Math.min(100, Number(size) || 50));
+    const keyword = normalizeSearchText(query);
+    const rows = listCurrentSubscribersStmt.all();
+    const filtered = keyword ? rows.filter(row => normalizeSearchText(row.nickname).includes(keyword)) : rows;
+    const start = safePage * safeSize;
+    return {
+      page: safePage,
+      size: safeSize,
+      totalCount: filtered.length,
+      totalPages: Math.max(1, Math.ceil(filtered.length / safeSize)),
+      data: filtered.slice(start, start + safeSize).map(row => ({
+        user: { userIdHash: row.userId, nickname: row.nickname, profileImageUrl: row.profileImageUrl },
+        userIdHash: row.userId,
+        nickname: row.nickname,
+        profileImageUrl: row.profileImageUrl,
+        subscribeDate: row.subscribeDate,
+        tier: row.tier
+      }))
+    };
+  }
+
+  function getSubscriberStats() {
+    return subscriberStatsStmt.get();
+  }
+
+  function getSubscriberDailyStats(date = new Date()) {
+    const since = kstDateStartISOString(date);
+    const row = subscriberDailyStatsStmt.get(since) || {};
+    return { since, added: Number(row.added || 0), removed: Number(row.removed || 0), changes: Number(row.changes || 0) };
+  }
+
+  return { db, syncSubscribers, listSubscribers, listSubscriberEvents, getSubscriberStats, getSubscriberDailyStats };
+}
+
+function normalizeSubscriberItem(item = {}) {
+  const user = item.user || item.member || item.channel || item.profile || item;
+  const subscription = item.subscription || item.subscriber || item;
+  return {
+    userId: firstString(user.userIdHash, item.userIdHash, user.userId, item.userId, user.memberNo, item.memberNo, user.channelId, item.channelId, user.id, item.id),
+    nickname: firstString(user.nickname, user.nickName, item.nickname, item.nickName, user.channelName, item.channelName),
+    profileImageUrl: firstString(user.profileImageUrl, item.profileImageUrl, user.profileImage, item.profileImage, user.imageUrl, item.imageUrl),
+    subscribeDate: firstString(subscription.subscribeDate, item.subscribeDate, subscription.subscriptionDate, item.subscriptionDate, subscription.createdAt, item.createdAt, subscription.startDate, item.startDate),
+    tier: firstString(subscription.tier, item.tier, subscription.grade, item.grade, subscription.productName, item.productName, subscription.name, item.name),
+    rawJson: safeJson(item)
+  };
+}
+
+function firstString(...values) {
+  for (const value of values) {
+    if (value == null) continue;
+    const text = String(value).trim();
+    if (text) return text;
+  }
+  return '';
+}
+
+function safeJson(value) {
+  try { return JSON.stringify(value).slice(0, 8000); }
+  catch { return ''; }
+}
+
+function stringValue(value) {
+  return value == null ? '' : String(value);
+}
+
+function normalizeSearchText(value) {
+  return stringValue(value).trim().toLocaleLowerCase('ko-KR').replace(/\s+/g, '');
+}
+
+function kstDateStartISOString(date = new Date()) {
+  const parts = Object.fromEntries(KST_DATE_FORMATTER.formatToParts(date).map(part => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T00:00:00+09:00`;
+}
+
+function kstISOString(date = new Date()) {
+  const parts = Object.fromEntries(KST_DATE_FORMATTER.formatToParts(date).map(part => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+09:00`;
+}

@@ -460,6 +460,7 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
   <div class="tab" onclick="switchTab('tools',this)"><span class="tab-icon">🔗</span><span class="tab-label">사이트</span></div>
   <div class="tab" onclick="switchTab('chat',this)"><span class="tab-icon">💬</span><span class="tab-label">채팅 수집</span></div>
   <div class="tab" onclick="switchTab('followers',this)"><span class="tab-icon">👥</span><span class="tab-label">팔로워</span></div>
+  <div class="tab" onclick="switchTab('subscribers',this)"><span class="tab-icon">&#11088;</span><span class="tab-label">&#44396;&#46021;&#51088;</span></div>
   <div class="tab" onclick="switchTab('clips',this)"><span class="tab-icon">🎞</span><span class="tab-label">클립</span></div>
 </div>
 <div class="page">
@@ -597,6 +598,53 @@ body{font-family:'Omyu Pretty',-apple-system,BlinkMacSystemFont,system-ui,sans-s
         </div>
         <div id="followers-sync-status" class="followers-sync-status">변경 내역을 불러오는 중...</div>
         <div id="followers-changes-list" class="followers-change-list"></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-subscribers" class="tab-content">
+    <div class="followers-layout">
+      <div class="followers-panel">
+        <div class="followers-head">
+          <div>
+            <div class="followers-title">&#44396;&#46021;&#51088;</div>
+            <div class="followers-sub">&#52509; <span id="subscribers-total">0</span>&#47749;</div>
+          </div>
+          <button type="button" class="chat-btn followers-refresh" onclick="refreshSubscribers()">&#44081;&#49888;</button>
+        </div>
+        <div class="followers-search">
+          <input id="subscribers-search" type="text" placeholder="&#45769;&#45348;&#51076; &#44160;&#49353;" onkeydown="if(event.key==='Enter') searchSubscribers()"/>
+          <button type="button" class="chat-btn" onclick="searchSubscribers()" style="background:var(--accent);color:#fff">&#44160;&#49353;</button>
+          <button type="button" class="chat-btn" onclick="clearSubscribersSearch()" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border2)">&#52488;&#44592;&#54868;</button>
+        </div>
+        <div class="followers-table-wrap">
+          <table class="followers-table">
+            <thead>
+              <tr>
+                <th>&#45769;&#45348;&#51076;</th>
+                <th>&#44396;&#46021; &#46321;&#47197;&#51068;</th>
+                <th>&#44592;&#44036;</th>
+                <th>&#46321;&#44553;</th>
+              </tr>
+            </thead>
+            <tbody id="subscribers-list">
+              <tr><td colspan="4" class="followers-empty">&#48520;&#47084;&#50724;&#45716; &#51473;...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="followers-pager">
+          <button type="button" class="chat-btn" onclick="moveSubscribersPage(-1)">&#51060;&#51204;</button>
+          <div id="subscribers-page-buttons" class="followers-page-buttons"></div>
+          <button type="button" class="chat-btn" onclick="moveSubscribersPage(1)">&#45796;&#51020;</button>
+          <span id="subscribers-page-info" class="followers-page-info">1 / 1</span>
+        </div>
+      </div>
+      <div class="followers-changes-panel">
+        <div class="followers-change-head">
+          <div class="followers-change-title">&#52572;&#44540; &#48320;&#44221; &#45236;&#50669;</div>
+          <button type="button" class="chat-btn" onclick="syncSubscribersWithOracle(true)">&#46041;&#44592;&#54868;</button>
+        </div>
+        <div id="subscribers-sync-status" class="followers-sync-status">&#48320;&#44221; &#45236;&#50669;&#51012; &#48520;&#47084;&#50724;&#45716; &#51473;...</div>
+        <div id="subscribers-changes-list" class="followers-change-list"></div>
       </div>
     </div>
   </div>
@@ -1035,13 +1083,25 @@ async function chatStoreRequest(path, options={}){
   return res.json();
 }
 async function followerSyncRequest(path, options={}){
-  const res = await fetch(`/api/chat-store?service=follower&path=${encodeURIComponent(path)}`, {
+  const res = await fetch(`/api/follow-store?service=follower&path=${encodeURIComponent(path)}`, {
     method: options.method || 'GET',
     headers: options.body ? {'Content-Type':'application/json'} : undefined,
     body: options.body ? JSON.stringify(options.body) : undefined
   });
   if(!res.ok){
-    const text = await res.text().catch(()=>'');
+    const text = await res.text().catch(()=> '');
+    throw new Error(text || res.status);
+  }
+  return res.json();
+}
+async function subscriberSyncRequest(path, options={}){
+  const res = await fetch(`/api/follow-store?service=subscriber&path=${encodeURIComponent(path)}`, {
+    method: options.method || 'GET',
+    headers: options.body ? {'Content-Type':'application/json'} : undefined,
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+  if(!res.ok){
+    const text = await res.text().catch(()=> '');
     throw new Error(text || res.status);
   }
   return res.json();
@@ -3532,6 +3592,233 @@ function stopFollowersAutoRefresh() {
   if (followersRefreshTimer) clearInterval(followersRefreshTimer);
   followersRefreshTimer = null;
 }
+
+
+
+let subscribersPage = 0;
+let subscribersSize = 50;
+let subscribersTotalPages = 1;
+let subscribersQuery = '';
+let subscribersLoading = false;
+let subscribersRefreshTimer = null;
+let subscribersSyncing = false;
+
+function extractSubscriberRecord(item = {}) {
+  const user = item.user || item;
+  return {
+    userId: user.userIdHash || user.userId || item.userIdHash || item.userId || '',
+    nickname: user.nickname || item.nickname || '',
+    profileImageUrl: user.profileImageUrl || item.profileImageUrl || '',
+    subscribeDate: item.subscribeDate || item.subscriptionDate || item.createdAt || '',
+    tier: item.tier || item.grade || item.productName || ''
+  };
+}
+
+function renderSubscribers(data) {
+  const content = data?.content || {};
+  const rows = Array.isArray(content.data) ? content.data : [];
+  subscribersTotalPages = Math.max(1, Number(content.totalPages || 1));
+  subscribersPage = Number(content.page || subscribersPage || 0);
+  const total = Number(content.totalCount || 0);
+  const totalEl = document.getElementById('subscribers-total');
+  const pageEl = document.getElementById('subscribers-page-info');
+  const list = document.getElementById('subscribers-list');
+  if (totalEl) totalEl.textContent = total.toLocaleString('ko-KR');
+  if (pageEl) pageEl.textContent = `${subscribersPage + 1} / ${subscribersTotalPages}`;
+  renderSubscribersPager();
+  if (!list) return;
+  if (!rows.length) {
+    list.innerHTML = '<tr><td colspan="4" class="followers-empty">\uad6c\ub3c5\uc790\uac00 \uc5c6\uc5b4\uc694</td></tr>';
+    return;
+  }
+  list.innerHTML = rows.map(item => {
+    const subscriber = extractSubscriberRecord(item);
+    const name = escapeFollowerHtml(subscriber.nickname || '\uc774\ub984 \uc5c6\uc74c');
+    const image = subscriber.profileImageUrl || '';
+    const date = subscriber.subscribeDate || '-';
+    const duration = formatFollowerDuration(date);
+    const tier = subscriber.tier || '\uad6c\ub3c5';
+    const avatar = image
+      ? `<img class="follower-avatar" src="${escapeFollowerHtml(image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;follower-avatar&quot;></div>'"/>`
+      : '<div class="follower-avatar"></div>';
+    return `<tr>
+      <td><div class="follower-user">${avatar}<div><div class="follower-name">${name}</div><div class="follower-muted">${escapeFollowerHtml(subscriber.userId)}</div></div></div></td>
+      <td>${escapeFollowerHtml(date)}</td>
+      <td>${escapeFollowerHtml(duration)}</td>
+      <td><span class="followers-badge">${escapeFollowerHtml(tier)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSubscribersPager() {
+  const holder = document.getElementById('subscribers-page-buttons');
+  if (!holder) return;
+  const blockStart = Math.floor(subscribersPage / 10) * 10;
+  const blockEnd = Math.min(subscribersTotalPages, blockStart + 10);
+  holder.innerHTML = Array.from({ length: Math.max(0, blockEnd - blockStart) }, (_, i) => {
+    const page = blockStart + i;
+    const active = page === subscribersPage ? ' active' : '';
+    return `<button type="button" class="followers-page-btn${active}" onclick="goSubscribersPage(${page})">${page + 1}</button>`;
+  }).join('');
+}
+
+async function fetchSubscribersPage(page, size = subscribersSize, query = subscribersQuery) {
+  const params = new URLSearchParams({ page: String(page), size: String(size), userNickname: query || '' });
+  return subscriberSyncRequest(`/subscribers?${params.toString()}`);
+}
+
+async function loadSubscribers(reset = false, silent = false) {
+  if (subscribersLoading) return;
+  if (reset) subscribersPage = 0;
+  subscribersLoading = true;
+  const list = document.getElementById('subscribers-list');
+  if (list && !silent) list.innerHTML = '<tr><td colspan="4" class="followers-empty">\ubd88\ub7ec\uc624\ub294 \uc911...</td></tr>';
+  try {
+    renderSubscribers(await fetchSubscribersPage(subscribersPage));
+  } catch (err) {
+    if (list) list.innerHTML = `<tr><td colspan="4" class="followers-empty">${escapeFollowerHtml(err.message)}</td></tr>`;
+  } finally {
+    subscribersLoading = false;
+  }
+}
+
+function searchSubscribers() {
+  subscribersQuery = document.getElementById('subscribers-search')?.value.trim() || '';
+  subscribersPage = 0;
+  loadSubscribers();
+}
+
+function clearSubscribersSearch() {
+  const input = document.getElementById('subscribers-search');
+  if (input) input.value = '';
+  subscribersQuery = '';
+  subscribersPage = 0;
+  loadSubscribers();
+}
+
+function goSubscribersPage(page) {
+  const next = Math.max(0, Math.min(subscribersTotalPages - 1, Number(page) || 0));
+  if (next === subscribersPage) return;
+  subscribersPage = next;
+  loadSubscribers();
+}
+
+function moveSubscribersPage(delta) {
+  const blockStart = Math.floor(subscribersPage / 10) * 10;
+  const target = delta > 0 ? blockStart + 10 : blockStart - 10;
+  goSubscribersPage(target);
+}
+
+function renderSubscriberChangeEvents(events = []) {
+  const list = document.getElementById('subscribers-changes-list');
+  if (!list) return;
+  if (!events.length) {
+    list.innerHTML = '<div class="followers-empty">\uc544\uc9c1 \uae30\ub85d\ub41c \ubcc0\uacbd \ub0b4\uc5ed\uc774 \uc5c6\uc5b4\uc694</div>';
+    return;
+  }
+  list.innerHTML = events.map(event => {
+    const type = event.type === 'unsubscribe' ? 'unfollow' : 'follow';
+    const label = event.type === 'unsubscribe' ? '\uad6c\ub3c5 \ucde8\uc18c' : '\uc0c8 \uad6c\ub3c5';
+    const image = event.profileImageUrl || '';
+    const avatar = image
+      ? `<img class="followers-change-avatar" src="${escapeFollowerHtml(image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;followers-change-avatar&quot;></div>'"/>`
+      : '<div class="followers-change-avatar"></div>';
+    return `<div class="followers-change-item ${type}">
+      ${avatar}
+      <div class="followers-change-body">
+        <div class="followers-change-name">${escapeFollowerHtml(event.nickname || "\uc774\ub984 \uc5c6\uc74c")}</div>
+        <div class="followers-change-meta">${escapeFollowerHtml(formatFollowerEventTime(event.createdAt))}</div>
+      </div>
+      <span class="followers-change-type ${type}">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+async function loadSubscriberSyncStatus() {
+  const status = document.getElementById('subscribers-sync-status');
+  if (!status) return;
+  try {
+    const result = await subscriberSyncRequest('/status');
+    updateSubscriberSyncStatus(result);
+  } catch (err) {
+    status.textContent = `subscriber-sync \uc0c1\ud0dc \ud655\uc778 \uc2e4\ud328: ${err.message}`;
+  }
+}
+
+function updateSubscriberSyncStatus(result = {}) {
+  const status = document.getElementById('subscribers-sync-status');
+  if (!status) return;
+  if (result.running) {
+    status.textContent = '\ub3d9\uae30\ud654 \uc911...';
+    return;
+  }
+  if (result.lastError) {
+    status.textContent = `\ub9c8\uc9c0\ub9c9 \ub3d9\uae30\ud654 \uc2e4\ud328: ${result.lastError}`;
+    return;
+  }
+  const last = result.lastFinishedAt ? formatFollowerEventTime(result.lastFinishedAt) : '\uc544\uc9c1 \uc5c6\uc74c';
+  const sync = result.lastResult || {};
+  const daily = result.dailyStats || sync.dailyStats || {};
+  const total = Number(sync.total || result.stats?.subscribingTotal || 0).toLocaleString('ko-KR');
+  const added = Number(daily.added ?? sync.added ?? 0).toLocaleString('ko-KR');
+  const removed = Number(daily.removed ?? sync.removed ?? 0).toLocaleString('ko-KR');
+  status.textContent = `\ub9c8\uc9c0\ub9c9 \ub3d9\uae30\ud654 ${last} ? \uc624\ub298 0\uc2dc \uae30\uc900 \ucd94\uac00 ${added}\uba85 ? \ucde8\uc18c ${removed}\uba85 ? \ucd1d ${total}\uba85`;
+}
+
+async function loadSubscriberChangeEvents() {
+  const status = document.getElementById('subscribers-sync-status');
+  try {
+    const result = await subscriberSyncRequest('/events?limit=100');
+    renderSubscriberChangeEvents(result.events || []);
+    updateSubscriberSyncStatus(result);
+  } catch (err) {
+    renderSubscriberChangeEvents([]);
+    if (status) status.textContent = `\ubcc0\uacbd \ub0b4\uc5ed \ub85c\ub4dc \uc2e4\ud328: ${err.message}`;
+  }
+}
+
+async function syncSubscribersWithOracle(force = false) {
+  if (subscribersSyncing) return;
+  subscribersSyncing = true;
+  const status = document.getElementById('subscribers-sync-status');
+  if (status) status.textContent = '\ub3d9\uae30\ud654 \uc694\uccad \uc911...';
+  try {
+    const result = await subscriberSyncRequest('/sync', { method: 'POST', body: { force } });
+    updateSubscriberSyncStatus(result);
+    setTimeout(loadSubscriberChangeEvents, 2500);
+  } catch (err) {
+    if (status) status.textContent = `\ub3d9\uae30\ud654 \uc694\uccad \uc2e4\ud328: ${err.message}`;
+  } finally {
+    subscribersSyncing = false;
+  }
+}
+
+async function refreshSubscribers() {
+  await loadSubscribers(true);
+  await loadSubscriberChangeEvents();
+}
+window.loadSubscribers = loadSubscribers;
+window.refreshSubscribers = refreshSubscribers;
+window.searchSubscribers = searchSubscribers;
+window.clearSubscribersSearch = clearSubscribersSearch;
+window.moveSubscribersPage = moveSubscribersPage;
+window.goSubscribersPage = goSubscribersPage;
+window.syncSubscribersWithOracle = syncSubscribersWithOracle;
+function startSubscribersAutoRefresh() {
+  stopSubscribersAutoRefresh();
+  subscribersRefreshTimer = setInterval(() => {
+    if (document.getElementById('tab-subscribers')?.classList.contains('active')) {
+      loadSubscribers(false, true);
+      loadSubscriberChangeEvents();
+    }
+  }, 60000);
+}
+
+function stopSubscribersAutoRefresh() {
+  if (subscribersRefreshTimer) clearInterval(subscribersRefreshTimer);
+  subscribersRefreshTimer = null;
+}
+
 window.switchTab=(name,el)=>{
   if(name==='clips'){ allClipsCache=[]; clipsPage=0; loadClips(true); }
   history.replaceState(null, '', '/' + name);
@@ -3544,6 +3831,7 @@ window.switchTab=(name,el)=>{
   if(name==='tools') loadTools();
   if(name==='chat'){ initChatFilterObserver(); loadMonthlyDonationStats(); }
   if(name==='followers'){ loadFollowers(); loadFollowerChangeEvents(); loadFollowerSyncStatus(); startFollowersAutoRefresh(); } else { stopFollowersAutoRefresh(); }
+  if(name==='subscribers'){ loadSubscribers(); loadSubscriberChangeEvents(); loadSubscriberSyncStatus(); startSubscribersAutoRefresh(); } else { stopSubscribersAutoRefresh(); }
 };
 window.openModal=(id)=>document.getElementById(id).classList.add('open');
 window.closeModal=(id)=>{
@@ -3570,7 +3858,7 @@ initChatFilterObserver();
 // URL 해시로 초기 탭 설정 + ?open= 파라미터로 모달 자동 오픈
 (function(){
   const hash = location.pathname.replace('/','') || 'schedule';
-  const tabs = ['schedule','content','tools','chat','followers','clips'];
+  const tabs = ['schedule','content','tools','chat','followers','subscribers','clips'];
   const target = tabs.includes(hash) ? hash : 'schedule';
 
   const params = new URLSearchParams(location.search);
